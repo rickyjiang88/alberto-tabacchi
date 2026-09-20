@@ -8,7 +8,7 @@ function card(p,i,tag){return `<article class="card">${tag?'<span class="daytag"
 menu.innerHTML=cats.map((c,ci)=>{
  if(c==="Piatti del Giorno"){
    const groups=[["PRIMI PIATTI",0,5],["SECONDI PIATTI",5,9],["CONTORNI",9,12],["PIATTO UNICO",12,13]];
-   return `<section id="s${ci}"><h2>Piatti del Giorno</h2>`+groups.map(g=>`<h3 style="margin:28px 0 12px;font-size:22px">${g[0]}</h3><div class="grid">`+daily.slice(g[1],g[2]).map((p,j)=>card(p,g[1]+j,g[0])).join("")+`</div>`).join("")+`</section>`;
+   return `<section id="s${ci}"><h2>Piatti del Giorno</h2>`+groups.map(g=>`<h3 style="margin:28px 0 12px;font-size:22px">${g[0]}</h3><div class="grid">`+daily.slice(g[1],g[2]).map((p,j)=>card(p,g[1]+j,"")).join("")+`</div>`).join("")+`</section>`;
  }
  return `<section id="s${ci}"><h2>${c}</h2><div class="grid">`+P.map((p,i)=>p[0]===c?card(p,i,""):"").join("")+`</div></section>`;
 }).join("");
