@@ -164,7 +164,7 @@ if(window.pendingShopControl!==undefined)window.applyShopControl(window.pendingS
  const latestSettings=await window.readLatestShopSettings();window.applyShopControl(latestSettings.shopControl);
  const latestDaily=Array.isArray(latestSettings.items)?latestSettings.items:[];
  const availableDaily=new Set(latestDaily.filter(item=>item.available!==false).map(item=>String(item.name||"").trim()));
- const dayItemUnavailable=cart.some(p=>(p[0]==="Piatti del Giorno"&&!availableDaily.has(String(p[1]||"").trim()))||(p[0]==="Lunch Box"&&String(p[2]||"").split(/\s*\\+\s*/).some(name=>!availableDaily.has(name.trim()))));
+ const dayItemUnavailable=cart.some(p=>(p[0]==="Piatti del Giorno"&&!availableDaily.has(String(p[1]||"").trim()))||(p[0]==="Lunch Box"&&String(p[2]||"").split(/\s+\+\s+/).some(name=>!availableDaily.has(name.trim()))));
  if(dayItemUnavailable){alert("Uno dei piatti del giorno scelti non è più disponibile. Aggiorna il negozio e scegli un altro piatto.");return;}
  if(!preorderOpen()){preorderClosedAlert();return;}
  if(!shopControl.pickupTimes.includes(pickupTime)){alert("L'orario di ritiro scelto non è più disponibile. Seleziona un altro orario.");return;}
