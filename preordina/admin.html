@@ -40,7 +40,7 @@ window.statsPeriod="day";window.drawStats=(period,btn)=>{window.statsPeriod=peri
 window.clearOldTestOrders=async()=>{
   if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID){alert("Accedi come amministratore per gestire gli ordini.");return;}
   const dateOf=o=>{
-    if(typeof o.orderDay==="string"&&/^\\d{4}-\\d{2}-\\d{2}$/.test(o.orderDay))return o.orderDay;
+    if(typeof o.orderDay==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(o.orderDay))return o.orderDay;
     try{
       const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(o.createdAt);
       if(!Number.isFinite(d.getTime()))return null;
@@ -55,7 +55,7 @@ window.clearOldTestOrders=async()=>{
   const unknown=allOrders.filter(o=>!dateOf(o));
   if(realDay.length!==1){alert("Operazione sospesa: ho trovato "+realDay.length+" ordini del 22/09/2026, invece di uno. Controlla gli ordini prima di procedere.");return;}
   if(!older.length){alert("Non ci sono ordini antecedenti al 22/09/2026 da eliminare."+(unknown.length?" "+unknown.length+" ordini senza data non sono stati toccati.":""));return;}
-  const ok=confirm("Eliminare DEFINITIVAMENTE "+older.length+" ordini antecedenti al 22/09/2026?\\n\\nL'ordine reale del 22/09/2026 sarà conservato. Non verrà eliminato alcun ordine del 22/09 o successivo. Le statistiche si aggiorneranno. Questa operazione non può essere annullata.");
+  const ok=confirm("Eliminare DEFINITIVAMENTE "+older.length+" ordini antecedenti al 22/09/2026?\n\nL'ordine reale del 22/09/2026 sarà conservato. Non verrà eliminato alcun ordine del 22/09 o successivo. Le statistiche si aggiorneranno. Questa operazione non può essere annullata.");
   if(!ok)return;
   if(prompt('Per confermare, scrivi ELIMINA')!=="ELIMINA")return;
   const button=document.getElementById("clearOldTestOrders");if(button)button.disabled=true;
