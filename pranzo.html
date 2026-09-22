@@ -17,4 +17,37 @@ header .pill{display:inline-flex!important;justify-content:center!important;alig
 <section class="booking" id="prenota"><div class="intro"><div class="eyebrow red">PRENOTAZIONE PRANZO</div><h2>PRENOTA IN<br>POCHI SECONDI.</h2><p>INSERISCI I DATI. PUOI SCEGLIERE GLI ORARI A INTERVALLI DI 15 MINUTI. LO STESSO ORARIO PUÒ ESSERE PRENOTATO DA PIÙ CLIENTI.</p></div><form id="bookingForm"><label>NOME<input id="nome" required autocomplete="name" placeholder="Il tuo nome"></label><label>TELEFONO<input id="telefono" required type="tel" autocomplete="tel" placeholder="Il tuo numero"></label><div class="row"><label>DATA<input id="data" required type="date"></label><label>NUMERO COPERTI<select id="coperti" required><option value="">Scegli</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option value="Più di 10">Più di 10</option></select></label></div><label>ORARIO<select id="orario" required><option value="">Scegli l'orario</option><option>12:00</option><option>12:15</option><option>12:30</option><option>12:45</option><option>13:00</option><option>13:15</option><option>13:30</option><option>13:45</option><option>14:00</option><option>14:15</option><option>14:30</option></select></label><button type="submit">INVIA PRENOTAZIONE →</button><small>LA PRENOTAZIONE VIENE INVIATA DIRETTAMENTE AD ALBERTO SU WHATSAPP.</small></form></section>
 <section style="margin:0;padding:34px 5%;background:#111;color:white;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap"><div><span style="color:#ed1c24;font-weight:800">ALBERTO CARD</span><h2 style="margin:5px 0;font-size:30px">HAI GIÀ ALBERTO CARD?</h2><p style="margin:0">Registrati gratis e accedi alle Flash Promo e ai vantaggi dedicati.</p></div><div class="buttons"><a class="btn outline" href="alberto-card.html#registrati">REGISTRATI GRATIS →</a></div></section><section class="preorder"><div><span>HAI GIÀ SCELTO DAL MENU?</span><h2>PREORDINA SU WHATSAPP.</h2></div><a class="btn" href="https://wa.me/39022896720?text=Ciao%20Alberto%2C%20vorrei%20preordinare%20il%20pranzo." target="_blank" rel="noopener">PREORDINA ORA →</a></section></main>
 <footer id="contatti"><b>ALBERTO</b><span>VIA VALTORTA 44, MILANO</span><a href="tel:022896720">02 289 6720</a><span>LUN–SAB 6:00–19:00</span></footer>
-<script>const f=document.getElementById('bookingForm');const d=document.getElementById('data');const now=new Date();d.min=now.toISOString().split('T')[0];f.addEventListener('submit',e=>{e.preventDefault();const date=new Date(d.value+'T12:00:00');const day=date.getDay();if(day===0){alert('La domenica siamo chiusi. Scegli una data da lunedì a sabato.');return;}const msg=`Ciao Alberto, vorrei prenotare un tavolo per pranzo.%0A%0A*Nome:* ${encodeURIComponent(document.getElementById('nome').value)}%0A*Telefono:* ${encodeURIComponent(document.getElementById('telefono').value)}%0A*Data:* ${encodeURIComponent(d.value)}%0A*Coperti:* ${encodeURIComponent(document.getElementById('coperti').value)}%0A*Orario:* ${encodeURIComponent(document.getElementById('orario').value)}`;window.open('https://wa.me/39022896720?text='+msg,'_blank');});</script><!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"98527ef75d5d446eb2aa6833dab0169e"}'></script><!-- End Cloudflare Web Analytics --></body></html>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,collection,doc,setDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyDSZzzgpqudJFgri4INDm1XQNs4ilR8-SU",authDomain:"alberto-tabacchi.firebaseapp.com",projectId:"alberto-tabacchi",storageBucket:"alberto-tabacchi.firebasestorage.app",messagingSenderId:"619128191346",appId:"1:619128191346:web:192da35141c3f5e30f85eb"};
+const db=getFirestore(initializeApp(firebaseConfig));
+const f=document.getElementById("bookingForm"),d=document.getElementById("data");
+const today=()=>new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+d.min=today();
+let sending=false;
+f.addEventListener("submit",async event=>{
+ event.preventDefault();if(sending)return;
+ const name=document.getElementById("nome").value.trim(),phone=document.getElementById("telefono").value.trim(),dateValue=d.value,covers=document.getElementById("coperti").value,time=document.getElementById("orario").value;
+ const date=new Date(dateValue+"T12:00:00");
+ if(!dateValue||!Number.isFinite(date.getTime())||dateValue<today()){alert("Seleziona una data valida a partire da oggi.");return;}
+ if(date.getDay()===0){alert("La domenica siamo chiusi. Scegli una data da lunedì a sabato.");return;}
+ if(!name||!phone||!covers||!time)return;
+ const msg=`Ciao Alberto, vorrei prenotare un tavolo per pranzo.%0A%0A*Nome:* ${encodeURIComponent(name)}%0A*Telefono:* ${encodeURIComponent(phone)}%0A*Data:* ${encodeURIComponent(dateValue)}%0A*Coperti:* ${encodeURIComponent(covers)}%0A*Orario:* ${encodeURIComponent(time)}`;
+ const waUrl="https://wa.me/39022896720?text="+msg;
+ // Apri subito una scheda con il gesto del cliente: evita il blocco popup dopo il salvataggio asincrono.
+ const waTab=window.open("about:blank","_blank");
+ const btn=f.querySelector('button[type="submit"]');sending=true;btn.disabled=true;
+ try{
+  const ref=doc(collection(db,"orders"));
+  await setDoc(ref,{type:"TABLE_BOOKING",source:"WEBSITE_WHATSAPP",name,phone,date:dateValue,covers:covers==="Più di 10"?covers:Number(covers),time,status:"NUOVO",bookingStatus:"IN ATTESA",createdAt:serverTimestamp()});
+ }catch(error){
+  console.error("Richiesta di prenotazione non registrata nel pannello",error);
+  alert("WhatsApp si aprirà normalmente, ma la richiesta non è stata salvata nel pannello. Invia comunque il messaggio ad Alberto.");
+ }finally{
+  sending=false;btn.disabled=false;
+  if(waTab&&!waTab.closed){waTab.location.replace(waUrl);}
+  else{window.location.href=waUrl;}
+ }
+});
+</script><!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"98527ef75d5d446eb2aa6833dab0169e"}'></script><!-- End Cloudflare Web Analytics --></body></html>
