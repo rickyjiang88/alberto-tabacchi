@@ -48,7 +48,7 @@ window.renderDashboard=()=>{
  const today=todayRome(),rows=allOrders.filter(o=>orderLocalDay(o)===today);
  const active=rows.filter(o=>o.status!=="CONSEGNATO").length,ready=rows.filter(o=>o.status==="PRONTO").length;
  const total=rows.reduce((sum,o)=>sum+Number(o.total||0),0);
- const todayBookings=allBookings.filter(b=>b.date===today),confirmed=todayBookings.filter(b=>["CONFERMATA","ARRIVATO"].includes(b.bookingStatus)),waiting=todayBookings.filter(b=>b.bookingStatus==="IN ATTESA"),counted=bookingTotals(confirmed);const kpis=[["ORDINI RICEVUTI",String(rows.length),"Oggi"],["DA PREPARARE / RITIRARE",String(active),"Ordini ancora attivi"],["PRONTI",String(ready),"In attesa del cliente"],["VALORE PREORDINI","€ "+total.toFixed(2).replace(".",","),"Valore degli ordini, non incasso verificato"],["PRENOTAZIONI CONFERMATE",String(confirmed.length),"Tavoli prenotati oggi"],["COPERTI PRENOTATI",counted.people+(counted.unspecified?" + gruppi da definire":""),counted.unspecified?counted.unspecified+" prenotazioni da oltre 10 coperti":"Confermati, inclusi i clienti arrivati"],["RICHIESTE TAVOLI",String(waiting.length),"Da confermare su WhatsApp"]];
+ const todayBookings=allBookings.filter(b=>b.date===today),confirmed=todayBookings.filter(b=>["CONFERMATA","ARRIVATO"].includes(b.bookingStatus)),waiting=todayBookings.filter(b=>b.bookingStatus==="IN ATTESA"),counted=bookingTotals(confirmed);const kpis=[["ORDINI RICEVUTI",String(rows.length),"Oggi"],["DA PREPARARE / RITIRARE",String(active),"Ordini ancora attivi"],["PRONTI",String(ready),"In attesa del cliente"],["VALORE PREORDINI","€ "+total.toFixed(2).replace(".",","),"Valore degli ordini, non incasso verificato"],["PRENOTAZIONI CONFERMATE",String(confirmed.length),"Tavoli prenotati oggi"],["COPERTI PRENOTATI",counted.people+(counted.unspecified?" + gruppi da definire":""),counted.unspecified?counted.unspecified+" prenotazioni da oltre 10 coperti":"Confermati"],["RICHIESTE TAVOLI",String(waiting.length),"Da confermare su WhatsApp"]];
  document.getElementById("dashKpis").innerHTML=kpis.map(x=>'<div class="dash-tile"><small>'+x[0]+'</small><strong>'+x[1]+'</strong><em>'+x[2]+'</em></div>').join("");
  const esc=s=>String(s??"").replace(/[&<>"]/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[x]));
  document.getElementById("dashRecent").innerHTML=rows.length?rows.slice(0,5).map(o=>'<div><span><b>'+(o.orderNumber?"#"+String(o.orderNumber).padStart(4,"0"):"ORDINE")+'</b> · '+esc(o.name||"")+' · ritiro '+esc(o.time||"")+'</span><small>'+esc(o.status||"NUOVO")+' · € '+Number(o.total||0).toFixed(2).replace(".",",")+'</small></div>').join(""):"Nessun ordine ricevuto oggi.";
@@ -62,15 +62,15 @@ window.renderBookings=()=>{
  const dayEl=document.getElementById("bookingDay"),summary=document.getElementById("bookingSummary"),list=document.getElementById("bookingList");if(!dayEl||!summary||!list)return;
  if(!dayEl.value)dayEl.value=todayRome();
  const rows=allBookings.filter(b=>b.date===dayEl.value).sort((a,b)=>String(a.time||"").localeCompare(String(b.time||"")));
- const waiting=rows.filter(b=>(b.bookingStatus||"IN ATTESA")==="IN ATTESA"),confirmed=rows.filter(b=>["CONFERMATA","ARRIVATO"].includes(b.bookingStatus)),arrived=rows.filter(b=>b.bookingStatus==="ARRIVATO"),totals=bookingTotals(confirmed),pending=bookingTotals(waiting);
- const stats=[["PRENOTAZIONI",rows.filter(b=>b.bookingStatus!=="ANNULLATA").length,"Richieste non annullate"],["COPERTI PRENOTATI",totals.people+(totals.unspecified?" + ?":""),totals.unspecified?totals.unspecified+" gruppi da oltre 10 da precisare":"Confermati, inclusi gli arrivati"],["DA CONFERMARE",waiting.length,pending.people+" coperti in attesa"+(pending.unspecified?" · "+pending.unspecified+" gruppi oltre 10":"")],["CLIENTI ARRIVATI",bookingTotals(arrived).people,"Coperti già arrivati"]];
+ const waiting=rows.filter(b=>(b.bookingStatus||"IN ATTESA")==="IN ATTESA"),confirmed=rows.filter(b=>["CONFERMATA","ARRIVATO"].includes(b.bookingStatus)),totals=bookingTotals(confirmed),pending=bookingTotals(waiting);
+ const stats=[["PRENOTAZIONI",rows.filter(b=>b.bookingStatus!=="ANNULLATA").length,"Richieste non annullate"],["COPERTI PRENOTATI",totals.people+(totals.unspecified?" + ?":""),totals.unspecified?totals.unspecified+" gruppi da oltre 10 da precisare":"Confermati"],["DA CONFERMARE",waiting.length,pending.people+" coperti in attesa"+(pending.unspecified?" · "+pending.unspecified+" gruppi oltre 10":"")]];
  summary.innerHTML=stats.map(s=>'<div class="dash-tile"><small>'+bookingSafe(s[0])+'</small><strong>'+bookingSafe(s[1])+'</strong><em>'+bookingSafe(s[2])+'</em></div>').join("");
  list.innerHTML=rows.length?rows.map(b=>{
   const status=b.bookingStatus||"IN ATTESA",id=bookingSafe(b.id),number=Number(b.covers),unknown=!Number.isInteger(number)||number<1||number>200;
   const badgeClass=status==="IN ATTESA"?"booking-waiting":status==="ANNULLATA"?"booking-cancelled":"booking-confirmed";
   const phone=String(b.phone||"").replace(/[^0-9+]/g,""),statusActions=status==="ANNULLATA"?'<button onclick="window.setBookingStatus(\''+id+'\',\'IN ATTESA\')">RIPRISTINA</button>':
    '<button '+(status==="CONFERMATA"?'disabled':'class="primary"')+' onclick="window.setBookingStatus(\''+id+'\',\'CONFERMATA\')">CONFERMATA</button>'+
-   '<button '+(status==="ARRIVATO"?'disabled':'')+' onclick="window.setBookingStatus(\''+id+'\',\'ARRIVATO\')">ARRIVATO</button>'+
+
    '<button onclick="window.setBookingStatus(\''+id+'\',\'ANNULLATA\')">ANNULLA</button>';
   return '<article class="card booking-card"><div class="booking-card-head"><h3>'+bookingSafe(b.time||"")+' · '+bookingSafe(b.name||"")+'</h3><span class="booking-label '+badgeClass+'">'+bookingSafe(status)+'</span></div><p><b>Coperti:</b> '+(unknown?"OLTRE 10 · NUMERO DA PRECISARE":number)+'</p><p><b>Telefono:</b> <a href="tel:'+bookingSafe(phone)+'">'+bookingSafe(b.phone||"")+'</a></p><small class="status-note">Richiesta inviata dal modulo del sito: conferma dopo aver ricevuto il messaggio WhatsApp.</small>'+
    (unknown?'<div class="covers-entry"><label for="covers-'+id+'">COPERTI EFFETTIVI</label><input type="number" id="covers-'+id+'" min="11" max="200" placeholder="N°"><button onclick="window.saveBookingCovers(\''+id+'\')">SALVA COPERTI</button></div>':"")+
@@ -78,7 +78,7 @@ window.renderBookings=()=>{
  }).join(""):'<div class="card"><p>Nessuna richiesta di prenotazione per la data selezionata.</p></div>';
 };
 window.setBookingStatus=async(id,status)=>{
- if(!["IN ATTESA","CONFERMATA","ARRIVATO","ANNULLATA"].includes(status))return;
+ if(!["IN ATTESA","CONFERMATA","ANNULLATA"].includes(status))return;
  const b=allBookings.find(x=>x.id===id);if(!b||!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)return;
  if(status==="ANNULLATA"&&!confirm("Annullare la prenotazione di "+b.name+"?"))return;
  const cards=document.querySelectorAll("#bookingList button");cards.forEach(btn=>btn.disabled=true);
