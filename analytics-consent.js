@@ -13,7 +13,8 @@
     try { localStorage.setItem(storageKey, value); } catch (e) {}
   }
   function startAnalytics() {
-    if (started) return;
+    window["ga-disable-" + measurementId] = false;
+    if (started) { if (window.gtag) window.gtag("event", "page_view"); return; }
     started = true;
     window.dataLayer = window.dataLayer || [];
     window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
@@ -31,6 +32,7 @@
     setChoice(value);
     hidePanel();
     if (value === "accepted") startAnalytics();
+    else window["ga-disable-" + measurementId] = true;
   }
   function showPanel() {
     if (!panel) return;
