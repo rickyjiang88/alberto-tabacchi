@@ -1,0 +1,26 @@
+{
+  "name": "ALBERTO · Manager",
+  "short_name": "Alberto Manager",
+  "description": "Pannello di controllo riservato Alberto Shop",
+  "id": "/preordina/admin.html?manager=1",
+  "start_url": "/preordina/admin.html?manager=1",
+  "scope": "/preordina/",
+  "display": "standalone",
+  "background_color": "#f7f6f3",
+  "theme_color": "#b5101b",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/preordina/manager-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/preordina/manager-icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
