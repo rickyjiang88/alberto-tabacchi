@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>https://www.albertotabacchi.com/</loc></url>
-<url><loc>https://www.albertotabacchi.com/colazione.html</loc></url>
-<url><loc>https://www.albertotabacchi.com/pranzo.html</loc></url>
-<url><loc>https://www.albertotabacchi.com/tabaccheria.html</loc></url>
-<url><loc>https://www.albertotabacchi.com/catering.html</loc></url>
-<url><loc>https://www.albertotabacchi.com/alberto-card.html</loc></url>
-<url><loc>https://www.albertotabacchi.com/contatti.html</loc></url>
+<url><loc>https://albertotabacchi.com/</loc><priority>1.0</priority></url>
+<url><loc>https://albertotabacchi.com/colazione.html</loc><priority>0.8</priority></url>
+<url><loc>https://albertotabacchi.com/pranzo.html</loc><priority>0.9</priority></url>
+<url><loc>https://albertotabacchi.com/preordina/</loc><priority>0.9</priority></url>
+<url><loc>https://albertotabacchi.com/tabaccheria.html</loc><priority>0.7</priority></url>
+<url><loc>https://albertotabacchi.com/catering.html</loc><priority>0.9</priority></url>
+<url><loc>https://albertotabacchi.com/alberto-card.html</loc><priority>0.6</priority></url>
+<url><loc>https://albertotabacchi.com/contatti.html</loc><priority>0.7</priority></url>
 </urlset>
