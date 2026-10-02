@@ -423,6 +423,17 @@ function watchUser(uid){
   }));
   const gcode=profile.officeGroupCode||profile.groupCode||'';
   if(gcode){
+    unsubs.push(onSnapshot(doc(db,'officeGroups',gcode),s=>{
+      if(!s.exists())return;
+      const data=s.data()||{},liveName=String(data.name||'').trim();
+      if(liveName&&liveName!==profile.officeGroupName){
+        profile.officeGroupName=liveName;
+        $('groupName').textContent=liveName;
+        $('groupRenameInput').value=liveName;
+        $('dashGroup').textContent=liveName;
+        if($('bookingGroupName'))$('bookingGroupName').textContent=liveName;
+      }
+    },e=>console.warn('Nome gruppo non leggibile',e)));
     const officeQ=query(collection(db,'orders'),where('groupCode','==',gcode));
     unsubs.push(onSnapshot(officeQ,s=>{
       const shared=s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.type==='TABLE_BOOKING');
@@ -517,8 +528,37 @@ $('createBookingBtn').addEventListener('click',async()=>{
   }catch(e){console.warn(e);toast('Prenotazione non riuscita.')}
 });
 $('groupRenameBtn').addEventListener('click',async()=>{
-  const code=profile.officeGroupCode||profile.groupCode||'',name=$('groupRenameInput').value.trim();if(!code||!name)return toast('Inserisci il nome del gruppo.');
-  try{await setDoc(doc(db,'officeGroups',code),{name,updatedAt:serverTimestamp()},{merge:true});await setDoc(doc(db,'fidelityCustomers',customerCode()),{officeGroupName:name},{merge:true});profile.officeGroupName=name;render();if($('bookingGroupName'))$('bookingGroupName').textContent=name;toast('Nome gruppo aggiornato.')}catch(e){console.warn(e);toast('Rinomina non riuscita.')}
+  const user=auth.currentUser,code=profile.officeGroupCode||profile.groupCode||'',name=$('groupRenameInput').value.trim();
+  if(!user||!code)return toast('Gruppo non disponibile.');
+  if(!name)return toast('Inserisci il nome del gruppo.');
+  if(name.length>40)return toast('Massimo 40 caratteri.');
+  const btn=$('groupRenameBtn'),oldText=btn.textContent;btn.disabled=true;btn.textContent='SALVATAGGIO…';
+  try{
+    const ref=doc(db,'officeGroups',code),snap=await getDoc(ref);
+    if(!snap.exists())throw new Error('group-not-found');
+    const data=snap.data()||{};
+    if(data.ownerUid&&data.ownerUid!==user.uid){
+      toast('Solo chi ha creato il gruppo può cambiarne il nome.');
+      return;
+    }
+    await setDoc(ref,{name,updatedAt:serverTimestamp()},{merge:true});
+    profile.officeGroupName=name;
+    $('groupName').textContent=name;
+    $('groupRenameInput').value=name;
+    $('dashGroup').textContent=name;
+    if($('bookingGroupName'))$('bookingGroupName').textContent=name;
+    try{
+      await setDoc(doc(db,'fidelityCustomers',customerCode()),{officeGroupName:name},{merge:true});
+    }catch(syncErr){
+      console.warn('Nome gruppo salvato; sincronizzazione profilo non riuscita',syncErr);
+    }
+    toast('Nome gruppo aggiornato.');
+  }catch(e){
+    console.warn('Rinomina gruppo non riuscita',e);
+    toast(e?.message==='group-not-found'?'Gruppo non trovato.':'Rinomina non riuscita.');
+  }finally{
+    btn.disabled=false;btn.textContent=oldText;
+  }
 });
 $('copyGroupInviteBtn').addEventListener('click',async()=>{
   const code=profile.officeGroupCode||profile.groupCode||'';if(!code)return;
