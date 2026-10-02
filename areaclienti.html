@@ -189,7 +189,7 @@
       <span class="eyebrow">FIDELITY</span><h1>Punti & premi</h1><p class="lead">Saldo e avanzamento del tuo profilo Alberto.</p>
       <div class="grid2">
         <div class="card dark"><small>SALDO DISPONIBILE</small><div id="pointsTotal" class="metric">0</div><div class="metric-sub">punti Alberto</div></div>
-        <div class="card soft"><small>PROSSIMO PREMIO</small><div style="font-size:22px;font-weight:900;margin:10px 0">300 punti = €10 di sconto</div><div class="progress"><i id="pointsBar" style="width:0%"></i></div><div id="pointsToReward" class="metric-sub">—</div></div>
+        <div class="card soft"><small>PROSSIMO PREMIO</small><div style="font-size:22px;font-weight:900;margin:10px 0">500 punti = €20 di sconto</div><div class="progress"><i id="pointsBar" style="width:0%"></i></div><div id="pointsToReward" class="metric-sub">—</div></div>
       </div>
 
       <div class="card points-rules">
@@ -218,10 +218,10 @@
 
         <div class="rule-row">
           <div class="rule-num">5</div>
-          <div><b>Premio</b><p>Al raggiungimento di 300 punti puoi utilizzare 300 punti per ottenere €10 di sconto su un acquisto da Alberto.</p></div>
+          <div><b>Premio</b><p>Al raggiungimento di 500 punti puoi utilizzare 500 punti per ottenere €20 di sconto su un acquisto da Alberto.</p></div>
         </div>
 
-        <div class="reward-note"><strong>300 punti = €10 di sconto</strong><span>Con 1 punto per ogni €1 speso, il premio corrisponde a ogni 300 € di spesa accumulata.</span></div>
+        <div class="reward-note"><strong>500 punti = €20 di sconto</strong><span>Con 1 punto per ogni €1 speso, il premio corrisponde a ogni 500 € di spesa accumulata.</span></div>
       </div>
     </section>
 
@@ -413,7 +413,7 @@ function render(){
   $('bookName').value=$('bookName').value||full;$('bookPhone').value=$('bookPhone').value||profile.phone||'';
   $('customerCode').textContent=customerCode();$('dashPoints').textContent=pts;$('pointsTotal').textContent=pts;
   renderWallet();
-  $('pointsBar').style.width=Math.min(100,(pts/300)*100)+'%';$('pointsToReward').textContent=pts>=300?'Premio disponibile':'Mancano '+Math.max(0,300-pts)+' punti';
+  $('pointsBar').style.width=Math.min(100,(pts/500)*100)+'%';$('pointsToReward').textContent=pts>=500?'Premio disponibile':'Mancano '+Math.max(0,500-pts)+' punti';
   $('dashOrders').textContent=orders.length;$('dashBookings').textContent=bookings.length;
   const gname=profile.officeGroupName||profile.groupName||'',gcode=profile.officeGroupCode||profile.groupCode||'';
   $('dashGroup').textContent=gname||'Non attivo';
