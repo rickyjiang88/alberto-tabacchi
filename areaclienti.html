@@ -239,7 +239,7 @@
     <section id="view-group" class="view">
       <span class="eyebrow">GRUPPI UFFICIO</span><h1>Il tuo gruppo</h1><p class="lead">Crea o gestisci il gruppo dei tuoi colleghi.</p>
       <div id="groupExisting" class="card hidden">
-        <small>GRUPPO ATTIVO</small><h2 id="groupName" style="font-size:28px;margin:7px 0">—</h2><p id="groupCodeText" class="lead" style="margin-bottom:14px">—</p>
+        <small>GRUPPO ATTIVO</small><h2 id="groupName" style="font-size:28px;margin:7px 0">—</h2><p id="groupOwnerText" style="margin:0 0 6px;color:var(--muted);font-size:10px;font-weight:800">Gruppo creato da: —</p><p id="groupCodeText" class="lead" style="margin-bottom:14px">—</p>
         <div class="form"><label>Rinomina gruppo</label><input id="groupRenameInput" maxlength="40"><div class="actions"><button id="groupRenameBtn" class="btn">SALVA NOME</button><button id="copyGroupInviteBtn" class="btn secondary">COPIA INVITO</button></div></div>
       </div>
       <div id="groupCreate" class="card">
@@ -386,7 +386,7 @@ function render(){
   const gname=profile.officeGroupName||profile.groupName||'',gcode=profile.officeGroupCode||profile.groupCode||'';
   $('dashGroup').textContent=gname||'Non attivo';
   $('groupExisting').classList.toggle('hidden',!gcode);$('groupCreate').classList.toggle('hidden',!!gcode);
-  if(gcode){$('groupName').textContent=gname||'Gruppo Alberto';$('groupCodeText').textContent='Codice: '+gcode;$('groupRenameInput').value=gname||'Gruppo Alberto'}
+  if(gcode){$('groupName').textContent=gname||'Gruppo Alberto';$('groupCodeText').textContent='Codice: '+gcode;$('groupRenameInput').value=gname||'Gruppo Alberto';$('groupOwnerText').textContent='Gruppo creato da: '+(profile.officeGroupOwnerName||profile.groupOwnerName||'—')}
   if($('bookingGroupName'))$('bookingGroupName').textContent=gname||'Il tuo gruppo';
   $('inviteUrl').textContent=location.origin+location.pathname.replace(/\/desktop\/?$/,'/')+'?ref='+encodeURIComponent(customerCode());
   $('ordersList').innerHTML=orders.length?orders.map(rowOrder).join(''):'<div class="empty">Non hai ancora ordini.</div>';
@@ -425,7 +425,8 @@ function watchUser(uid){
   if(gcode){
     unsubs.push(onSnapshot(doc(db,'officeGroups',gcode),s=>{
       if(!s.exists())return;
-      const data=s.data()||{},liveName=String(data.name||'').trim();
+      const data=s.data()||{},liveName=String(data.name||'').trim(),ownerName=String(data.ownerName||profile.officeGroupOwnerName||'').trim();
+      if(ownerName){profile.officeGroupOwnerName=ownerName;if($('groupOwnerText'))$('groupOwnerText').textContent='Gruppo creato da: '+ownerName}
       if(liveName&&liveName!==profile.officeGroupName){
         profile.officeGroupName=liveName;
         $('groupName').textContent=liveName;
