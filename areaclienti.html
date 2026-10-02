@@ -22,10 +22,10 @@
 .list{display:grid;gap:10px}.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px 16px}.row b{font-size:13px}.row small{display:block;color:var(--muted);font-size:10px;margin-top:4px}.status{font-size:9px;font-weight:900;padding:7px 9px;border-radius:999px;background:#e8f2e9;color:var(--ok);white-space:nowrap}.status.wait{background:#f8ecd9;color:#8a5d16}.status.cancel{background:#f7e2e4;color:#8b1b28}.empty{padding:32px;text-align:center;border:1px dashed #d9ccc1;border-radius:18px;color:var(--muted);font-size:12px}
 .profile-head{display:flex;align-items:center;gap:16px;margin-bottom:20px}.profile-avatar{width:72px;height:72px;border-radius:22px;background:var(--dark);color:#fff;display:grid;place-items:center;font-size:30px;font-weight:950}.profile-head h2{margin:0;font-size:25px}.profile-head p{margin:4px 0 0;color:var(--muted);font-size:12px}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.detail{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}.detail small{display:block;font-size:9px;color:var(--muted);font-weight:900}.detail b{display:block;margin-top:5px;font-size:13px}
 .progress{height:10px;border-radius:999px;background:#d8c9bb;overflow:hidden;margin:14px 0 8px}.progress i{display:block;height:100%;background:var(--red);border-radius:999px}.btn{border:0;border-radius:12px;background:var(--red);color:#fff;padding:12px 15px;font-size:10px;font-weight:900}.btn.secondary{background:#fff;color:var(--red);border:1px solid #d7b9bb}.btn.dark{background:var(--dark)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
-.form{display:grid;gap:11px}.form label{font-size:10px;font-weight:850}.form input{width:100%;border:1px solid #ddcfc3;border-radius:12px;padding:12px;background:#fff}.split{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px}.qrbox{display:grid;place-items:center;background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px}.qrbox #qr{width:190px;height:190px}.qrbox #qr canvas,.qrbox #qr img,.qrbox #qr svg{max-width:190px;max-height:190px}.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:#f1ebe4;border-radius:10px;padding:10px;text-align:center;margin-top:12px}
+.form{display:grid;gap:11px}.form label{font-size:10px;font-weight:850}.form input,.form select{width:100%;border:1px solid #ddcfc3;border-radius:12px;padding:12px;background:#fff}.split{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px}.booking-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,430px);gap:22px;align-items:start}.booking-form-card{position:static!important;align-self:start}.booking-mode{display:grid;grid-template-columns:1fr 1fr;gap:8px}.booking-mode button{border:1px solid #d9cbc0;background:#fff;color:#403833;border-radius:12px;padding:12px 10px;font-size:10px;font-weight:900}.booking-mode button.active{background:var(--red);border-color:var(--red);color:#fff}.booking-group-box{border:1px solid #e3d5ca;background:#faf5ef;border-radius:16px;padding:14px;display:grid;gap:10px}.booking-group-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.booking-group-head small{display:block;color:var(--muted);font-size:9px;font-weight:900}.booking-group-head b{display:block;margin-top:4px;font-size:16px}.booking-member-list{display:grid;gap:8px}.booking-member{display:flex!important;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer}.booking-member input{width:auto!important}.booking-member div{min-width:0}.booking-member b{display:block;font-size:11px}.booking-member small{display:block;color:var(--muted);font-size:9px;margin-top:2px}.booking-history-title{margin:0 0 12px;font-size:20px}.qrbox{display:grid;place-items:center;background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px}.qrbox #qr{width:190px;height:190px}.qrbox #qr canvas,.qrbox #qr img,.qrbox #qr svg{max-width:190px;max-height:190px}.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:#f1ebe4;border-radius:10px;padding:10px;text-align:center;margin-top:12px}
 .login-wrap{grid-column:1/3;grid-row:2;position:relative;background:#f6f1e8;display:grid;place-items:center;padding:36px 24px;min-height:calc(100vh - 136px);z-index:4}.login-card{width:min(980px,100%);min-height:560px;background:#fff;border-radius:28px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;box-shadow:0 25px 75px rgba(55,34,20,.18)}.login-visual{background:linear-gradient(135deg,#b5101b,#83101a);color:#fff;padding:44px;display:flex;flex-direction:column;justify-content:space-between}.login-visual img{width:140px;filter:brightness(0) invert(1)}.login-visual h2{font-size:46px;line-height:.95;letter-spacing:-1.8px;margin:0}.login-visual p{max-width:380px;color:#ffe4e6;font-size:13px;line-height:1.6}.login-form{padding:48px;display:flex;flex-direction:column;justify-content:center}.login-form h1{font-size:34px}.login-form .btn{width:100%;margin-top:8px;padding:14px}.login-note{font-size:10px;color:var(--muted);text-align:center;margin-top:14px}
 .login-wrap:not(.hidden)~.sidebar,.login-wrap:not(.hidden)~.content{display:none}.toast{position:fixed;right:24px;bottom:24px;background:var(--dark);color:#fff;border-radius:13px;padding:12px 15px;font-size:11px;box-shadow:0 14px 40px #0003;z-index:100;display:none}.toast.on{display:block}
-@media(max-width:1050px){.site-brand-copy small{display:none}.brand{min-width:150px}.account-chip div:not(.avatar){display:none}.shell{grid-template-columns:220px minmax(0,1fr)}.content{padding:28px}.grid4,.quick{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr}.login-card{grid-template-columns:1fr}.login-visual{display:none}}
+@media(max-width:1050px){.site-brand-copy small{display:none}.brand{min-width:150px}.account-chip div:not(.avatar){display:none}.shell{grid-template-columns:220px minmax(0,1fr)}.content{padding:28px;overflow:visible}.grid4,.quick{grid-template-columns:repeat(2,1fr)}.split,.booking-layout{grid-template-columns:1fr}.login-card{grid-template-columns:1fr}.login-visual{display:none}}
 @media(max-width:850px){
   .site-strip{height:42px;padding:0 4%;font-size:10px}
   .shell{display:block;width:100%;min-height:calc(100vh - 42px);margin:0;border-radius:0;overflow:visible}
@@ -200,18 +200,36 @@
 
     <section id="view-bookings" class="view">
       <span class="eyebrow">TAVOLI</span><h1>Prenotazioni</h1><p class="lead">Prenota un tavolo e controlla le prenotazioni personali o del tuo gruppo.</p>
-      <div class="split" style="grid-template-columns:minmax(0,1fr) 390px;margin-bottom:20px">
-        <div><div id="bookingsList" class="list"><div class="empty">Caricamento…</div></div></div>
-        <div class="card">
+      <div class="booking-layout">
+        <div>
+          <h2 class="booking-history-title">Le mie prenotazioni</h2>
+          <div id="bookingsList" class="list"><div class="empty">Caricamento…</div></div>
+        </div>
+        <div id="bookingFormCard" class="card booking-form-card">
           <h2 style="margin-top:0">Nuova prenotazione</h2>
           <div class="form">
             <label>Nome e cognome</label><input id="bookName">
             <label>Telefono</label><input id="bookPhone" type="tel">
             <label>Data</label><input id="bookDate" type="date">
-            <label>Orario</label><select id="bookTime" style="width:100%;border:1px solid #ddcfc3;border-radius:12px;padding:12px;background:#fff"><option>12:00</option><option>12:15</option><option>12:30</option><option>12:45</option><option>13:00</option><option>13:15</option><option>13:30</option><option>13:45</option><option>14:00</option></select>
+            <label>Orario</label><select id="bookTime"><option>12:00</option><option>12:15</option><option>12:30</option><option>12:45</option><option>13:00</option><option>13:15</option><option>13:30</option><option>13:45</option><option>14:00</option></select>
             <label>Coperti</label><input id="bookCovers" type="number" min="1" max="30" value="2">
+
+            <label>Tipo prenotazione</label>
+            <div class="booking-mode">
+              <button id="bookPersonalBtn" type="button" class="active">PERSONALE</button>
+              <button id="bookGroupBtn" type="button">GRUPPO UFFICIO</button>
+            </div>
+
+            <div id="bookingGroupBox" class="booking-group-box hidden">
+              <div class="booking-group-head">
+                <div><small>GRUPPO UFFICIO</small><b id="bookingGroupName">Il tuo gruppo</b></div>
+                <button type="button" class="btn secondary" data-go="group">GESTISCI</button>
+              </div>
+              <div id="bookingGroupMembers" class="booking-member-list"><div class="empty">Caricamento membri…</div></div>
+              <small style="color:var(--muted);font-size:9px">Seleziona i colleghi registrati che saranno presenti. I coperti si adeguano almeno al numero di persone selezionate.</small>
+            </div>
+
             <label>Note</label><input id="bookNotes">
-            <label style="display:flex;align-items:center;gap:8px"><input id="bookUseGroup" type="checkbox" style="width:auto"> Prenotazione per il mio gruppo ufficio</label>
             <button id="createBookingBtn" class="btn">PRENOTA TAVOLO</button>
           </div>
         </div>
@@ -261,7 +279,7 @@ import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPa
 
 const fb=initializeApp({apiKey:"AIzaSyDSZzzgpqudJFgri4INDm1XQNs4ilR8-SU",authDomain:"alberto-tabacchi.firebaseapp.com",projectId:"alberto-tabacchi",storageBucket:"alberto-tabacchi.firebasestorage.app",messagingSenderId:"619128191346",appId:"1:619128191346:web:192da35141c3f5e30f85eb"});
 const db=getFirestore(fb),auth=getAuth(fb);
-let profile={},orders=[],bookings=[],unsubs=[];
+let profile={},orders=[],bookings=[],unsubs=[],bookingMode='personal',bookingGroupMembers=[],bookingGroupUnsub=null;
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -298,9 +316,57 @@ function rowOrder(x){
 }
 function rowBooking(x){
   const [lab,cl]=bookingStatus(x);
-  const meta=[Number(x.covers||x.guests||0)+' coperti',x.groupName||''].filter(Boolean).join(' · ');
-  return '<div class="row"><div><b>'+esc(fmtDate(x.date)+' · ore '+String(x.time||''))+'</b><small>'+esc(meta)+'</small></div><span class="'+cl+'">'+esc(lab)+'</span></div>';
+  const isGroup=String(x.bookingType||'').toLowerCase()==='group'||!!x.groupCode;
+  const meta=[Number(x.covers||x.guests||0)+' coperti',isGroup?'GRUPPO'+(x.groupName?' · '+x.groupName:''):'PERSONALE'].filter(Boolean).join(' · ');
+  const people=Array.isArray(x.groupMembers)?x.groupMembers.map(m=>m&&m.name).filter(Boolean):[];
+  return '<div class="row"><div><b>'+esc(fmtDate(x.date)+' · ore '+String(x.time||''))+'</b><small>'+esc(meta)+'</small>'+(people.length?'<small style="margin-top:5px">'+people.map(n=>'• '+esc(n)).join('<br>')+'</small>':'')+'</div><span class="'+cl+'">'+esc(lab)+'</span></div>';
 }
+
+function setBookingMode(mode){
+  bookingMode=mode==='group'?'group':'personal';
+  $('bookPersonalBtn')?.classList.toggle('active',bookingMode==='personal');
+  $('bookGroupBtn')?.classList.toggle('active',bookingMode==='group');
+  $('bookingGroupBox')?.classList.toggle('hidden',bookingMode!=='group');
+  if(bookingMode==='group') loadBookingGroupMembers();
+}
+function renderBookingGroupMembers(){
+  const box=$('bookingGroupMembers'); if(!box)return;
+  const gcode=profile.officeGroupCode||profile.groupCode||'';
+  if(!gcode){
+    box.innerHTML='<div class="empty">Non sei ancora collegato a un gruppo ufficio.<br><button type="button" class="btn" data-go="group" style="margin-top:10px">CREA O GESTISCI GRUPPO</button></div>';
+    return;
+  }
+  if(!bookingGroupMembers.length){box.innerHTML='<div class="empty">Nel gruppo non risultano ancora profili registrati.</div>';return}
+  box.innerHTML=bookingGroupMembers.map((m,i)=>'<label class="booking-member"><input type="checkbox" data-book-member="'+i+'" '+(m.self?'checked':'')+'><div><b>'+esc(m.name||'Cliente Alberto')+(m.self?' · TU':'')+'</b><small>'+esc(m.role==='owner'?'Ha creato il gruppo':(m.email||m.code||'Profilo Alberto'))+'</small></div></label>').join('');
+  syncBookingCovers();
+}
+function selectedBookingGroupMembers(){
+  return [...document.querySelectorAll('[data-book-member]:checked')].map(el=>bookingGroupMembers[Number(el.dataset.bookMember)]).filter(Boolean).map(m=>({uid:m.uid||null,code:m.code||'',name:m.name||'',email:m.email||''}));
+}
+function syncBookingCovers(){
+  if(bookingMode!=='group')return;
+  const n=document.querySelectorAll('[data-book-member]:checked').length;
+  const el=$('bookCovers'); if(el&&n>Number(el.value||0))el.value=n;
+}
+function loadBookingGroupMembers(){
+  if(bookingGroupUnsub){try{bookingGroupUnsub()}catch(e){} bookingGroupUnsub=null}
+  const gcode=profile.officeGroupCode||profile.groupCode||'';
+  const gname=profile.officeGroupName||profile.groupName||'Il tuo gruppo';
+  if($('bookingGroupName'))$('bookingGroupName').textContent=gname;
+  bookingGroupMembers=[];
+  if(!gcode){renderBookingGroupMembers();return}
+  try{
+    bookingGroupUnsub=onSnapshot(collection(db,'officeGroups',gcode,'members'),s=>{
+      const uid=auth.currentUser?.uid||'';
+      bookingGroupMembers=s.docs.map(d=>{const x=d.data()||{};return {uid:x.uid||d.id,code:x.code||'',name:x.name||'Cliente Alberto',email:x.email||'',role:x.role||'member',self:(x.uid||d.id)===uid}});
+      if(!bookingGroupMembers.some(m=>m.self)&&uid)bookingGroupMembers.unshift({uid,code:customerCode(),name:[profile.name,profile.surname].filter(Boolean).join(' ')||'Tu',email:profile.email||auth.currentUser?.email||'',role:'member',self:true});
+      renderBookingGroupMembers();
+    },e=>{console.warn(e);renderBookingGroupMembers()});
+  }catch(e){console.warn(e);renderBookingGroupMembers()}
+}
+document.addEventListener('change',e=>{if(e.target.matches('[data-book-member]'))syncBookingCovers()});
+$('bookPersonalBtn')?.addEventListener('click',()=>setBookingMode('personal'));
+$('bookGroupBtn')?.addEventListener('click',()=>setBookingMode('group'));
 
 function walletKey(s){return 'albertoSiteWallet:'+customerCode()+':'+s}
 function renderWallet(){const enabled=localStorage.getItem(walletKey('enabled'))==='1',bal=Number(localStorage.getItem(walletKey('balance'))||0);if($('walletStatus'))$('walletStatus').textContent=enabled?'ATTIVO':'NON ATTIVO';if($('walletBalance'))$('walletBalance').textContent='€ '+bal.toFixed(2).replace('.',',');if($('walletToggleBtn'))$('walletToggleBtn').textContent=enabled?'DISATTIVA PORTAFOGLIO':'ATTIVA PORTAFOGLIO'}
@@ -321,6 +387,7 @@ function render(){
   $('dashGroup').textContent=gname||'Non attivo';
   $('groupExisting').classList.toggle('hidden',!gcode);$('groupCreate').classList.toggle('hidden',!!gcode);
   if(gcode){$('groupName').textContent=gname||'Gruppo Alberto';$('groupCodeText').textContent='Codice: '+gcode;$('groupRenameInput').value=gname||'Gruppo Alberto'}
+  if($('bookingGroupName'))$('bookingGroupName').textContent=gname||'Il tuo gruppo';
   $('inviteUrl').textContent=location.origin+location.pathname.replace(/\/desktop\/?$/,'/')+'?ref='+encodeURIComponent(customerCode());
   $('ordersList').innerHTML=orders.length?orders.map(rowOrder).join(''):'<div class="empty">Non hai ancora ordini.</div>';
   $('bookingsList').innerHTML=bookings.length?bookings.map(rowBooking).join(''):'<div class="empty">Non hai ancora prenotazioni.</div>';
@@ -354,6 +421,15 @@ function watchUser(uid){
     bookings=[...bookings.filter(x=>x.customerUid===uid),...shared].reduce((acc,x)=>acc.some(y=>y.id===x.id)?acc:[...acc,x],[]).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
     render();
   }));
+  const gcode=profile.officeGroupCode||profile.groupCode||'';
+  if(gcode){
+    const officeQ=query(collection(db,'orders'),where('groupCode','==',gcode));
+    unsubs.push(onSnapshot(officeQ,s=>{
+      const shared=s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.type==='TABLE_BOOKING');
+      bookings=[...bookings,...shared].reduce((acc,x)=>acc.some(y=>y.id===x.id)?acc:[...acc,x],[]).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+      render();
+    },e=>console.warn('Prenotazioni gruppo non leggibili',e)));
+  }
 }
 
 onAuthStateChanged(auth,async user=>{
@@ -365,7 +441,7 @@ onAuthStateChanged(auth,async user=>{
   const params=new URLSearchParams(location.search),group=params.get('group'),ref=params.get('ref');
   if(ref&&!profile.referredBy){profile.referredBy=ref;try{await setDoc(doc(db,'fidelityCustomers',code),{referredBy:ref,referralStatus:'pending_first_purchase'},{merge:true})}catch(e){}}
   if(group&&!profile.officeGroupCode){profile.officeGroupCode=group;profile.groupCode=group;try{await setDoc(doc(db,'officeGroups',group,'members',user.uid),{uid:user.uid,code,name:[profile.name,profile.surname].filter(Boolean).join(' '),email:user.email||'',role:'member',joinedAt:serverTimestamp()},{merge:true});await setDoc(doc(db,'fidelityCustomers',code),{officeGroupCode:group,groupCode:group},{merge:true})}catch(e){console.warn(e)}}
-  render();watchUser(user.uid);
+  render();watchUser(user.uid);if(bookingMode==='group')loadBookingGroupMembers();
 });
 
 $('loginBtn').addEventListener('click',async()=>{
@@ -411,14 +487,38 @@ $('saveProfileBtn').addEventListener('click',async()=>{
 $('walletToggleBtn').addEventListener('click',()=>{const k=walletKey('enabled'),on=localStorage.getItem(k)==='1';localStorage.setItem(k,on?'0':'1');renderWallet();toast(on?'Portafoglio disattivato.':'Portafoglio attivato.')});
 $('createBookingBtn').addEventListener('click',async()=>{
   const user=auth.currentUser;if(!user)return toast('Accedi prima.');
-  const date=$('bookDate').value,time=$('bookTime').value,covers=Math.max(1,Number($('bookCovers').value||1)),name=$('bookName').value.trim(),phone=$('bookPhone').value.trim(),notes=$('bookNotes').value.trim(),useGroup=$('bookUseGroup').checked,gcode=profile.officeGroupCode||profile.groupCode||'',gname=profile.officeGroupName||'Gruppo Alberto';
+  const date=$('bookDate').value,time=$('bookTime').value,name=$('bookName').value.trim(),phone=$('bookPhone').value.trim(),notes=$('bookNotes').value.trim();
+  let covers=Math.max(1,Number($('bookCovers').value||1));
+  const gcode=profile.officeGroupCode||profile.groupCode||'',gname=profile.officeGroupName||profile.groupName||'Gruppo Alberto';
+  const useGroup=bookingMode==='group';
   if(!date||!time||!name||!phone)return toast('Completa i dati della prenotazione.');
+  if(date<new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome'}).format(new Date()))return toast('Non puoi prenotare una data passata.');
   const sunday=new Date(date+'T12:00:00').getDay()===0;if(sunday)return toast('La domenica siamo chiusi.');
-  try{await addDoc(collection(db,'orders'),{type:'TABLE_BOOKING',name,phone,date,time,covers,guests:covers,notes,bookingStatus:'IN ATTESA',status:'IN ATTESA',customerCode:customerCode(),customerUid:user.uid,customerEmail:user.email||profile.email||'',bookingType:useGroup&&gcode?'group':'personal',groupCode:useGroup&&gcode?gcode:null,groupName:useGroup&&gcode?gname:null,groupMemberUids:useGroup&&gcode?[user.uid]:[],groupMemberCodes:useGroup&&gcode?[customerCode()]:[],source:'Alberto Area Clienti Sito',createdAt:serverTimestamp()});toast('Prenotazione inviata.');$('bookNotes').value=''}catch(e){console.warn(e);toast('Prenotazione non riuscita.')}
+  if(useGroup&&!gcode)return toast('Prima crea o entra in un gruppo ufficio.');
+  const members=useGroup?selectedBookingGroupMembers():[];
+  if(useGroup&&!members.length)return toast('Seleziona almeno una persona del gruppo.');
+  if(useGroup&&covers<members.length){covers=members.length;$('bookCovers').value=covers}
+  const allRegistered=useGroup?bookingGroupMembers.filter(m=>m&&m.uid):[];
+  try{
+    await addDoc(collection(db,'orders'),{
+      type:'TABLE_BOOKING',name,phone,date,time,covers,guests:covers,notes,
+      bookingStatus:'IN ATTESA',status:'IN ATTESA',
+      customerCode:customerCode(),customerUid:user.uid,customerEmail:user.email||profile.email||'',
+      bookingType:useGroup?'group':'personal',
+      groupCode:useGroup?gcode:null,groupName:useGroup?gname:null,
+      groupMembers:useGroup?members:[],
+      groupMemberUids:useGroup?[...new Set(allRegistered.map(m=>m.uid).filter(Boolean))]:[],
+      groupMemberCodes:useGroup?[...new Set(allRegistered.map(m=>m.code).filter(Boolean))]:[],
+      registeredGroupGuests:useGroup?members.length:0,
+      source:'Alberto Area Clienti Sito',createdAt:serverTimestamp()
+    });
+    toast(useGroup?'Prenotazione di gruppo inviata.':'Prenotazione inviata.');
+    $('bookNotes').value='';
+  }catch(e){console.warn(e);toast('Prenotazione non riuscita.')}
 });
 $('groupRenameBtn').addEventListener('click',async()=>{
   const code=profile.officeGroupCode||profile.groupCode||'',name=$('groupRenameInput').value.trim();if(!code||!name)return toast('Inserisci il nome del gruppo.');
-  try{await setDoc(doc(db,'officeGroups',code),{name,updatedAt:serverTimestamp()},{merge:true});await setDoc(doc(db,'fidelityCustomers',customerCode()),{officeGroupName:name},{merge:true});profile.officeGroupName=name;render();toast('Nome gruppo aggiornato.')}catch(e){console.warn(e);toast('Rinomina non riuscita.')}
+  try{await setDoc(doc(db,'officeGroups',code),{name,updatedAt:serverTimestamp()},{merge:true});await setDoc(doc(db,'fidelityCustomers',customerCode()),{officeGroupName:name},{merge:true});profile.officeGroupName=name;render();if($('bookingGroupName'))$('bookingGroupName').textContent=name;toast('Nome gruppo aggiornato.')}catch(e){console.warn(e);toast('Rinomina non riuscita.')}
 });
 $('copyGroupInviteBtn').addEventListener('click',async()=>{
   const code=profile.officeGroupCode||profile.groupCode||'';if(!code)return;
