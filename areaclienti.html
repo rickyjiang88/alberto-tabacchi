@@ -253,6 +253,7 @@
             </div>
 
             <div id="bookingGroupBox" class="booking-group-box hidden">
+              <label id="bookingGroupSelectWrap" class="hidden">Scegli gruppo<select id="bookingGroupSelect"></select></label>
               <div class="booking-group-head">
                 <div><small>GRUPPO UFFICIO</small><b id="bookingGroupName">Il tuo gruppo</b></div>
                 <button type="button" class="btn secondary" data-go="group">GESTISCI</button>
@@ -270,6 +271,10 @@
 
     <section id="view-group" class="view">
       <span class="eyebrow">GRUPPI UFFICIO</span><h1>Il tuo gruppo</h1><p class="lead">Crea o gestisci il gruppo dei tuoi colleghi.</p>
+      <div id="groupMembershipsCard" class="card hidden" style="margin-bottom:14px">
+        <small>I TUOI GRUPPI</small>
+        <div id="groupMemberships" class="list" style="margin-top:10px"></div>
+      </div>
       <div id="groupExisting" class="card hidden">
         <small>GRUPPO ATTIVO</small><h2 id="groupName" style="font-size:28px;margin:7px 0">—</h2><p id="groupOwnerText" style="margin:0 0 6px;color:var(--muted);font-size:10px;font-weight:800">Gruppo creato da: —</p><p id="groupCodeText" class="lead" style="margin-bottom:14px">—</p>
         <div class="form"><label>Rinomina gruppo</label><input id="groupRenameInput" maxlength="40"><div class="actions"><button id="groupRenameBtn" class="btn">SALVA NOME</button><button id="copyGroupInviteBtn" class="btn secondary">COPIA INVITO</button></div></div>
@@ -333,7 +338,7 @@ import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPa
 
 const fb=initializeApp({apiKey:"AIzaSyDSZzzgpqudJFgri4INDm1XQNs4ilR8-SU",authDomain:"alberto-tabacchi.firebaseapp.com",projectId:"alberto-tabacchi",storageBucket:"alberto-tabacchi.firebasestorage.app",messagingSenderId:"619128191346",appId:"1:619128191346:web:192da35141c3f5e30f85eb"});
 const db=getFirestore(fb),auth=getAuth(fb);
-let profile={},orders=[],bookings=[],unsubs=[],bookingMode='personal',bookingGroupMembers=[],bookingGroupUnsub=null;
+let profile={},orders=[],bookings=[],unsubs=[],bookingMode='personal',bookingGroupMembers=[],bookingGroupUnsub=null,groupMetas=[],bookingSelectedGroupCode='';
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -341,6 +346,21 @@ const fmtDate=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||''))?String(v).slice(8,10)
 function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200)}
 function initials(){const n=[profile.name,profile.surname].filter(Boolean).join(' ').trim();return (n||profile.email||'A').split(/\s+/).slice(0,2).map(x=>x[0]?.toUpperCase()).join('')||'A'}
 function customerCode(){return profile.code|| (auth.currentUser?'ALB'+auth.currentUser.uid.slice(0,10).toUpperCase():'')}
+function groupCodes(){return [...new Set([...(Array.isArray(profile.officeGroupCodes)?profile.officeGroupCodes:[]),profile.officeGroupCode,profile.groupCode].filter(Boolean))]}
+function activeBookingGroupCode(){return bookingSelectedGroupCode||profile.officeGroupCode||profile.groupCode||groupCodes()[0]||''}
+function activeBookingGroupMeta(){const code=activeBookingGroupCode();return groupMetas.find(g=>g.code===code)||{code,name:profile.officeGroupName||profile.groupName||'Gruppo Alberto',ownerName:profile.officeGroupOwnerName||''}}
+async function loadGroupMemberships(){
+  const codes=groupCodes(),rows=[];
+  for(const code of codes){try{const s=await getDoc(doc(db,'officeGroups',code));if(s.exists())rows.push({code,...s.data()})}catch(e){console.warn('Gruppo non leggibile',code,e)}}
+  groupMetas=rows;
+  if(!bookingSelectedGroupCode&&codes.length)bookingSelectedGroupCode=profile.officeGroupCode||codes[0];
+  const wrap=$('bookingGroupSelectWrap'),sel=$('bookingGroupSelect');
+  if(sel){sel.innerHTML=rows.map(g=>'<option value="'+esc(g.code)+'">'+esc(g.name||g.code)+'</option>').join('');if(bookingSelectedGroupCode)sel.value=bookingSelectedGroupCode}
+  if(wrap)wrap.classList.toggle('hidden',rows.length<=1);
+  const card=$('groupMembershipsCard'),list=$('groupMemberships');
+  if(card&&list){card.classList.toggle('hidden',rows.length===0);list.innerHTML=rows.map(g=>'<div class="row"><div><b>'+esc(g.name||'Gruppo Alberto')+'</b><small>Creato da: '+esc(g.ownerName||'—')+' · '+esc(g.code)+'</small></div><button class="btn secondary" type="button" data-select-group="'+esc(g.code)+'">USA</button></div>').join('')}
+  const meta=activeBookingGroupMeta();if($('bookingGroupName'))$('bookingGroupName').textContent=meta.name||'Il tuo gruppo';
+}
 
 function go(view){
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='view-'+view));
@@ -385,7 +405,7 @@ function setBookingMode(mode){
 }
 function renderBookingGroupMembers(){
   const box=$('bookingGroupMembers'); if(!box)return;
-  const gcode=profile.officeGroupCode||profile.groupCode||'';
+  const gcode=activeBookingGroupCode();
   if(!gcode){
     box.innerHTML='<div class="empty">Non sei ancora collegato a un gruppo ufficio.<br><button type="button" class="btn" data-go="group" style="margin-top:10px">CREA O GESTISCI GRUPPO</button></div>';
     return;
@@ -404,8 +424,8 @@ function syncBookingCovers(){
 }
 function loadBookingGroupMembers(){
   if(bookingGroupUnsub){try{bookingGroupUnsub()}catch(e){} bookingGroupUnsub=null}
-  const gcode=profile.officeGroupCode||profile.groupCode||'';
-  const gname=profile.officeGroupName||profile.groupName||'Il tuo gruppo';
+  const gcode=activeBookingGroupCode();
+  const gname=activeBookingGroupMeta().name||'Il tuo gruppo';
   if($('bookingGroupName'))$('bookingGroupName').textContent=gname;
   bookingGroupMembers=[];
   if(!gcode){renderBookingGroupMembers();return}
@@ -421,9 +441,10 @@ function loadBookingGroupMembers(){
 document.addEventListener('change',e=>{if(e.target.matches('[data-book-member]'))syncBookingCovers()});
 $('bookPersonalBtn')?.addEventListener('click',()=>setBookingMode('personal'));
 $('bookGroupBtn')?.addEventListener('click',()=>setBookingMode('group'));
+$('bookingGroupSelect')?.addEventListener('change',e=>{bookingSelectedGroupCode=e.target.value;loadBookingGroupMembers()});
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-select-group]');if(!b)return;const code=b.dataset.selectGroup,meta=groupMetas.find(g=>g.code===code)||{};bookingSelectedGroupCode=code;profile.officeGroupCode=code;profile.groupCode=code;profile.officeGroupName=meta.name||profile.officeGroupName||'Gruppo Alberto';profile.officeGroupOwnerName=meta.ownerName||'';try{await setDoc(doc(db,'fidelityCustomers',customerCode()),{officeGroupCode:code,groupCode:code,officeGroupName:profile.officeGroupName,officeGroupOwnerName:profile.officeGroupOwnerName,officeGroupCodes:groupCodes()},{merge:true})}catch(err){console.warn(err)}render();await loadGroupMemberships();toast('Gruppo selezionato.')});
 
-function walletKey(s){return 'albertoSiteWallet:'+customerCode()+':'+s}
-function renderWallet(){const enabled=localStorage.getItem(walletKey('enabled'))==='1',bal=Number(localStorage.getItem(walletKey('balance'))||0);if($('walletStatus'))$('walletStatus').textContent=enabled?'ATTIVO':'NON ATTIVO';if($('walletBalance'))$('walletBalance').textContent='€ '+bal.toFixed(2).replace('.',',');if($('walletToggleBtn'))$('walletToggleBtn').textContent=enabled?'DISATTIVA PORTAFOGLIO':'ATTIVA PORTAFOGLIO'}
+function renderWallet(){const bal=Number(profile.walletBalance||0),enabled=profile.walletActive===true||bal>0;if($('walletStatus'))$('walletStatus').textContent=enabled?'ATTIVO':'NON ATTIVO';if($('walletBalance'))$('walletBalance').textContent='€ '+bal.toFixed(2).replace('.',',');if($('walletToggleBtn'))$('walletToggleBtn').textContent=enabled?'DISATTIVA PORTAFOGLIO':'ATTIVA PORTAFOGLIO'}
 function render(){
   const full=[profile.name,profile.surname].filter(Boolean).join(' ')||auth.currentUser?.displayName||'Cliente Alberto';
   const email=profile.email||auth.currentUser?.email||'—',pts=Number(profile.points||0);
@@ -437,11 +458,11 @@ function render(){
   renderWallet();
   $('pointsBar').style.width=Math.min(100,(pts/300)*100)+'%';$('pointsToReward').textContent=pts>=300?'Buono disponibile':'Mancano '+Math.max(0,300-pts)+' punti';
   $('dashOrders').textContent=orders.length;$('dashBookings').textContent=bookings.length;
-  const gname=profile.officeGroupName||profile.groupName||'',gcode=profile.officeGroupCode||profile.groupCode||'';
-  $('dashGroup').textContent=gname||'Non attivo';
+  const gname=profile.officeGroupName||profile.groupName||'',gcode=profile.officeGroupCode||profile.groupCode||groupCodes()[0]||'';
+  $('dashGroup').textContent=groupCodes().length?(gname||groupMetas.find(g=>g.code===gcode)?.name||'Gruppo attivo'):'Non attivo';
   $('groupExisting').classList.toggle('hidden',!gcode);$('groupCreate').classList.toggle('hidden',!!gcode);
   if(gcode){$('groupName').textContent=gname||'Gruppo Alberto';$('groupCodeText').textContent='Codice: '+gcode;$('groupRenameInput').value=gname||'Gruppo Alberto';$('groupOwnerText').textContent='Gruppo creato da: '+(profile.officeGroupOwnerName||profile.groupOwnerName||'—')}
-  if($('bookingGroupName'))$('bookingGroupName').textContent=gname||'Il tuo gruppo';
+  if($('bookingGroupName'))$('bookingGroupName').textContent=activeBookingGroupMeta().name||gname||'Il tuo gruppo';
   $('inviteUrl').textContent=location.origin+location.pathname.replace(/\/desktop\/?$/,'/')+'?ref='+encodeURIComponent(customerCode());
   $('ordersList').innerHTML=orders.length?orders.map(rowOrder).join(''):'<div class="empty">Non hai ancora ordini.</div>';
   $('bookingsList').innerHTML=bookings.length?bookings.map(rowBooking).join(''):'<div class="empty">Non hai ancora prenotazioni.</div>';
@@ -461,6 +482,7 @@ function makeQR(){
 
 function watchUser(uid){
   unsubs.forEach(f=>{try{f()}catch{}});unsubs=[];
+  unsubs.push(onSnapshot(doc(db,'fidelityCustomers',customerCode()),s=>{if(s.exists()){profile={...profile,...s.data(),uid,code:customerCode()};render();loadGroupMemberships()}},e=>console.warn('Profilo Fidelity non sincronizzato',e)));
   const ownQ=query(collection(db,'orders'),where('customerUid','==',uid));
   unsubs.push(onSnapshot(ownQ,s=>{
     const all=s.docs.map(d=>({id:d.id,...d.data()}));
@@ -475,7 +497,7 @@ function watchUser(uid){
     bookings=[...bookings.filter(x=>x.customerUid===uid),...shared].reduce((acc,x)=>acc.some(y=>y.id===x.id)?acc:[...acc,x],[]).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
     render();
   }));
-  const gcode=profile.officeGroupCode||profile.groupCode||'';
+  const gcode=activeBookingGroupCode();
   if(gcode){
     unsubs.push(onSnapshot(doc(db,'officeGroups',gcode),s=>{
       if(!s.exists())return;
@@ -506,8 +528,14 @@ onAuthStateChanged(auth,async user=>{
   try{const s=await getDoc(doc(db,'fidelityCustomers',code));if(s.exists())profile={...profile,...s.data(),uid:user.uid,code}}catch(e){console.warn(e)}
   const params=new URLSearchParams(location.search),group=params.get('group'),ref=params.get('ref');
   if(ref&&!profile.referredBy){profile.referredBy=ref;try{await setDoc(doc(db,'fidelityCustomers',code),{referredBy:ref,referralStatus:'pending_first_purchase'},{merge:true})}catch(e){}}
-  if(group&&!profile.officeGroupCode){profile.officeGroupCode=group;profile.groupCode=group;try{await setDoc(doc(db,'officeGroups',group,'members',user.uid),{uid:user.uid,code,name:[profile.name,profile.surname].filter(Boolean).join(' '),email:user.email||'',role:'member',joinedAt:serverTimestamp()},{merge:true});await setDoc(doc(db,'fidelityCustomers',code),{officeGroupCode:group,groupCode:group},{merge:true})}catch(e){console.warn(e)}}
-  render();watchUser(user.uid);if(bookingMode==='group')loadBookingGroupMembers();
+  if(group&&!groupCodes().includes(group)){try{
+    const gs=await getDoc(doc(db,'officeGroups',group)),gd=gs.exists()?gs.data():{};
+    await setDoc(doc(db,'officeGroups',group,'members',user.uid),{uid:user.uid,code,name:[profile.name,profile.surname].filter(Boolean).join(' '),email:user.email||'',role:'member',joinedAt:serverTimestamp()},{merge:true});
+    const codes=[...new Set([...groupCodes(),group])],patch={officeGroupCodes:codes};
+    if(!profile.officeGroupCode){patch.officeGroupCode=group;patch.groupCode=group;patch.officeGroupName=gd.name||'Gruppo Alberto';patch.officeGroupOwnerName=gd.ownerName||''}
+    await setDoc(doc(db,'fidelityCustomers',code),patch,{merge:true});profile={...profile,...patch};
+  }catch(e){console.warn(e)}}
+  await loadGroupMemberships();render();watchUser(user.uid);if(bookingMode==='group')loadBookingGroupMembers();
 });
 
 $('loginBtn').addEventListener('click',async()=>{
@@ -527,8 +555,8 @@ $('groupCreateBtn').addEventListener('click',async()=>{
   try{
     await setDoc(doc(db,'officeGroups',code),{code,name,ownerUid:user.uid,ownerCode,ownerName,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
     await setDoc(doc(db,'officeGroups',code,'members',user.uid),{uid:user.uid,code:ownerCode,name:ownerName,email:user.email||profile.email||'',role:'owner',joinedAt:serverTimestamp()});
-    await setDoc(doc(db,'fidelityCustomers',ownerCode),{officeGroupName:name,officeGroupCode:code,groupCode:code,officeGroupOwnerCode:ownerCode,officeGroupOwnerName:ownerName},{merge:true});
-    profile={...profile,officeGroupName:name,officeGroupCode:code,groupCode:code};render();toast('Gruppo creato.');
+    const codes=[...new Set([...groupCodes(),code])];await setDoc(doc(db,'fidelityCustomers',ownerCode),{officeGroupName:name,officeGroupCode:code,groupCode:code,officeGroupCodes:codes,officeGroupOwnerCode:ownerCode,officeGroupOwnerName:ownerName},{merge:true});
+    profile={...profile,officeGroupName:name,officeGroupCode:code,groupCode:code,officeGroupCodes:codes,officeGroupOwnerName:ownerName};bookingSelectedGroupCode=code;await loadGroupMemberships();render();toast('Gruppo creato.');
   }catch(e){console.warn(e);toast('Creazione gruppo non disponibile.')}
 });
 
@@ -540,7 +568,7 @@ $('registerBtn').addEventListener('click',async()=>{
   try{
     const cred=await createUserWithEmailAndPassword(auth,email,password),code='ALB'+cred.user.uid.slice(0,10).toUpperCase();
     await updateProfile(cred.user,{displayName:(name+' '+surname).trim()});
-    await setDoc(doc(db,'fidelityCustomers',code),{uid:cred.user.uid,code,name,surname,email,phone,birthDate,points:0,createdAt:serverTimestamp()},{merge:true});
+    await setDoc(doc(db,'fidelityCustomers',code),{uid:cred.user.uid,code,name,surname,email,phone,birthDate,points:0,walletBalance:0,walletActive:false,officeGroupCodes:[],createdAt:serverTimestamp()},{merge:true});
     await setDoc(doc(db,'fidelityUsers',cred.user.uid),{customerCode:code},{merge:true});
     toast('Account creato.');
   }catch(e){console.warn(e);toast(String(e.code||'Registrazione non riuscita').replace('auth/',''))}
@@ -550,12 +578,12 @@ $('saveProfileBtn').addEventListener('click',async()=>{
   const patch={name:$('editName').value.trim(),surname:$('editSurname').value.trim(),phone:$('editPhone').value.trim(),birthDate:$('editBirth').value};
   try{await setDoc(doc(db,'fidelityCustomers',customerCode()),patch,{merge:true});await updateProfile(user,{displayName:[patch.name,patch.surname].filter(Boolean).join(' ')});profile={...profile,...patch};render();toast('Profilo aggiornato.')}catch(e){console.warn(e);toast('Salvataggio non riuscito.')}
 });
-$('walletToggleBtn').addEventListener('click',()=>{const k=walletKey('enabled'),on=localStorage.getItem(k)==='1';localStorage.setItem(k,on?'0':'1');renderWallet();toast(on?'Portafoglio disattivato.':'Portafoglio attivato.')});
+$('walletToggleBtn').addEventListener('click',async()=>{const on=profile.walletActive===true||Number(profile.walletBalance||0)>0,next=!on;try{await setDoc(doc(db,'fidelityCustomers',customerCode()),{walletActive:next},{merge:true});profile.walletActive=next;renderWallet();toast(next?'Portafoglio attivato.':'Portafoglio disattivato.')}catch(e){console.warn(e);toast('Modifica portafoglio non riuscita.')}});
 $('createBookingBtn').addEventListener('click',async()=>{
   const user=auth.currentUser;if(!user)return toast('Accedi prima.');
   const date=$('bookDate').value,time=$('bookTime').value,name=$('bookName').value.trim(),phone=$('bookPhone').value.trim(),notes=$('bookNotes').value.trim();
   let covers=Math.max(1,Number($('bookCovers').value||1));
-  const gcode=profile.officeGroupCode||profile.groupCode||'',gname=profile.officeGroupName||profile.groupName||'Gruppo Alberto';
+  const gcode=activeBookingGroupCode(),gname=activeBookingGroupMeta().name||'Gruppo Alberto';
   const useGroup=bookingMode==='group';
   if(!date||!time||!name||!phone)return toast('Completa i dati della prenotazione.');
   if(date<new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome'}).format(new Date()))return toast('Non puoi prenotare una data passata.');
