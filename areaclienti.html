@@ -47,7 +47,48 @@
   .login-wrap{top:136px}
 }
 </style>
-<style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style></head>
+<style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
+body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
+body.brazil-event .site-topbar{background:linear-gradient(90deg,var(--br-green),var(--br-yellow),var(--br-blue))!important;color:#fff!important}
+body.brazil-event header{border-bottom:3px solid var(--br-yellow)!important}
+body.brazil-event header nav a.active,
+body.brazil-event header nav a:hover{color:var(--br-green)!important}
+body.brazil-event header .pill,
+body.brazil-event .btn:not(.ghost):not(.dark),
+body.brazil-event .welcome-preorder{background:var(--br-green)!important;color:#fff!important}
+body.brazil-event .redlabel,
+body.brazil-event .eyebrow.red{color:var(--br-green)!important}
+body.brazil-event .hero .eyebrow{color:#fff!important}
+body.brazil-event .marketing{background:linear-gradient(135deg,#fff 0%,#fff9cf 100%)!important}
+body.brazil-event .service-strip{border-top:5px solid var(--br-yellow)!important}
+body.brazil-event .service-strip article span{color:var(--br-green)!important}
+body.brazil-event .three .n{color:var(--br-blue)!important}
+body.brazil-event footer{border-top:5px solid var(--br-green)!important}
+.brazil-event-banner{display:none}
+body.brazil-event .brazil-event-banner{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 18px;background:linear-gradient(90deg,#0b7a3b,#f2c500,#1146a6);color:#fff;font:800 13px/1.2 Manrope,Arial,sans-serif;letter-spacing:.08em;text-align:center}
+body.brazil-event .brazil-event-banner b{font-size:14px}
+@media(max-width:650px){body.brazil-event .brazil-event-banner{font-size:10px;padding:10px 12px;letter-spacing:.05em}}
+</style>
+<script id="brazil-event-theme-js">
+(function(){
+  var until=Date.parse("2026-10-04T18:00:00+02:00");
+  if(Date.now()>=until)return;
+  document.documentElement.classList.add("brazil-event-html");
+  function activate(){
+    document.body.classList.add("brazil-event");
+    if(!document.querySelector(".brazil-event-banner")){
+      var b=document.createElement("div");
+      b.className="brazil-event-banner";
+      b.innerHTML="<b>DOMENICA 4 OTTOBRE</b> • GIORNATA BRASILE • FOTOCOPIE, STAMPE E SERVIZI DISPONIBILI";
+      var top=document.querySelector(".site-topbar");
+      if(top && top.parentNode){ top.parentNode.insertBefore(b,top.nextSibling); }
+      else if(document.body.firstChild){ document.body.insertBefore(b,document.body.firstChild); }
+      else document.body.appendChild(b);
+    }
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",activate);else activate();
+})();
+</script></head>
 <body>
 <div class="site-strip"><span>Via Valtorta 44, Milano</span><span>02 289 6720</span><span>Lun–Sab 6:30–19:00</span></div>
 
