@@ -727,5 +727,44 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   });
 })();
 </script>
-</body>
+<script id="alberto-visibility-control">
+(function(){
+  var until=Date.parse("2026-10-04T18:00:00+02:00");
+  if(Date.now()>=until)return;
+
+  var path=location.pathname.toLowerCase().replace(/\/+$/,"");
+  if(path.endsWith("/colazione.html") || path.endsWith("/preordina") || path.endsWith("/preordina/index.html")){
+    location.replace("/");
+    return;
+  }
+
+  function applyHidden(){
+    document.querySelectorAll("a[href]").forEach(function(a){
+      var raw=(a.getAttribute("href")||"").trim().toLowerCase();
+      var hide =
+        raw.indexOf("colazione.html")!==-1 ||
+        raw.indexOf("preordina/")!==-1 ||
+        raw.indexOf("pranzo.html#menu")!==-1 ||
+        raw==="#menu";
+      if(hide) a.style.display="none";
+    });
+
+    document.querySelectorAll("[onclick]").forEach(function(el){
+      var v=(el.getAttribute("onclick")||"").toLowerCase();
+      if(v.indexOf("colazione.html")!==-1 || v.indexOf("preordina")!==-1){
+        el.style.display="none";
+      }
+    });
+
+    var menu=document.getElementById("menu");
+    if(menu) menu.style.display="none";
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",applyHidden);
+  }else{
+    applyHidden();
+  }
+})();
+</script></body>
 </html>
