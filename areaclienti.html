@@ -329,7 +329,7 @@
             <button id="addAppleWalletBtn" class="wallet-pass-btn" type="button"> &nbsp; AGGIUNGI A APPLE WALLET</button>
             <button id="addGoogleWalletBtn" class="wallet-pass-btn google" type="button">G &nbsp; AGGIUNGI A GOOGLE WALLET</button>
           </div>
-          <p id="walletPassStatus" class="wallet-pass-status">Il pass usa lo stesso QR del tuo profilo Alberto.</p>
+          <p id="walletPassStatus" class="wallet-pass-status">Il pass usa lo stesso QR del tuo profilo Alberto. L’attivazione Apple/Google richiede il servizio Wallet lato server.</p>
         </div>
       </div>
 
@@ -585,8 +585,12 @@ async function requestNativeWallet(platform){
     if(status)status.textContent='Tessera Apple Wallet preparata.';
   }catch(e){
     console.warn(e);
-    if(status)status.textContent=e.message||'Wallet non disponibile.';
-    toast(e.message||'Wallet non disponibile.');
+    const offline=(e instanceof TypeError)||String(e?.message||'').toLowerCase().includes('failed to fetch');
+    const msg=offline
+      ? (platform==='google'?'Google Wallet non ancora attivato lato server.':'Apple Wallet non ancora attivato lato server.')
+      : (e.message||'Wallet non disponibile.');
+    if(status)status.textContent=msg;
+    toast(msg);
   }finally{
     if(btn){btn.disabled=false;btn.textContent=original}
   }
