@@ -280,8 +280,8 @@
         <div class="form"><label>Rinomina gruppo</label><input id="groupRenameInput" maxlength="40"><div class="actions"><button id="groupRenameBtn" class="btn">SALVA NOME</button><button id="copyGroupInviteBtn" class="btn secondary">COPIA INVITO</button></div></div>
       </div>
       <div id="groupCreate" class="card">
-        <h2 style="margin-top:0">Crea un gruppo</h2>
-        <p class="lead">Puoi chiamarlo come vuoi: reparto, team o hobby.</p>
+        <h2 style="margin-top:0">Crea un nuovo gruppo</h2>
+        <p class="lead">Puoi far parte di più gruppi. Creane uno nuovo oppure entra tramite il link di invito di un collega.</p>
         <div class="form"><label>NOME DEL GRUPPO</label><input id="groupNameInput" maxlength="40" placeholder="Es. Biker Perk"><button id="groupCreateBtn" class="btn">CREA GRUPPO</button></div>
       </div>
     </section>
@@ -460,7 +460,7 @@ function render(){
   $('dashOrders').textContent=orders.length;$('dashBookings').textContent=bookings.length;
   const gname=profile.officeGroupName||profile.groupName||'',gcode=profile.officeGroupCode||profile.groupCode||groupCodes()[0]||'';
   $('dashGroup').textContent=groupCodes().length?(gname||groupMetas.find(g=>g.code===gcode)?.name||'Gruppo attivo'):'Non attivo';
-  $('groupExisting').classList.toggle('hidden',!gcode);$('groupCreate').classList.toggle('hidden',!!gcode);
+  $('groupExisting').classList.toggle('hidden',!gcode);$('groupCreate').classList.remove('hidden');
   if(gcode){$('groupName').textContent=gname||'Gruppo Alberto';$('groupCodeText').textContent='Codice: '+gcode;$('groupRenameInput').value=gname||'Gruppo Alberto';$('groupOwnerText').textContent='Gruppo creato da: '+(profile.officeGroupOwnerName||profile.groupOwnerName||'—')}
   if($('bookingGroupName'))$('bookingGroupName').textContent=activeBookingGroupMeta().name||gname||'Il tuo gruppo';
   $('inviteUrl').textContent=location.origin+location.pathname.replace(/\/desktop\/?$/,'/')+'?ref='+encodeURIComponent(customerCode());
