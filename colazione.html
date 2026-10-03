@@ -17,25 +17,44 @@ header .pill{display:inline-flex!important;justify-content:center!important;alig
 <section class="strip"><div>CAFFETTERIA</div><div>BRIOCHE & PASTICCERIA</div><div>SPREMUTE & BEVANDE</div><div>LUN–SAB DALLE 6:00</div></section>
 <section class="menu" id="listino"><div class="ey">IL NOSTRO LISTINO</div><h2>IL BUONGIORNO CHE CI VUOLE.</h2><div class="cols"><div class="box"><h3>CAFFETTERIA</h3><div class="price"><span>Caffè espresso</span><b>€ 1,30</b></div><div class="price"><span>Caffè corretto</span><b>€ 1,70</b></div><div class="price"><span>Caffè decaffeinato</span><b>€ 1,40</b></div><div class="price"><span>Caffè americano</span><b>€ 1,40</b></div><div class="price"><span>Caffè d'orzo</span><b>€ 1,40</b></div><div class="price"><span>Caffè ginseng</span><b>€ 1,40 / 1,60</b></div><div class="price"><span>Caffè shakerato</span><b>€ 3,00</b></div><div class="price"><span>Cappuccino</span><b>€ 1,70</b></div><div class="price"><span>Cappuccino di soia</span><b>€ 1,80</b></div><div class="price"><span>Cappuccino decaffeinato</span><b>€ 2,00</b></div><div class="price"><span>Cappuccino orzo/ginseng</span><b>€ 2,10</b></div><div class="price"><span>Marocchino</span><b>€ 1,40</b></div><div class="price"><span>Latte macchiato</span><b>€ 1,80</b></div><div class="price"><span>Tè caldo / Camomilla / Infusi e tisane</span><b>€ 1,70</b></div><div class="price"><span>Cioccolata calda</span><b>€ 3,00</b></div><div class="price"><span>Cioccolata calda con panna</span><b>€ 3,50</b></div><div class="price"><span>Spremuta d'arancia</span><b>€ 4,00</b></div></div><div class="box"><h3>BRIOCHE & PASTICCERIA</h3><div class="price"><span>Brioches*</span><b>€ 1,50</b></div><div class="price"><span>Mini brioches*</span><b>€ 1,00</b></div><div class="price"><span>Frolle*</span><b>€ 2,80</b></div><div class="price"><span>Biscottino</span><b>€ 1,00</b></div><div class="price"><span>Muffin*</span><b>€ 2,80</b></div><div class="price"><span>Mini muffin*</span><b>€ 1,00</b></div><div class="price"><span>Aragostelle</span><b>€ 1,00</b></div><div class="price"><span>Trancio di torta</span><b>€ 3,50</b></div><p style="font-size:11px;margin-top:18px">* Prodotto surgelato.</p></div></div></section>
 <section class="promo"><div><div class="ey">ALBERTO CARD</div><h2>FAI COLAZIONE. TORNA. SCOPRI LE FLASH PROMO.</h2><p>Registrati gratuitamente ad Alberto Card per accedere ai vantaggi dedicati ai clienti.</p></div><a href="alberto-card.html#registrati">REGISTRATI GRATIS →</a></section><footer><b>ALBERTO</b><span>VIA VALTORTA 44, MILANO</span><a href="tel:022896720">02 289 6720</a><span>LUN–SAB 6:00–19:00</span></footer><!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"98527ef75d5d446eb2aa6833dab0169e"}'></script><!-- End Cloudflare Web Analytics --><!-- ALBERTO-STANDBY-UNTIL-2026-10-04T18:00-ROME -->
-<style id="alberto-standby-style">
-#alberto-standby{position:fixed;inset:0;z-index:2147483647;background:#f7f4ef;color:#181818;display:flex;align-items:center;justify-content:center;padding:24px;font-family:Manrope,Arial,sans-serif;text-align:center}
-#alberto-standby .box{width:min(620px,100%);background:#fff;border-radius:22px;padding:42px 28px;box-shadow:0 14px 50px rgba(0,0,0,.12)}
-#alberto-standby .logo{width:74px;height:88px;object-fit:contain;margin-bottom:12px}
-#alberto-standby .ey{color:#b5101b;font-size:13px;font-weight:900;letter-spacing:1.5px}
-#alberto-standby h1{font-size:clamp(34px,7vw,58px);line-height:.95;margin:12px 0 18px}
-#alberto-standby p{font-size:17px;line-height:1.55;margin:0 auto 22px;max-width:480px}
-#alberto-standby a{display:inline-block;background:#b5101b;color:#fff;text-decoration:none;border-radius:999px;padding:14px 22px;font-weight:900}
-</style>
-<script id="alberto-standby-script">
+
+<script id="alberto-visibility-control">
 (function(){
-  var until=new Date("2026-10-04T18:00:00+02:00").getTime();
-  var now=Date.now();
-  if(now>=until)return;
-  document.body.style.overflow="hidden";
-  var el=document.createElement("div");
-  el.id="alberto-standby";
-  el.innerHTML='<div class="box"><img class="logo" src="https://primary.jwwb.nl/public/k/m/t/temp-uuviykehkzslooegqmdl/image-high-zhh1za.png?enable=upscale&enable-io=true&height=180" alt="Alberto"><div class="ey">ALBERTO · SEZIONE TEMPORANEAMENTE IN PAUSA</div><h1>TORNIAMO ONLINE<br>DOMANI ALLE 18:00.</h1><p>Questa sezione sarà di nuovo disponibile automaticamente domenica 4 ottobre alle 18:00.</p><a href="/">TORNA ALLA HOME</a></div>';
-  document.body.appendChild(el);
-  setTimeout(function(){location.reload();},Math.max(1000,until-Date.now()+250));
+  var until=Date.parse("2026-10-04T18:00:00+02:00");
+  if(Date.now()>=until)return;
+
+  var path=location.pathname.toLowerCase().replace(/\/+$/,"");
+  if(path.endsWith("/colazione.html") || path.endsWith("/preordina") || path.endsWith("/preordina/index.html")){
+    location.replace("/");
+    return;
+  }
+
+  function applyHidden(){
+    document.querySelectorAll("a[href]").forEach(function(a){
+      var raw=(a.getAttribute("href")||"").trim().toLowerCase();
+      var hide =
+        raw.indexOf("colazione.html")!==-1 ||
+        raw.indexOf("preordina/")!==-1 ||
+        raw.indexOf("pranzo.html#menu")!==-1 ||
+        raw==="#menu";
+      if(hide) a.style.display="none";
+    });
+
+    document.querySelectorAll("[onclick]").forEach(function(el){
+      var v=(el.getAttribute("onclick")||"").toLowerCase();
+      if(v.indexOf("colazione.html")!==-1 || v.indexOf("preordina")!==-1){
+        el.style.display="none";
+      }
+    });
+
+    var menu=document.getElementById("menu");
+    if(menu) menu.style.display="none";
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",applyHidden);
+  }else{
+    applyHidden();
+  }
 })();
 </script></body></html>
