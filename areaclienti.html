@@ -497,9 +497,9 @@ function watchUser(uid){
     bookings=[...bookings.filter(x=>x.customerUid===uid),...shared].reduce((acc,x)=>acc.some(y=>y.id===x.id)?acc:[...acc,x],[]).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
     render();
   }));
-  const gcode=activeBookingGroupCode();
-  if(gcode){
-    unsubs.push(onSnapshot(doc(db,'officeGroups',gcode),s=>{
+  const activeCode=activeBookingGroupCode();
+  if(activeCode){
+    unsubs.push(onSnapshot(doc(db,'officeGroups',activeCode),s=>{
       if(!s.exists())return;
       const data=s.data()||{},liveName=String(data.name||'').trim(),ownerName=String(data.ownerName||profile.officeGroupOwnerName||'').trim();
       if(ownerName){profile.officeGroupOwnerName=ownerName;if($('groupOwnerText'))$('groupOwnerText').textContent='Gruppo creato da: '+ownerName}
@@ -511,13 +511,15 @@ function watchUser(uid){
         if($('bookingGroupName'))$('bookingGroupName').textContent=liveName;
       }
     },e=>console.warn('Nome gruppo non leggibile',e)));
+  }
+  groupCodes().forEach(gcode=>{
     const officeQ=query(collection(db,'orders'),where('groupCode','==',gcode));
     unsubs.push(onSnapshot(officeQ,s=>{
       const shared=s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.type==='TABLE_BOOKING');
       bookings=[...bookings,...shared].reduce((acc,x)=>acc.some(y=>y.id===x.id)?acc:[...acc,x],[]).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
       render();
-    },e=>console.warn('Prenotazioni gruppo non leggibili',e)));
-  }
+    },e=>console.warn('Prenotazioni gruppo non leggibili',gcode,e)));
+  });
 }
 
 onAuthStateChanged(auth,async user=>{
