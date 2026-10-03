@@ -192,26 +192,45 @@ function update(){const qty=cart.reduce((s,p)=>s+(p[4]||1),0);if(qty>previousCar
  if(cart.some(p=>disabledProduct(p))){alert("Un prodotto nel carrello è esaurito. Rimuovilo prima di confermare.");return;}
  const totalValue=cart.reduce((s,p)=>s+p[3]*(p[4]||1),0);const orderSeq=await window.saveAlbertoOrder({name:customerName,phone:customerPhone,time:pickupTime,notes:orderNotes,items:cart.map(p=>({category:p[0]||"",name:p[1]||"",description:p[2]||"",price:Number(p[3]||0),quantity:Number(p[4]||1)})),total:totalValue,status:"NUOVO"});const orderNumber="#"+String(orderSeq).padStart(4,"0");cart=[];lunchBoxCount=0;update();document.getElementById("modal").classList.remove("on");document.getElementById("successText").innerHTML="Il tuo ordine <b>"+orderNumber+"</b> è stato effettuato correttamente.<br><br>Ci vediamo da <b>Alberto Bar</b> alle <b>"+pickupTime+"</b> per il ritiro.<br><br>Pagamento al ritiro.";document.getElementById("successModal").classList.add("on")}catch(e){console.error(e);alert("Non sono riuscito a inviare l’ordine. Riprova tra poco.")}finally{btn.disabled=false;btn.textContent="CONFERMA ORDINE · PAGA AL RITIRO"}}
 </script><div class="modal" id="chickenModal"><div class="box"><h2 id="chickenTitle"></h2><p>Scegli l'accompagnamento:</p><div id="chickenOptions"></div><button class="confirm" style="background:#eee;color:#222;margin-top:8px" onclick="document.getElementById('chickenModal').classList.remove('on')">ANNULLA</button></div></div><!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"98527ef75d5d446eb2aa6833dab0169e"}'></script><!-- End Cloudflare Web Analytics --><!-- ALBERTO-STANDBY-UNTIL-2026-10-04T18:00-ROME -->
-<style id="alberto-standby-style">
-#alberto-standby{position:fixed;inset:0;z-index:2147483647;background:#f7f4ef;color:#181818;display:flex;align-items:center;justify-content:center;padding:24px;font-family:Manrope,Arial,sans-serif;text-align:center}
-#alberto-standby .box{width:min(620px,100%);background:#fff;border-radius:22px;padding:42px 28px;box-shadow:0 14px 50px rgba(0,0,0,.12)}
-#alberto-standby .logo{width:74px;height:88px;object-fit:contain;margin-bottom:12px}
-#alberto-standby .ey{color:#b5101b;font-size:13px;font-weight:900;letter-spacing:1.5px}
-#alberto-standby h1{font-size:clamp(34px,7vw,58px);line-height:.95;margin:12px 0 18px}
-#alberto-standby p{font-size:17px;line-height:1.55;margin:0 auto 22px;max-width:480px}
-#alberto-standby a{display:inline-block;background:#b5101b;color:#fff;text-decoration:none;border-radius:999px;padding:14px 22px;font-weight:900}
-</style>
-<script id="alberto-standby-script">
+
+<script id="alberto-visibility-control">
 (function(){
-  var until=new Date("2026-10-04T18:00:00+02:00").getTime();
-  var now=Date.now();
-  if(now>=until)return;
-  document.body.style.overflow="hidden";
-  var el=document.createElement("div");
-  el.id="alberto-standby";
-  el.innerHTML='<div class="box"><img class="logo" src="https://primary.jwwb.nl/public/k/m/t/temp-uuviykehkzslooegqmdl/image-high-zhh1za.png?enable=upscale&enable-io=true&height=180" alt="Alberto"><div class="ey">ALBERTO · SEZIONE TEMPORANEAMENTE IN PAUSA</div><h1>TORNIAMO ONLINE<br>DOMANI ALLE 18:00.</h1><p>Questa sezione sarà di nuovo disponibile automaticamente domenica 4 ottobre alle 18:00.</p><a href="/">TORNA ALLA HOME</a></div>';
-  document.body.appendChild(el);
-  setTimeout(function(){location.reload();},Math.max(1000,until-Date.now()+250));
+  var until=Date.parse("2026-10-04T18:00:00+02:00");
+  if(Date.now()>=until)return;
+
+  var path=location.pathname.toLowerCase().replace(/\/+$/,"");
+  if(path.endsWith("/colazione.html") || path.endsWith("/preordina") || path.endsWith("/preordina/index.html")){
+    location.replace("/");
+    return;
+  }
+
+  function applyHidden(){
+    document.querySelectorAll("a[href]").forEach(function(a){
+      var raw=(a.getAttribute("href")||"").trim().toLowerCase();
+      var hide =
+        raw.indexOf("colazione.html")!==-1 ||
+        raw.indexOf("preordina/")!==-1 ||
+        raw.indexOf("pranzo.html#menu")!==-1 ||
+        raw==="#menu";
+      if(hide) a.style.display="none";
+    });
+
+    document.querySelectorAll("[onclick]").forEach(function(el){
+      var v=(el.getAttribute("onclick")||"").toLowerCase();
+      if(v.indexOf("colazione.html")!==-1 || v.indexOf("preordina")!==-1){
+        el.style.display="none";
+      }
+    });
+
+    var menu=document.getElementById("menu");
+    if(menu) menu.style.display="none";
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",applyHidden);
+  }else{
+    applyHidden();
+  }
 })();
 </script></body></html>
 <!-- deploy lunchbox multi 2026-09-20 -->
