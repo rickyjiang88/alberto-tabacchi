@@ -290,7 +290,7 @@
       <span class="eyebrow">PORTAFOGLIO</span><h1>Portafoglio Alberto</h1><p class="lead">Ricarica il tuo credito Alberto e usalo per i tuoi acquisti.</p>
       <div class="grid2">
         <div class="card dark"><small>STATO</small><div id="walletStatus" style="font-size:25px;font-weight:900;margin:12px 0">NON ATTIVO</div><div class="metric-sub">Il portafoglio è facoltativo: puoi continuare a pagare normalmente con gli altri metodi.</div></div>
-        <div class="card"><small>SALDO</small><div id="walletBalance" class="metric">€ 0,00</div><div class="metric-sub">Le ricariche vengono effettuate in cassa e associate al tuo profilo.</div></div>
+        <div class="card"><small>SALDO</small><div id="walletBalance" class="metric">€ 0,00</div><div class="metric-sub">Saldo sincronizzato con la cassa. Ricariche e pagamenti vengono registrati tramite il tuo QR.</div></div>
       </div>
 
       <div class="card wallet-offer">
@@ -444,7 +444,7 @@ $('bookGroupBtn')?.addEventListener('click',()=>setBookingMode('group'));
 $('bookingGroupSelect')?.addEventListener('change',e=>{bookingSelectedGroupCode=e.target.value;loadBookingGroupMembers()});
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-select-group]');if(!b)return;const code=b.dataset.selectGroup,meta=groupMetas.find(g=>g.code===code)||{};bookingSelectedGroupCode=code;profile.officeGroupCode=code;profile.groupCode=code;profile.officeGroupName=meta.name||profile.officeGroupName||'Gruppo Alberto';profile.officeGroupOwnerName=meta.ownerName||'';try{await setDoc(doc(db,'fidelityCustomers',customerCode()),{officeGroupCode:code,groupCode:code,officeGroupName:profile.officeGroupName,officeGroupOwnerName:profile.officeGroupOwnerName,officeGroupCodes:groupCodes()},{merge:true})}catch(err){console.warn(err)}render();await loadGroupMemberships();toast('Gruppo selezionato.')});
 
-function renderWallet(){const bal=Number(profile.walletBalance||0),enabled=profile.walletActive===true||bal>0;if($('walletStatus'))$('walletStatus').textContent=enabled?'ATTIVO':'NON ATTIVO';if($('walletBalance'))$('walletBalance').textContent='€ '+bal.toFixed(2).replace('.',',');if($('walletToggleBtn'))$('walletToggleBtn').textContent=enabled?'DISATTIVA PORTAFOGLIO':'ATTIVA PORTAFOGLIO'}
+function renderWallet(){const bal=Number(profile.walletBalance||0),enabled=profile.walletActive===true;if($('walletStatus'))$('walletStatus').textContent=enabled?'ATTIVO':'NON ATTIVO';if($('walletBalance'))$('walletBalance').textContent='€ '+bal.toFixed(2).replace('.',',');if($('walletToggleBtn'))$('walletToggleBtn').textContent=enabled?'DISATTIVA PORTAFOGLIO':'ATTIVA PORTAFOGLIO'}
 function render(){
   const full=[profile.name,profile.surname].filter(Boolean).join(' ')||auth.currentUser?.displayName||'Cliente Alberto';
   const email=profile.email||auth.currentUser?.email||'—',pts=Number(profile.points||0);
@@ -527,10 +527,10 @@ onAuthStateChanged(auth,async user=>{
   profile={uid:user.uid,code,email:user.email||'',name:(user.displayName||'Cliente').split(' ')[0]||'Cliente',surname:(user.displayName||'').split(' ').slice(1).join(' ')};
   try{const s=await getDoc(doc(db,'fidelityCustomers',code));if(s.exists())profile={...profile,...s.data(),uid:user.uid,code}}catch(e){console.warn(e)}
   const params=new URLSearchParams(location.search),group=params.get('group'),ref=params.get('ref');
-  if(ref&&!profile.referredBy){profile.referredBy=ref;try{await setDoc(doc(db,'fidelityCustomers',code),{referredBy:ref,referralStatus:'pending_first_purchase'},{merge:true})}catch(e){}}
+  if(ref&&!profile.referredBy&&!profile.lastPurchaseAt){profile.referredBy=ref;try{await setDoc(doc(db,'fidelityCustomers',code),{referredBy:ref,referralStatus:'pending_first_purchase'},{merge:true})}catch(e){}}
   if(group&&!groupCodes().includes(group)){try{
-    const gs=await getDoc(doc(db,'officeGroups',group)),gd=gs.exists()?gs.data():{};
     await setDoc(doc(db,'officeGroups',group,'members',user.uid),{uid:user.uid,code,name:[profile.name,profile.surname].filter(Boolean).join(' '),email:user.email||'',role:'member',joinedAt:serverTimestamp()},{merge:true});
+    let gd={};try{const gs=await getDoc(doc(db,'officeGroups',group));if(gs.exists())gd=gs.data()||{}}catch(e){}
     const codes=[...new Set([...groupCodes(),group])],patch={officeGroupCodes:codes};
     if(!profile.officeGroupCode){patch.officeGroupCode=group;patch.groupCode=group;patch.officeGroupName=gd.name||'Gruppo Alberto';patch.officeGroupOwnerName=gd.ownerName||''}
     await setDoc(doc(db,'fidelityCustomers',code),patch,{merge:true});profile={...profile,...patch};
@@ -578,7 +578,7 @@ $('saveProfileBtn').addEventListener('click',async()=>{
   const patch={name:$('editName').value.trim(),surname:$('editSurname').value.trim(),phone:$('editPhone').value.trim(),birthDate:$('editBirth').value};
   try{await setDoc(doc(db,'fidelityCustomers',customerCode()),patch,{merge:true});await updateProfile(user,{displayName:[patch.name,patch.surname].filter(Boolean).join(' ')});profile={...profile,...patch};render();toast('Profilo aggiornato.')}catch(e){console.warn(e);toast('Salvataggio non riuscito.')}
 });
-$('walletToggleBtn').addEventListener('click',async()=>{const on=profile.walletActive===true||Number(profile.walletBalance||0)>0,next=!on;try{await setDoc(doc(db,'fidelityCustomers',customerCode()),{walletActive:next},{merge:true});profile.walletActive=next;renderWallet();toast(next?'Portafoglio attivato.':'Portafoglio disattivato.')}catch(e){console.warn(e);toast('Modifica portafoglio non riuscita.')}});
+$('walletToggleBtn').addEventListener('click',async()=>{const on=profile.walletActive===true,next=!on;try{await setDoc(doc(db,'fidelityCustomers',customerCode()),{walletActive:next},{merge:true});profile.walletActive=next;renderWallet();toast(next?'Portafoglio attivato.':'Portafoglio disattivato.')}catch(e){console.warn(e);toast('Modifica portafoglio non riuscita.')}});
 $('createBookingBtn').addEventListener('click',async()=>{
   const user=auth.currentUser;if(!user)return toast('Accedi prima.');
   const date=$('bookDate').value,time=$('bookTime').value,name=$('bookName').value.trim(),phone=$('bookPhone').value.trim(),notes=$('bookNotes').value.trim();
