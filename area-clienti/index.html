@@ -1,1 +1,40 @@
-<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=../areaclienti.html"><title>Area Clienti Alberto</title><script>location.replace("../areaclienti.html")</script></head><body><p><a href="../areaclienti.html">Apri Area Clienti</a></p></body></html>
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=../areaclienti.html"><title>Area Clienti Alberto</title><script>location.replace("../areaclienti.html")</script></head><body><p><a href="../areaclienti.html">Apri Area Clienti</a></p><script id="alberto-visibility-control">
+(function(){
+  var until=Date.parse("2026-10-04T18:00:00+02:00");
+  if(Date.now()>=until)return;
+
+  var path=location.pathname.toLowerCase().replace(/\/+$/,"");
+  if(path.endsWith("/colazione.html") || path.endsWith("/preordina") || path.endsWith("/preordina/index.html")){
+    location.replace("/");
+    return;
+  }
+
+  function applyHidden(){
+    document.querySelectorAll("a[href]").forEach(function(a){
+      var raw=(a.getAttribute("href")||"").trim().toLowerCase();
+      var hide =
+        raw.indexOf("colazione.html")!==-1 ||
+        raw.indexOf("preordina/")!==-1 ||
+        raw.indexOf("pranzo.html#menu")!==-1 ||
+        raw==="#menu";
+      if(hide) a.style.display="none";
+    });
+
+    document.querySelectorAll("[onclick]").forEach(function(el){
+      var v=(el.getAttribute("onclick")||"").toLowerCase();
+      if(v.indexOf("colazione.html")!==-1 || v.indexOf("preordina")!==-1){
+        el.style.display="none";
+      }
+    });
+
+    var menu=document.getElementById("menu");
+    if(menu) menu.style.display="none";
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",applyHidden);
+  }else{
+    applyHidden();
+  }
+})();
+</script></body></html>
