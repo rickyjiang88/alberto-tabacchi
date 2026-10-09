@@ -251,7 +251,13 @@ window.markBookingPerson=async(id,code,action)=>{
 };
 window.closeBookingAndCredit=async id=>{
  if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)return;
- const b=allBookings.find(x=>x.id===id);if(!b)return;
+ let b=allBookings.find(x=>x.id===id);if(!b)return;
+ // Leggi le presenze aggiornate dal database, senza dipendere dal refresh della pagina.
+ try{
+   const fresh=await getDoc(doc(db,"orders",id));
+   if(!fresh.exists())return alert("Prenotazione non trovata");
+   b={...b,...fresh.data()};
+ }catch(e){console.error(e);return alert("Non riesco a leggere le presenze aggiornate. Riprova.");}
  const el=document.getElementById("actual-covers-"+id);
  const raw=String(el?.value??"").trim();
  const actual=Number(raw);
