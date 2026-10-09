@@ -162,48 +162,58 @@ window.renderBookings=()=>{
  const rows=allBookings.filter(b=>b.date===dayEl.value).sort((a,b)=>String(a.time||"").localeCompare(String(b.time||"")));
  const waiting=rows.filter(b=>(b.bookingStatus||"IN ATTESA")==="IN ATTESA"),confirmed=rows.filter(b=>["CONFERMATA","ARRIVATO"].includes(b.bookingStatus)),totals=bookingTotals(confirmed),pending=bookingTotals(waiting);
  const stats=[["PRENOTAZIONI",rows.filter(b=>b.bookingStatus!=="ANNULLATA").length,"Richieste non annullate"],["COPERTI PRENOTATI",totals.people+(totals.unspecified?" + ?":""),totals.unspecified?totals.unspecified+" gruppi da oltre 10 da precisare":"Confermati"],["DA CONFERMARE",waiting.length,pending.people+" coperti in attesa"+(pending.unspecified?" · "+pending.unspecified+" gruppi oltre 10":"")]];
- summary.innerHTML=stats.map(s=>'<div class="dash-tile"><small>'+bookingSafe(s[0])+'</small><strong>'+bookingSafe(s[1])+'</strong><em>'+bookingSafe(s[2])+'</em></div>').join("");
+ summary.innerHTML=stats.map(x=>'<div class="dash-tile"><small>'+bookingSafe(x[0])+'</small><strong>'+bookingSafe(x[1])+'</strong><em>'+bookingSafe(x[2])+'</em></div>').join("");
  list.innerHTML=rows.length?rows.map(b=>{
-  const status=b.bookingStatus||"IN ATTESA",id=bookingSafe(b.id),number=Number(b.covers),unknown=!Number.isInteger(number)||number<1||number>200;
+  const status=b.bookingStatus||"IN ATTESA",id=bookingSafe(b.id),reserved=Number(b.covers),unknown=!Number.isInteger(reserved)||reserved<1||reserved>200;
+  const legacyPaid=!!b.arrivalPointsAwarded&&!b.bookingPointsFinalized;
+  const finalized=!!b.bookingPointsFinalized||legacyPaid;
+  const canRecord=["CONFERMATA","ARRIVATO"].includes(status)&&!finalized;
   const badgeClass=status==="IN ATTESA"?"booking-waiting":status==="ANNULLATA"?"booking-cancelled":"booking-confirmed";
   const phone=String(b.phone||"").replace(/[^0-9+]/g,"");
   const statusActions=status==="ANNULLATA"?'<button onclick="window.setBookingStatus(\''+id+'\',\'IN ATTESA\')">RIPRISTINA</button>':
-   status==="ARRIVATO"?'<button disabled class="primary">TAVOLO ARRIVATO ✓</button>':
-   '<button '+(status==="CONFERMATA"?'disabled':'class="primary"')+' onclick="window.setBookingStatus(\''+id+'\',\'CONFERMATA\')">CONFERMATA</button>'+
-   '<button '+(status==="CONFERMATA"?'class="primary"':'disabled')+' onclick="window.setBookingStatus(\''+id+'\',\'ARRIVATO\')">SEGNA TAVOLO ARRIVATO</button>'+
-   '<button onclick="window.setBookingStatus(\''+id+'\',\'ANNULLATA\')">ANNULLA</button>';
+   finalized?'<button disabled class="primary">PUNTI GIÀ ASSEGNATI ✓</button>':
+   status==="IN ATTESA"?'<button class="primary" onclick="window.setBookingStatus(\''+id+'\',\'CONFERMATA\')">CONFERMA PRENOTAZIONE</button><button onclick="window.setBookingStatus(\''+id+'\',\'ANNULLATA\')">ANNULLA</button>':
+   '<button class="primary" style="background:#b5101b;color:white;font-weight:900" onclick="window.closeBookingAndCredit(\''+id+'\')">CHIUDI TAVOLO + ACCREDITA PUNTI</button>';
   const attendees=[],seen=new Set();
-  function addAttendee(code,name){
+  const addAttendee=(code,name)=>{
     code=String(code||"").trim().toUpperCase();
     if(!code||seen.has(code))return;
     seen.add(code);attendees.push({code,name:String(name||"Cliente Fidelity")});
-  }
+  };
   if(b.bookingType==="group"){
     if(Array.isArray(b.groupMembers))b.groupMembers.forEach(m=>{if(m)addAttendee(m.code,m.name||m.email)});
-    // Il prenotante riceve punti solo se realmente presente (mai in automatico).
     if(b.customerCode)addAttendee(b.customerCode,(b.name||"Prenotante")+" (prenotante)");
   }else if(b.customerCode)addAttendee(b.customerCode,b.name||"Prenotante");
-  const awarded=new Set(Array.isArray(b.arrivalPointsCustomerCodes)?b.arrivalPointsCustomerCodes.map(x=>String(x).trim().toUpperCase()):[]);
+  const present=new Set(Array.isArray(b.arrivalPresentCustomerCodes)?b.arrivalPresentCustomerCodes.map(x=>String(x).trim().toUpperCase()):[]);
   const absent=new Set(Array.isArray(b.arrivalAbsentCustomerCodes)?b.arrivalAbsentCustomerCodes.map(x=>String(x).trim().toUpperCase()):[]);
-  const canRecord=status==="CONFERMATA"||status==="ARRIVATO";
-  const points=(b.bookingType==="group"&&Number(b.covers||b.guests||0)>=6)?2:1;
-  const attendanceHtml=canRecord&&attendees.length?
+  const credited=new Set(Array.isArray(b.arrivalPointsCustomerCodes)?b.arrivalPointsCustomerCodes.map(x=>String(x).trim().toUpperCase()):[]);
+  const attending=attendees.filter(m=>present.has(m.code)).length;
+  const missing=attendees.filter(m=>!present.has(m.code)&&!absent.has(m.code)).length;
+  const attendanceHtml=canRecord?
     '<div class="booking-attendees" style="margin:14px 0;padding:12px;border:1px solid #e4d4d4;border-radius:10px">'+
-    '<b style="display:block;margin-bottom:6px">PRESENZA DEI SINGOLI CLIENTI</b>'+
-    '<small style="display:block;color:#666;margin-bottom:12px">Premi PRESENTE solo quando la persona arriva. Puoi segnare altri arrivi anche più tardi. Chi è ASSENTE riceve 0 punti.</small>'+
-    attendees.map(m=>{
-      const paid=awarded.has(m.code),missing=absent.has(m.code);
-      const buttons=paid?'<strong style="color:#136b36;font-size:12px">✓ PRESENTE · PUNTI GIÀ ASSEGNATI</strong>':
-        '<button type="button" data-booking-person-action="present" data-booking-id="'+id+'" data-booking-code="'+bookingSafe(m.code)+'" style="background:#b5101b;color:white;border:0;border-radius:8px;padding:10px 8px;font-weight:900;cursor:pointer;min-height:40px">PRESENTE +'+points+' PT</button>'+
-        (missing?'<span style="color:#777;font-size:12px;font-weight:800">ASSENTE SEGNATO</span>':
-        '<button type="button" data-booking-person-action="absent" data-booking-id="'+id+'" data-booking-code="'+bookingSafe(m.code)+'" style="border:1px solid #ccc;border-radius:8px;background:#fafafa;color:#333;padding:10px 8px;font-weight:800;cursor:pointer;min-height:40px">ASSENTE</button>');
-      return '<div style="border-top:1px solid #eee;padding:11px 0"><b style="display:block;margin-bottom:9px;color:#222;font-size:14px;overflow-wrap:anywhere">'+bookingSafe(m.name)+'</b><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+buttons+'</div></div>';
-    }).join("")+
-    '<small style="display:block;color:#666;margin-top:8px">Il bonus viene registrato una sola volta per ciascun cliente e prenotazione.</small></div>':
-    status==="ARRIVATO"&&!attendees.length?'<p class="status-note">Nessun profilo Fidelity collegato: nessun punto assegnabile.</p>':"";
-  return '<article class="card booking-card"><div class="booking-card-head"><h3>'+bookingSafe(b.time||"")+' · '+bookingSafe(b.name||"")+'</h3><span class="booking-label '+badgeClass+'">'+bookingSafe(status)+'</span></div><p><b>Coperti:</b> '+(unknown?"OLTRE 10 · NUMERO DA PRECISARE":number)+'</p><p><b>Telefono:</b> <a href="tel:'+bookingSafe(phone)+'">'+bookingSafe(b.phone||"")+'</a></p><small class="status-note">'+
-   (status==="IN ATTESA"?"Il cliente ha inviato la richiesta. Premi CONFERMATA per inviargli l’ok.":status==="CONFERMATA"?"Prenotazione confermata. Segna ogni cliente quando arriva.":status==="ARRIVATO"?"Arrivo del tavolo registrato. Puoi ancora confermare singoli clienti non arrivati prima.":"Prenotazione annullata.")+'</small>'+
-   (unknown?'<div class="covers-entry"><label for="covers-'+id+'">COPERTI EFFETTIVI</label><input type="number" id="covers-'+id+'" min="11" max="200" placeholder="N°"><button onclick="window.saveBookingCovers(\''+id+'\')">SALVA COPERTI</button></div>':"")+
+    '<b style="display:block;margin-bottom:6px">PRESENZE CLIENTI · PUNTI A CHIUSURA</b>'+
+    '<small style="display:block;color:#666;margin-bottom:12px">Conferma chi arriva, uno alla volta. Nessun punto viene accreditato finché non chiudi il tavolo.</small>'+
+    (attendees.length?attendees.map(m=>{
+      const isHere=present.has(m.code),isAbsent=absent.has(m.code);
+      return '<div style="border-top:1px solid #eee;padding:11px 0"><b style="display:block;margin-bottom:7px;overflow-wrap:anywhere">'+bookingSafe(m.name)+'</b><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
+        (isHere?'<strong style="color:#136b36;font-size:12px">✓ PRESENZA CONFERMATA · PUNTI IN ATTESA</strong><button type="button" data-booking-person-action="pending" data-booking-id="'+id+'" data-booking-code="'+bookingSafe(m.code)+'" style="padding:8px;border-radius:8px;border:1px solid #ccc;background:#fff;color:#555">ANNULLA PRESENZA</button>':
+        '<button type="button" data-booking-person-action="present" data-booking-id="'+id+'" data-booking-code="'+bookingSafe(m.code)+'" style="background:#b5101b;color:#fff;border:0;border-radius:8px;padding:10px;font-weight:900">CONFERMA PRESENZA</button>'+
+        (isAbsent?'<span style="font-size:12px;color:#666;font-weight:800">ASSENTE</span>':
+        '<button type="button" data-booking-person-action="absent" data-booking-id="'+id+'" data-booking-code="'+bookingSafe(m.code)+'" style="padding:10px;border:1px solid #ccc;border-radius:8px;background:#fafafa;color:#444">ASSENTE</button>'))+
+        '</div></div>';
+    }).join(""):'<p class="status-note">Nessun cliente Fidelity collegato. Puoi comunque chiudere il tavolo senza accreditare punti.</p>')+
+    '<p class="status-note" style="margin-top:10px"><b>'+attending+' presenze Fidelity confermate</b> · '+missing+' clienti ancora da confermare</p>'+
+    '<label style="display:block;font-size:13px;font-weight:900;margin-top:12px" for="actual-covers-'+id+'">COPERTI REALMENTE PRESENTI ALLA CHIUSURA</label>'+
+    '<input id="actual-covers-'+id+'" type="number" inputmode="numeric" min="0" max="200" step="1" placeholder="Inserisci il numero effettivo, es. 5" style="margin-top:6px" aria-label="Numero effettivo di persone arrivate">'+
+    '<small style="display:block;color:#666;margin-top:7px">Solo a chiusura: 1 punto per persona Fidelity presente se i coperti effettivi sono meno di 6; 2 punti a persona da 6 in su. Chi non è presente riceve 0.</small></div>':"";
+  const finalMessage=b.bookingPointsFinalized?
+    'TAVOLO CHIUSO · '+Number(b.bookingFinalActualCovers||0)+' persone effettive · '+Number(b.bookingFinalPointsEach||0)+' pt per cliente presente · '+credited.size+' clienti accreditati.':
+    legacyPaid?'Punti già attribuiti con il vecchio sistema. Non riassegnarli.':
+    status==="IN ATTESA"?"Prenotazione da confermare.":
+    status==="ANNULLATA"?"Prenotazione annullata.":
+    'Prenotazione confermata. Registra le presenze singolarmente, poi chiudi il tavolo.';
+  return '<article class="card booking-card"><div class="booking-card-head"><h3>'+bookingSafe(b.time||"")+' · '+bookingSafe(b.name||"")+'</h3><span class="booking-label '+badgeClass+'">'+bookingSafe(finalized?"CHIUSO":status)+'</span></div><p><b>Coperti prenotati:</b> '+(unknown?"OLTRE 10 · NUMERO DA PRECISARE":reserved)+'</p><p><b>Telefono:</b> <a href="tel:'+bookingSafe(phone)+'">'+bookingSafe(b.phone||"")+'</a></p><small class="status-note">'+bookingSafe(finalMessage)+'</small>'+
+   (unknown&&!finalized?'<div class="covers-entry"><label for="covers-'+id+'">COPERTI PRENOTATI</label><input type="number" id="covers-'+id+'" min="11" max="200" placeholder="N°"><button onclick="window.saveBookingCovers(\''+id+'\')">SALVA COPERTI</button></div>':"")+
    attendanceHtml+'<div class="booking-actions">'+statusActions+'</div></article>';
  }).join(""):'<div class="card"><p>Nessuna richiesta di prenotazione per la data selezionata.</p></div>';
 };
@@ -212,59 +222,101 @@ document.addEventListener("click",e=>{
  window.markBookingPerson(btn.dataset.bookingId,btn.dataset.bookingCode,btn.dataset.bookingPersonAction);
 });
 window.markBookingPerson=async(id,code,action)=>{
- if(!["present","absent"].includes(action)||!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)return;
+ if(!["present","absent","pending"].includes(action)||!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)return;
  const b=allBookings.find(x=>x.id===id);if(!b)return;
  code=String(code||"").trim().toUpperCase();
- const members=Array.isArray(b.groupMembers)?b.groupMembers:[];
- const attendee=members.find(m=>String(m?.code||"").trim().toUpperCase()===code);
+ const member=(Array.isArray(b.groupMembers)?b.groupMembers:[]).find(m=>String(m?.code||"").trim().toUpperCase()===code);
  const isBooker=String(b.customerCode||"").trim().toUpperCase()===code;
- if(!attendee&&!isBooker)return;
- const name=attendee?.name||attendee?.email||(isBooker?b.name:"Cliente Fidelity");
- const bonus=b.bookingType==="group"&&Number(b.covers||b.guests||0)>=6?2:1;
- const question=action==="present"?"Confermi che "+name+" è ARRIVATO? Accrediterai +"+bonus+" punto"+(bonus===1?"":"i")+" solo a questo cliente.":
-   "Segnare "+name+" come ASSENTE? Nessun punto sarà assegnato a questo cliente.";
- if(!confirm(question))return;
- document.querySelectorAll("#bookingList button[data-booking-person-action]").forEach(el=>el.disabled=true);
+ if(!member&&!isBooker)return;
+ if(!confirm(action==="present"?"Confermare la PRESENZA di "+(member?.name||b.name)+"? I punti verranno assegnati solo quando chiuderai il tavolo.":
+   action==="absent"?"Segnare "+(member?.name||b.name)+" come ASSENTE?":"Annullare la presenza di "+(member?.name||b.name)+"?"))return;
+ const buttons=document.querySelectorAll("#bookingList button[data-booking-person-action]");buttons.forEach(el=>el.disabled=true);
  try{
    await runTransaction(db,async tx=>{
-     const bookingRef=doc(db,"orders",id),bookSnap=await tx.get(bookingRef);
-     if(!bookSnap.exists())throw new Error("Prenotazione non trovata");
-     const current=bookSnap.data()||{};
-     if(!["CONFERMATA","ARRIVATO"].includes(current.bookingStatus))throw new Error("Prima conferma il tavolo");
+     const ref=doc(db,"orders",id),snap=await tx.get(ref);
+     if(!snap.exists())throw new Error("Prenotazione inesistente");
+     const current=snap.data()||{};
+     if(!["CONFERMATA","ARRIVATO"].includes(current.bookingStatus))throw new Error("Conferma prima la prenotazione");
+     if(current.bookingPointsFinalized||current.arrivalPointsAwarded)throw new Error("I punti di questa prenotazione sono gia' stati assegnati");
      const allowed=new Set([current.customerCode,...(Array.isArray(current.groupMembers)?current.groupMembers.map(m=>m?.code):[])].map(x=>String(x||"").trim().toUpperCase()).filter(Boolean));
-     if(!allowed.has(code))throw new Error("Il cliente non è collegato alla prenotazione");
-     if(current.arrivalPointsAwarded&&!Array.isArray(current.arrivalPointsCustomerCodes))throw new Error("Prenotazione con punti storici: controlla prima lo storico per evitare duplicazioni");
-     const credited=[...new Set((Array.isArray(current.arrivalPointsCustomerCodes)?current.arrivalPointsCustomerCodes:[]).map(x=>String(x).trim().toUpperCase()))];
-     const absentees=[...new Set((Array.isArray(current.arrivalAbsentCustomerCodes)?current.arrivalAbsentCustomerCodes:[]).map(x=>String(x).trim().toUpperCase()))];
-     if(credited.includes(code))return; // Protezione transazionale: mai due accrediti per la stessa prenotazione.
-     if(action==="absent"){
-       tx.update(bookingRef,{arrivalAbsentCustomerCodes:[...absentees.filter(x=>x!==code),code],bookingUpdatedAt:serverTimestamp()});return;
-     }
-     const customerRef=doc(db,"fidelityCustomers",code),customerSnap=await tx.get(customerRef);
-     if(!customerSnap.exists())throw new Error("Profilo Fidelity non trovato");
-     const award=current.bookingType==="group"&&Number(current.covers||current.guests||0)>=6?2:1;
-     tx.update(customerRef,{points:Number(customerSnap.data().points||0)+award,updatedAt:serverTimestamp(),lastVisitAt:serverTimestamp()});
-     const tr=doc(collection(db,"fidelityTransactions"));
-     tx.set(tr,{customerCode:code,points:award,type:"booking_arrival",bookingId:id,createdAt:serverTimestamp(),createdBy:auth.currentUser.uid});
-     tx.update(bookingRef,{bookingStatus:"ARRIVATO",bookingUpdatedAt:serverTimestamp(),arrivedAt:serverTimestamp(),
-       arrivalPointsAwarded:true,arrivalPointsValue:award,arrivalPointsCustomerCodes:[...credited,code],
-       arrivalAbsentCustomerCodes:absentees.filter(x=>x!==code),arrivalPointsCount:credited.length+1});
+     if(!allowed.has(code))throw new Error("Cliente non appartenente al tavolo");
+     const present=[...new Set((Array.isArray(current.arrivalPresentCustomerCodes)?current.arrivalPresentCustomerCodes:[]).map(x=>String(x).trim().toUpperCase()))].filter(x=>x!==code);
+     const absent=[...new Set((Array.isArray(current.arrivalAbsentCustomerCodes)?current.arrivalAbsentCustomerCodes:[]).map(x=>String(x).trim().toUpperCase()))].filter(x=>x!==code);
+     if(action==="present")present.push(code);
+     if(action==="absent")absent.push(code);
+     tx.update(ref,{arrivalPresentCustomerCodes:present,arrivalAbsentCustomerCodes:absent,bookingUpdatedAt:serverTimestamp()});
    });
- }catch(err){console.error(err);alert("Impossibile registrare la presenza: "+String(err?.message||"Riprova."));window.renderBookings();}
- finally{document.querySelectorAll("#bookingList button[data-booking-person-action]").forEach(el=>el.disabled=false);}
+ }catch(err){console.error(err);alert("Non è stato possibile registrare la presenza: "+String(err?.message||"Riprova."));}
+ finally{buttons.forEach(el=>el.disabled=false);}
+};
+window.closeBookingAndCredit=async id=>{
+ if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)return;
+ const b=allBookings.find(x=>x.id===id);if(!b)return;
+ const el=document.getElementById("actual-covers-"+id);
+ const raw=String(el?.value??"").trim();
+ const actual=Number(raw);
+ if(raw===""||!Number.isInteger(actual)||actual<0||actual>200)return alert("Inserisci il numero reale dei coperti arrivati (da 0 a 200).");
+ const attendees=[],seen=new Set();
+ function add(code){code=String(code||"").trim().toUpperCase();if(code&&!seen.has(code)){seen.add(code);attendees.push(code)}}
+ if(b.bookingType==="group"){(Array.isArray(b.groupMembers)?b.groupMembers:[]).forEach(m=>add(m?.code));add(b.customerCode)}else add(b.customerCode);
+ const present=new Set((Array.isArray(b.arrivalPresentCustomerCodes)?b.arrivalPresentCustomerCodes:[]).map(x=>String(x).trim().toUpperCase()));
+ const absent=new Set((Array.isArray(b.arrivalAbsentCustomerCodes)?b.arrivalAbsentCustomerCodes:[]).map(x=>String(x).trim().toUpperCase()));
+ const unverified=attendees.filter(code=>!present.has(code)&&!absent.has(code));
+ if(unverified.length)return alert("Ci sono ancora "+unverified.length+" clienti Fidelity DA CONFERMARE. Segnali PRESENTE o ASSENTE prima di chiudere il tavolo.");
+ const confirmed=attendees.filter(code=>present.has(code));
+ if(actual<confirmed.length)return alert("Hai segnato "+confirmed.length+" clienti PRESENTI, ma hai inserito solo "+actual+" coperti. Correggi il numero.");
+ if(b.covers&&actual>Number(b.covers)&&!confirm("I coperti presenti ("+actual+") superano quelli prenotati ("+b.covers+"). Continuare?"))return;
+ const award=actual>=6?2:1;
+ const message="CHIUDERE IL TAVOLO "+b.name+"? "+actual+" persone realmente presenti; "+confirmed.length+" clienti Fidelity riceveranno "+award+" punto"+(award===1?"":"i")+" a testa. Gli assenti non riceveranno punti. L'operazione non si può ripetere.";
+ if(!confirm(message))return;
+ const buttons=document.querySelectorAll("#bookingList button");buttons.forEach(btn=>btn.disabled=true);
+ try{
+   await runTransaction(db,async tx=>{
+     const bookingRef=doc(db,"orders",id),snap=await tx.get(bookingRef);
+     if(!snap.exists())throw new Error("Prenotazione inesistente");
+     const current=snap.data()||{};
+     if(!["CONFERMATA","ARRIVATO"].includes(current.bookingStatus))throw new Error("Prenotazione non confermata");
+     if(current.bookingPointsFinalized||current.arrivalPointsAwarded||current.bookingClosedAt)throw new Error("Tavolo gia' chiuso: punti non riaccreditati");
+     const allowed=new Set([current.customerCode,...(Array.isArray(current.groupMembers)?current.groupMembers.map(m=>m?.code):[])].map(x=>String(x||"").trim().toUpperCase()).filter(Boolean));
+     const codes=[...new Set((Array.isArray(current.arrivalPresentCustomerCodes)?current.arrivalPresentCustomerCodes:[]).map(x=>String(x).trim().toUpperCase()))];
+     const notHere=new Set((Array.isArray(current.arrivalAbsentCustomerCodes)?current.arrivalAbsentCustomerCodes:[]).map(x=>String(x).trim().toUpperCase()));
+     if(codes.some(x=>!allowed.has(x)||notHere.has(x)))throw new Error("Presenze incoerenti, ricontrolla");
+     if([...allowed].some(x=>!codes.includes(x)&&!notHere.has(x)))throw new Error("Ci sono clienti ancora da confermare. Aggiorna prima di chiudere.");
+     if(actual<codes.length)throw new Error("I coperti reali sono inferiori ai clienti presenti.");
+     const refs=codes.map(code=>({code,ref:doc(db,"fidelityCustomers",code)}));
+     const customers=await Promise.all(refs.map(x=>tx.get(x.ref)));
+     if(customers.some(x=>!x.exists()))throw new Error("Un cliente registrato non e' disponibile");
+     const bonus=actual>=6?2:1;
+     refs.forEach((x,i)=>{
+       const before=Number(customers[i].data().points||0);
+       tx.update(x.ref,{points:before+bonus,updatedAt:serverTimestamp(),lastVisitAt:serverTimestamp()});
+       tx.set(doc(collection(db,"fidelityTransactions")),{
+         customerCode:x.code,points:bonus,type:"booking_arrival",bookingId:id,
+         createdAt:serverTimestamp(),createdBy:auth.currentUser.uid
+       });
+     });
+     tx.update(bookingRef,{
+       bookingStatus:"ARRIVATO",bookingUpdatedAt:serverTimestamp(),arrivedAt:serverTimestamp(),
+       bookingPointsFinalized:true,bookingClosedAt:serverTimestamp(),
+       bookingFinalActualCovers:actual,bookingFinalPointsEach:bonus,
+       arrivalPointsAwarded:codes.length>0,arrivalPointsCustomerCodes:codes,
+       arrivalPointsCount:codes.length,arrivalPointsValue:bonus
+     });
+   });
+ }catch(err){console.error(err);alert("Non è stato possibile chiudere il tavolo: "+String(err?.message||"Riprova."));window.renderBookings();}
+ finally{buttons.forEach(btn=>btn.disabled=false);}
 };
 window.setBookingStatus=async(id,status)=>{
- if(!["IN ATTESA","CONFERMATA","ARRIVATO","ANNULLATA"].includes(status))return;
+ if(!["IN ATTESA","CONFERMATA","ANNULLATA"].includes(status))return;
  const b=allBookings.find(x=>x.id===id);if(!b||!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)return;
+ if(b.bookingPointsFinalized||b.arrivalPointsAwarded)return alert("Prenotazione gia' accreditata: non modificabile");
  if(status==="ANNULLATA"&&!confirm("Annullare la prenotazione di "+b.name+"?"))return;
- if(status==="ARRIVATO"&&!confirm("Segnare il tavolo come ARRIVATO? Questo non attribuisce punti: ogni cliente deve essere confermato singolarmente."))return;
  const buttons=document.querySelectorAll("#bookingList button");buttons.forEach(btn=>btn.disabled=true);
  try{
    const patch={bookingStatus:status,bookingUpdatedAt:serverTimestamp()};
    if(status==="CONFERMATA")patch.bookingConfirmedAt=serverTimestamp();
-   if(status==="ARRIVATO")patch.arrivedAt=serverTimestamp();
    await updateDoc(doc(db,"orders",id),patch);
- }catch(err){console.error(err);alert("Impossibile aggiornare la prenotazione. "+String(err?.message||"Riprova."));window.renderBookings();}
+ }catch(e){console.error(e);alert("Non è stato possibile aggiornare la prenotazione.");window.renderBookings();}
  finally{buttons.forEach(btn=>btn.disabled=false);}
 };
 window.saveBookingCovers=async id=>{
