@@ -65,6 +65,12 @@
 .wallet-qr-box #walletQr canvas,.wallet-qr-box #walletQr img{display:block!important;width:min(256px,100%)!important;height:auto!important;aspect-ratio:1/1!important;max-width:100%!important;position:static!important;margin:0 auto!important}
 .wallet-qr-box>b{position:relative!important;display:block!important;margin:0 0 8px!important;clear:both!important;z-index:1}
 @media(max-width:760px){.wallet-qr-box #walletQr{height:auto!important;min-height:0!important}.wallet-qr-box #walletQr canvas,.wallet-qr-box #walletQr img{width:min(256px,100%)!important;height:auto!important}}
+
+/* Definitive wallet QR sizing: constrain generated SVG as well as img/canvas */
+.wallet-qr-box{overflow:hidden!important}
+.wallet-qr-box #walletQr{width:100%!important;max-width:240px!important;min-height:0!important;height:auto!important;display:block!important;margin:0 auto 18px!important;overflow:hidden!important}
+.wallet-qr-box #walletQr svg,.wallet-qr-box #walletQr img,.wallet-qr-box #walletQr canvas{display:block!important;width:100%!important;max-width:240px!important;height:auto!important;aspect-ratio:1/1!important;margin:0 auto!important;position:static!important;transform:none!important}
+.wallet-qr-box>b{display:block!important;clear:both!important;margin:0 0 8px!important}
 </style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
