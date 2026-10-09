@@ -59,6 +59,12 @@
 .wallet-pass-actions{width:100%}.wallet-pass-btn{box-sizing:border-box;min-height:48px;white-space:normal;text-align:center;line-height:1.35}
 @media(max-width:760px){.wallet-pass-card{grid-template-columns:minmax(0,1fr);gap:24px}.wallet-qr-box #walletQr{width:190px;height:auto;min-height:190px}.wallet-qr-box #walletQr canvas,.wallet-qr-box #walletQr img{width:190px!important;height:190px!important}.wallet-pass-card h2{font-size:clamp(23px,6vw,32px);line-height:1.15}}
 @media(max-width:360px){.wallet-qr-box{padding:18px 10px}.wallet-pass-btn{font-size:11px;padding:12px 8px}}
+
+/* QR rendering library inserts a 256px image: let the container grow instead of overlapping its label */
+.wallet-qr-box #walletQr{width:100%!important;height:auto!important;min-height:0!important;max-width:100%!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 18px!important;overflow:visible!important}
+.wallet-qr-box #walletQr canvas,.wallet-qr-box #walletQr img{display:block!important;width:min(256px,100%)!important;height:auto!important;aspect-ratio:1/1!important;max-width:100%!important;position:static!important;margin:0 auto!important}
+.wallet-qr-box>b{position:relative!important;display:block!important;margin:0 0 8px!important;clear:both!important;z-index:1}
+@media(max-width:760px){.wallet-qr-box #walletQr{height:auto!important;min-height:0!important}.wallet-qr-box #walletQr canvas,.wallet-qr-box #walletQr img{width:min(256px,100%)!important;height:auto!important}}
 </style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
