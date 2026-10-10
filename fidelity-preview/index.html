@@ -105,6 +105,11 @@ body.fidelity-app .sidebar .navbtn{min-height:44px}
 #homeQr{width:190px;height:190px;display:grid;place-items:center}#homeQr img,#homeQr canvas{max-width:100%;height:auto!important}
 #homeQrCode{margin:0;font-size:12px}
 @media(max-width:650px){.fidelity-home-qr{flex-direction:column;text-align:center;padding:20px 16px;margin:14px 0 18px}.fidelity-home-qr-heading h2{font-size:23px}.fidelity-home-qr-heading p{margin-bottom:0}#homeQr{width:190px;height:190px}}
+
+.fidelity-app-services{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 20px}
+.fidelity-app-services a{display:flex;align-items:center;justify-content:center;gap:9px;padding:15px 10px;border:1px solid #eadfd4;border-radius:15px;background:#fff;color:#211d1a;text-decoration:none;font-size:14px;font-weight:800;text-align:center}
+.fidelity-app-services a span{font-size:20px}
+@media(min-width:850px){.fidelity-app-services{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
@@ -236,6 +241,12 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
         <div class="fidelity-home-qr-heading"><span class="eyebrow">LA TUA TESSERA</span><h2>Il tuo QR Alberto</h2><p>Mostralo alla cassa per accumulare punti.</p></div>
         <div class="fidelity-home-qr-code"><div id="homeQr"></div><div id="homeQrCode" class="code">—</div></div>
       </div>
+    <div class="fidelity-app-services" aria-label="Servizi Alberto">
+      <a href="/pranzo.html#menu"><span>🍽️</span> Menù del giorno</a>
+      <a href="/preordina/"><span>🛍️</span> Preordina</a>
+      <a href="/colazione.html"><span>☕</span> Colazione</a>
+      <a href="/catering.html"><span>🎉</span> Catering</a>
+    </div>
       <div class="grid4">
         <div class="card dark"><small>PUNTI ALBERTO</small><div id="dashPoints" class="metric">0</div><div class="metric-sub">punti disponibili</div></div>
         <div class="card"><small>ORDINI</small><div id="dashOrders" class="metric">0</div><div class="metric-sub">ordini registrati</div></div>
