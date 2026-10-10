@@ -962,7 +962,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
       title.textContent=link.textContent.trim().replace(/^[^\p{L}]+/u,'');
       overlay.hidden=false;
       document.body.style.overflow='hidden';
-      frame.src=link.getAttribute('href');
+      frame.src=link.getAttribute('href')+(link.getAttribute('href')==='/preordina/'?'?app=1':'');
     });
   });
   back.addEventListener('click',()=>{
