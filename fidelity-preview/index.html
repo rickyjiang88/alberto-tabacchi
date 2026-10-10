@@ -184,7 +184,7 @@ body.fidelity-app .sidebar .navbtn{min-height:44px}
 }
 
 /* Prevent horizontal overflow and iOS input focus zoom in the app */
-html,body{max-width:100%;overflow-x:hidden}
+html,body{max-width:100%;overflow-x:hidden;touch-action:pan-y}
 body.fidelity-app .shell,body.fidelity-app .main,body.fidelity-app .view{min-width:0;max-width:100%}
 @media(max-width:850px){body.fidelity-app input,body.fidelity-app select,body.fidelity-app textarea{font-size:16px!important}}
 </style>
@@ -1024,6 +1024,21 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   }
   select(tab);
  }));
+})();
+</script>
+
+<script id="fidelity-ios-zoom-guard">
+(function(){
+  // iOS standalone web apps can still respond to pinch/double-tap gestures.
+  if(!/iPhone|iPad|iPod/i.test(navigator.userAgent))return;
+  document.addEventListener('gesturestart',function(e){e.preventDefault()},{passive:false});
+  document.addEventListener('gesturechange',function(e){e.preventDefault()},{passive:false});
+  document.addEventListener('gestureend',function(e){e.preventDefault()},{passive:false});
+  var lastTouchEnd=0;
+  document.addEventListener('touchend',function(e){
+    if(e.target.closest('input,textarea,select,[contenteditable],button,a'))return;
+    var now=Date.now();if(now-lastTouchEnd<300)e.preventDefault();lastTouchEnd=now;
+  },{passive:false});
 })();
 </script>
 </body>
