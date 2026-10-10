@@ -110,6 +110,14 @@ body.fidelity-app .sidebar .navbtn{min-height:44px}
 .fidelity-app-services a{display:flex;align-items:center;justify-content:center;gap:9px;padding:15px 10px;border:1px solid #eadfd4;border-radius:15px;background:#fff;color:#211d1a;text-decoration:none;font-size:14px;font-weight:800;text-align:center}
 .fidelity-app-services a span{font-size:20px}
 @media(min-width:850px){.fidelity-app-services{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Pagine dei servizi aperte dentro Alberto Fidelity */
+.fidelity-service-overlay[hidden]{display:none!important}
+.fidelity-service-overlay{position:fixed;inset:0;z-index:99999;background:#fff;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+.fidelity-service-bar{display:flex;align-items:center;gap:12px;min-height:58px;padding:9px 15px;background:#b5101b;color:white;flex:none}
+.fidelity-service-back{border:1px solid rgba(255,255,255,.55);border-radius:11px;background:#fff;color:#a80013;font-weight:800;padding:10px 15px;cursor:pointer}
+.fidelity-service-title{font-size:17px;font-weight:800}
+.fidelity-service-frame{width:100%;height:100%;border:0;flex:1;min-height:0;background:white}
 </style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
@@ -899,6 +907,34 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   panel.querySelector('#fidelity-install-close').addEventListener('click',()=>{panel.hidden=true;sessionStorage.setItem('alberto-install-dismissed','1')});
   window.addEventListener('appinstalled',()=>{panel.hidden=true});
   if(ios)setTimeout(show,1800);
+})();
+</script>
+<div id="fidelityServiceOverlay" class="fidelity-service-overlay" hidden aria-label="Servizio Alberto">
+  <div class="fidelity-service-bar"><button type="button" id="fidelityServiceBack" class="fidelity-service-back">← Indietro</button><span id="fidelityServiceTitle" class="fidelity-service-title">Alberto</span></div>
+  <iframe id="fidelityServiceFrame" class="fidelity-service-frame" title="Servizio Alberto" loading="eager"></iframe>
+</div>
+<script>
+(function(){
+  const overlay=document.getElementById('fidelityServiceOverlay');
+  const frame=document.getElementById('fidelityServiceFrame');
+  const title=document.getElementById('fidelityServiceTitle');
+  const back=document.getElementById('fidelityServiceBack');
+  const links=document.querySelectorAll('.fidelity-app-services a');
+  links.forEach(link=>{
+    if(!/^\/(pranzo\.html|preordina\/)/.test(link.getAttribute('href')||''))return;
+    link.addEventListener('click',event=>{
+      event.preventDefault();
+      title.textContent=link.textContent.trim().replace(/^[^\p{L}]+/u,'');
+      overlay.hidden=false;
+      document.body.style.overflow='hidden';
+      frame.src=link.getAttribute('href');
+    });
+  });
+  back.addEventListener('click',()=>{
+    overlay.hidden=true;
+    document.body.style.overflow='';
+    frame.src='about:blank';
+  });
 })();
 </script>
 </body>
