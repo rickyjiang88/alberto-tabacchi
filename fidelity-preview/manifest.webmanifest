@@ -1,0 +1,19 @@
+{
+  "name": "Alberto Fidelity (Prova)",
+  "short_name": "Alberto",
+  "description": "Versione di prova dell'Area Clienti Alberto Fidelity",
+  "lang": "it",
+  "start_url": "/fidelity-preview/?source=pwa",
+  "scope": "/fidelity-preview/",
+  "display": "standalone",
+  "background_color": "#b5101b",
+  "theme_color": "#b5101b",
+  "icons": [
+    {
+      "src": "/fidelity-preview/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
