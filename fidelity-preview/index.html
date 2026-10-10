@@ -231,7 +231,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
 
   <main class="content">
     <section id="view-dashboard" class="view on">
-      <span class="eyebrow">AREA CLIENTE</span><h1 id="helloTitle">Bentornato.</h1><p class="lead">Qui trovi tutto il tuo Alberto, organizzato per desktop.</p>
+      <span class="eyebrow">AREA CLIENTE</span><h1 id="helloTitle">Bentornato/a</h1><p class="lead">Qui trovi tutto il tuo Alberto, organizzato per desktop.</p>
       <div class="card fidelity-home-qr" aria-label="Tessera fedeltà Alberto">
         <div class="fidelity-home-qr-heading"><span class="eyebrow">LA TUA TESSERA</span><h2>Il tuo QR Alberto</h2><p>Mostralo alla cassa per accumulare punti.</p></div>
         <div class="fidelity-home-qr-code"><div id="homeQr"></div><div id="homeQrCode" class="code">—</div></div>
@@ -552,7 +552,7 @@ function renderWallet(){const bal=Number(profile.walletBalance||0),enabled=profi
 function render(){
   const full=[profile.name,profile.surname].filter(Boolean).join(' ')||auth.currentUser?.displayName||'Cliente Alberto';
   const email=profile.email||auth.currentUser?.email||'—',pts=Number(profile.points||0);
-  $('helloTitle').textContent='Bentornato, '+(profile.name||'Cliente')+'.';
+  $('helloTitle').textContent='Bentornato/a, '+(profile.name||'Cliente')+'.';
   $('topName').textContent=full;$('topEmail').textContent=email;$('topAvatar').textContent=initials();
   $('profileAvatar').textContent=initials();$('profileName').textContent=full;$('profileEmail').textContent=email;
   $('detailName').textContent=full;$('detailEmail').textContent=email;$('detailPhone').textContent=profile.phone||'—';$('detailBirth').textContent=profile.birthDate?fmtDate(profile.birthDate):'—';
