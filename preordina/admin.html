@@ -109,7 +109,7 @@ async function processPaidFidelityPurchase(code,amount,useWallet){
 window.creditFidelityPoints=async()=>{
   if(!currentFidelityCustomer)return;
   const amount=Number(document.getElementById('fidReceiptAmount').value||0),points=Math.floor(amount),status=document.getElementById('fidCreditStatus');
-  if(!(amount>0)||points<1){status.textContent='Inserisci un importo valido.';return}
+  if(!(amount>0)){status.textContent='Inserisci un importo valido.';return}
   status.textContent='Accredito in corso…';
   try{
     const result=await processPaidFidelityPurchase(currentFidelityCustomer.code,amount,false);
@@ -665,6 +665,7 @@ window.creditMissingReferral=async invitedCode=>{
       tx.set(awardRef,{customerCode:inviterCode,referredCustomerCode:code,points:5,type:"referral_first_purchase",createdAt:serverTimestamp(),createdBy:auth.currentUser.uid,reason:"Accredito recuperato dopo il primo acquisto pagato"});
     });
     await window.loadReferralAudit();
+    await window.loadFidelityCustomerList();
     alert("Bonus Porta un amico: 5 punti accreditati una sola volta. Lo storico è stato aggiornato.");
   }catch(e){await window.loadReferralAudit();alert("Accredito non eseguito: "+String(e?.message||e?.code||e));}
 };
@@ -690,7 +691,7 @@ window.renderReferralAudit=()=>{
     +(x.paid&&!x.rewarded&&x.inviter&&x.inviterCode!==referralAuditCode(x.invitee.code)&&/^[A-Z0-9-]+$/.test(referralAuditCode(x.invitee.code))?'<button type="button" class="red" style="margin-top:8px;padding:10px 12px;border:0;border-radius:9px;cursor:pointer" onclick="window.creditMissingReferral(\''+referralAuditEsc(referralAuditCode(x.invitee.code))+'\')">ACCREDITA 5 PUNTI ALL’INVITANTE</button>':'')
     +'</div>').join("");
   out.innerHTML=stats+(cards||'<p class="status-note">Nessun invito personale trovato'+(q?" per questa ricerca":"")+'. Chi entra solo con un link di gruppo può non risultare qui.</p>')
-    +'<p class="status-note" style="margin-top:12px">Report di sola lettura. I bonus da verificare non vengono assegnati automaticamente.</p>';
+    +'<p class="status-note" style="margin-top:12px">Il controllo è di sola lettura. Solo il pulsante ACCREDITA 5 PUNTI modifica il saldo, dopo la tua conferma.</p>';
 };
 
 </script></body></html>
