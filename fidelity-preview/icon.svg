@@ -1,1 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#c60016"/><text x="256" y="260" text-anchor="middle" fill="white" font-family="Georgia,serif" font-size="95" font-style="italic" font-weight="bold">Alberto</text><text x="256" y="325" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="48" font-weight="bold">FIDELITY</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="106" fill="#ad0012"/>
+<path fill="#fffaf3" d="M296 70c-81-3-153 57-154 143-1 66 38 118 98 136-34-25-52-60-45-98 8-43 45-70 88-72 39-1 69-26 69-57 0-28-23-50-56-52Z"/>
+<circle cx="294" cy="123" r="20" fill="#ad0012"/>
+<circle cx="257" cy="295" r="21" fill="#fffaf3"/>
+<text x="256" y="409" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="65" letter-spacing="2" fill="#fffaf3">ALBERTO</text>
+<path d="M166 429h180" stroke="#fffaf3" stroke-width="3" stroke-linecap="round"/>
+<text x="256" y="470" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="28" letter-spacing="11" fill="#fffaf3">FIDELITY</text>
+</svg>
