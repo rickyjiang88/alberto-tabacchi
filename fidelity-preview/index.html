@@ -129,6 +129,24 @@ body.fidelity-app .sidebar .navbtn{min-height:44px}
  .fidelity-bottom-nav button svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
  .fidelity-bottom-nav button.active{color:#b5101b}
 }
+
+/* iOS home indicator: keep bottom tabs above the system gesture area */
+@media(max-width:850px){
+ body.fidelity-app .fidelity-bottom-nav{
+   padding-top:10px!important;
+   padding-bottom:calc(22px + env(safe-area-inset-bottom, 0px))!important;
+   min-height:calc(78px + env(safe-area-inset-bottom, 0px));
+   box-sizing:border-box;
+ }
+ body.fidelity-app .fidelity-bottom-nav button{
+   min-height:51px;
+   padding:4px 0 7px;
+   gap:6px;
+ }
+ body.fidelity-app .content{
+   padding-bottom:calc(130px + env(safe-area-inset-bottom, 0px))!important;
+ }
+}
 </style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
