@@ -194,6 +194,7 @@ body.fidelity-app .shell,body.fidelity-app .main,body.fidelity-app .view{min-wid
 .fidelity-settings-row span{font-size:25px;color:#b5101b}.fidelity-settings-note{font-size:12px;color:#786e67;margin:9px 0 0}
 #profileEditPanel[hidden]{display:none!important}#profileEditPanel>.card{border:0;box-shadow:none;padding:14px 0;margin:0!important}
 .fidelity-logout-row{color:#b5101b!important;font-weight:800!important}
+.fidelity-service-overlay{position:fixed}.fidelity-menu-loading[hidden]{display:none!important}.fidelity-menu-loading{position:absolute;inset:58px 0 0;background:#fff;z-index:3;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;color:#b5101b}.fidelity-menu-spinner{width:36px;height:36px;border:4px solid #f1e5e5;border-top-color:#b5101b;border-radius:50%;animation:fidelity-spin .7s linear infinite}@keyframes fidelity-spin{to{transform:rotate(360deg)}}
 </style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
@@ -997,6 +998,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 </nav>
 <div id="fidelityServiceOverlay" class="fidelity-service-overlay" hidden aria-label="Servizio Alberto">
   <div class="fidelity-service-bar"><span id="fidelityServiceTitle" class="fidelity-service-title">Alberto</span></div>
+  <div id="fidelityMenuLoading" class="fidelity-menu-loading" hidden><span class="fidelity-menu-spinner"></span><strong>Caricamento menù…</strong></div>
   <iframe id="fidelityServiceFrame" class="fidelity-service-frame" title="Servizio Alberto" loading="eager"></iframe>
 </div>
 <script>
@@ -1029,7 +1031,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
     const overlay=document.getElementById('fidelityServiceOverlay');
     const frame=document.getElementById('fidelityServiceFrame');
     const title=document.getElementById('fidelityServiceTitle');
-    if(overlay&&frame){if(title)title.textContent='Menù';if(frame.getAttribute('src')!=='/preordina/?app=1')frame.src='/preordina/?app=1';overlay.hidden=false;document.body.style.overflow='hidden';}
+    if(overlay&&frame){if(title)title.textContent='Menù';const loading=document.getElementById('fidelityMenuLoading');if(loading)loading.hidden=false;frame.style.visibility='hidden';frame.src='/preordina/?app=1';overlay.hidden=false;document.body.style.overflow='hidden';}
   }else{
     const overlay=document.getElementById('fidelityServiceOverlay');
     if(overlay&&!overlay.hidden){overlay.hidden=true;document.body.style.overflow='';document.getElementById('fidelityServiceFrame').src='about:blank';}
@@ -1083,6 +1085,15 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
    if(focused&&focused.matches('input,textarea,select,[contenteditable]'))return;
    location.reload();
   }
+ });
+})();
+</script><script id="fidelity-menu-load-guard">
+(function(){
+ const frame=document.getElementById('fidelityServiceFrame');const loading=document.getElementById('fidelityMenuLoading');
+ if(!frame)return;
+ frame.addEventListener('load',()=>{
+  // Wait for the embedded menu's app styles to settle before revealing it.
+  setTimeout(()=>{frame.style.visibility='visible';if(loading)loading.hidden=true;},450);
  });
 })();
 </script></body>
