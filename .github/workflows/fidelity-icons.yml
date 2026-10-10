@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - '.github/workflows/fidelity-icons.yml'
+      - 'fidelity-preview/icon.svg'
   workflow_dispatch:
 permissions:
   contents: write
