@@ -1,0 +1,32 @@
+name: Build Alberto Fidelity icons
+on:
+  push:
+    paths:
+      - '.github/workflows/fidelity-icons.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  icons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install cairosvg
+      - name: Generate iPhone and Android icons
+        run: |
+          python - <<'PY'
+          import cairosvg
+          from pathlib import Path
+          svg=Path('fidelity-preview/icon.svg').read_bytes()
+          for size in (180,192,512):
+              cairosvg.svg2png(bytestring=svg,write_to=f'fidelity-preview/icon-{size}.png',output_width=size,output_height=size)
+          PY
+      - name: Commit preview icons
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add fidelity-preview/icon-180.png fidelity-preview/icon-192.png fidelity-preview/icon-512.png
+          git diff --cached --quiet || (git commit -m "Generate Alberto Fidelity iOS Android icons" && git push)
