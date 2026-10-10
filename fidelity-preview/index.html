@@ -998,7 +998,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 </nav>
 <div id="fidelityServiceOverlay" class="fidelity-service-overlay" hidden aria-label="Servizio Alberto">
   <div class="fidelity-service-bar"><span id="fidelityServiceTitle" class="fidelity-service-title">Alberto</span></div>
-  <div id="fidelityMenuLoading" class="fidelity-menu-loading" hidden><span class="fidelity-menu-spinner"></span><strong>Caricamento menù…</strong></div>
+  <div id="fidelityMenuLoading" class="fidelity-menu-loading" hidden aria-label="Apertura menù"></div>
   <iframe id="fidelityServiceFrame" class="fidelity-service-frame" title="Servizio Alberto" loading="eager"></iframe>
 </div>
 <script>
@@ -1031,7 +1031,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
     const overlay=document.getElementById('fidelityServiceOverlay');
     const frame=document.getElementById('fidelityServiceFrame');
     const title=document.getElementById('fidelityServiceTitle');
-    if(overlay&&frame){if(title)title.textContent='Menù';const loading=document.getElementById('fidelityMenuLoading');if(loading)loading.hidden=false;frame.style.visibility='hidden';frame.src='/preordina/?app=1';overlay.hidden=false;document.body.style.overflow='hidden';}
+    if(overlay&&frame){if(title)title.textContent='Menù';const loading=document.getElementById('fidelityMenuLoading');if(loading)loading.hidden=false;frame.style.visibility='hidden';if(frame.getAttribute('src')!=='/preordina/?app=1')frame.src='/preordina/?app=1';overlay.hidden=false;document.body.style.overflow='hidden';}
   }else{
     const overlay=document.getElementById('fidelityServiceOverlay');
     if(overlay&&!overlay.hidden){overlay.hidden=true;document.body.style.overflow='';document.getElementById('fidelityServiceFrame').src='about:blank';}
@@ -1093,7 +1093,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
  if(!frame)return;
  frame.addEventListener('load',()=>{
   // Wait for the embedded menu's app styles to settle before revealing it.
-  setTimeout(()=>{frame.style.visibility='visible';if(loading)loading.hidden=true;},450);
+  setTimeout(()=>{frame.style.visibility='visible';if(loading)loading.hidden=true;},120);
  });
 })();
 </script></body>
