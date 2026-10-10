@@ -149,7 +149,7 @@ body.fidelity-app .sidebar .navbtn{min-height:44px}
 }
 <style>
 @media(max-width:850px){
- body.fidelity-app .fidelity-bottom-nav{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ body.fidelity-app .fidelity-bottom-nav{grid-template-columns:repeat(4,minmax(0,1fr))!important}
  body.fidelity-app .fidelity-bottom-nav button{font-size:10px;white-space:nowrap}
 }
 </style>
@@ -944,9 +944,10 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 })();
 </script>
 <nav class="fidelity-bottom-nav" aria-label="Navigazione app">
-<button type="button" data-app-tab="profile" class="active"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg>PROFILO</button>
-<button type="button" data-app-tab="menu"><svg viewBox="0 0 24 24"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M16 3v18M16 3c5 3 5 9 0 10"/></svg>MENÙ DEL GIORNO</button>
+<button type="button" data-app-tab="home" class="active"><svg viewBox="0 0 24 24"><path d="m3 11 9-7 9 7M5 10v10h14V10M9 20v-6h6v6"/></svg>HOME</button>
+<button type="button" data-app-tab="menu"><svg viewBox="0 0 24 24"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M16 3v18M16 3c5 3 5 9 0 10"/></svg>MENÙ</button>
 <button type="button" data-app-tab="preorder"><svg viewBox="0 0 24 24"><path d="M4 8h16l-1 12H5L4 8ZM8 9V6a4 4 0 0 1 8 0v3"/></svg>PREORDINA</button>
+<button type="button" data-app-tab="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg>PROFILO</button>
 </nav>
 <div id="fidelityServiceOverlay" class="fidelity-service-overlay" hidden aria-label="Servizio Alberto">
   <div class="fidelity-service-bar"><button type="button" id="fidelityServiceBack" class="fidelity-service-back">← Indietro</button><span id="fidelityServiceTitle" class="fidelity-service-title">Alberto</span></div>
@@ -988,7 +989,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   }else{
     const overlay=document.getElementById('fidelityServiceOverlay');
     if(overlay&&!overlay.hidden)document.getElementById('fidelityServiceBack').click();
-    const target='profile';
+    const target=tab==='home'?'dashboard':'profile';
     const nav=document.querySelector('.sidebar .navbtn[data-go="'+target+'"]');
     if(nav)nav.click();
   }
