@@ -160,6 +160,16 @@ body.fidelity-app .sidebar .navbtn{min-height:44px}
  body.fidelity-app .fidelity-service-bar{min-height:49px;padding:9px 16px}
  body.fidelity-app .fidelity-service-frame{min-height:0}
 }
+
+.fidelity-client-links{display:none}
+@media(max-width:850px){
+.fidelity-bottom-nav{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;width:100%!important;left:0!important;right:0!important;justify-items:stretch!important;padding-left:0!important;padding-right:0!important}
+.fidelity-bottom-nav button{width:100%!important;min-width:0!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important}
+.fidelity-client-links{display:block;margin:20px 16px 110px;padding:18px;background:#fff;border:1px solid #e9ded8;border-radius:20px}
+.fidelity-client-links h2{font-size:20px;margin:0 0 14px}
+.fidelity-client-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fidelity-client-grid button{border:1px solid #e5d9d1;background:#faf8f6;color:#231e1b;border-radius:12px;padding:15px 8px;font-weight:700;font-size:13px}
+}
 </style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
@@ -951,6 +961,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   if(ios)setTimeout(show,1800);
 })();
 </script>
+<section class="fidelity-client-links" id="fidelityClientLinks"><h2>La tua Area Clienti</h2><div class="fidelity-client-grid"><button type="button" data-client-go="points">Punti e premi</button><button type="button" data-client-go="orders">I miei ordini</button><button type="button" data-client-go="bookings">Prenotazioni</button><button type="button" data-client-go="group">Gruppo ufficio</button><button type="button" data-client-go="invite">Porta un amico</button><button type="button" data-client-go="notifications">Notifiche</button></div></section>
 <nav class="fidelity-bottom-nav" aria-label="Navigazione app">
 <button type="button" data-app-tab="home" class="active"><svg viewBox="0 0 24 24"><path d="m3 11 9-7 9 7M5 10v10h14V10M9 20v-6h6v6"/></svg>HOME</button>
 <button type="button" data-app-tab="preorder"><svg viewBox="0 0 24 24"><path d="M4 8h16l-1 12H5L4 8ZM8 9V6a4 4 0 0 1 8 0v3"/></svg>PREORDINA</button>
@@ -981,6 +992,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 </script>
 <script>
 (function(){
+ document.querySelectorAll('[data-client-go]').forEach(b=>b.addEventListener('click',()=>{const nav=document.querySelector('.sidebar .navbtn[data-go="'+b.dataset.clientGo+'"]');if(nav)nav.click();}));
  const tabs=[...document.querySelectorAll('[data-app-tab]')];
  function select(tab){tabs.forEach(b=>b.classList.toggle('active',b.dataset.appTab===tab))}
  tabs.forEach(button=>button.addEventListener('click',()=>{
