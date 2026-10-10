@@ -79,19 +79,26 @@ window.updateFidelityTopupPreview=()=>{
   if(el)el.textContent=amount>0?('Versi '+window.fidMoney(amount)+' · bonus '+window.fidMoney(bonus)+' · accredito '+window.fidMoney(total)):'Inserisci l’importo della ricarica.';
 };
 async function fidPurchaseTransaction(code,amount,useWallet){
+  code=String(code||'').trim().toUpperCase();
+  if(!(Number(amount)>0))throw new Error('Importo non valido');
   const cr=doc(db,'fidelityCustomers',code);
   await runTransaction(db,async tx=>{
     const cs=await tx.get(cr);if(!cs.exists())throw new Error('Cliente non trovato');
     const data=cs.data()||{},oldPoints=Number(data.points||0),wallet=Number(data.walletBalance||0),pts=Math.floor(amount);
     if(useWallet&&wallet+0.0001<amount)throw new Error('Credito portafoglio insufficiente');
-    let inviterSnap=null,inviterRef=null,referralBonus=false;
     const inviterCode=String(data.referredBy||'').trim().toUpperCase();
-    if(inviterCode&&!data.referralRewarded&&!data.lastPurchaseAt&&inviterCode!==code){
+    const eligible=inviterCode&&inviterCode!==code&&!data.referralRewarded&&!data.lastPurchaseAt;
+    let inviterRef=null,inviterSnap=null,bonusRef=null,bonusSnap=null;
+    if(eligible){
       inviterRef=doc(db,'fidelityCustomers',inviterCode);
       inviterSnap=await tx.get(inviterRef);
-      referralBonus=inviterSnap.exists();
+      if(inviterSnap.exists()){
+        bonusRef=doc(db,'fidelityTransactions','referral_first_purchase_'+code);
+        bonusSnap=await tx.get(bonusRef);
+      }
     }
-    const patch={points:oldPoints+pts,lastPurchaseAt:serverTimestamp(),updatedAt:serverTimestamp()};
+    const referralBonus=!!(eligible&&inviterSnap?.exists()&&!bonusSnap?.exists());
+    const patch={points:oldPoints+pts,lastPurchaseAt:serverTimestamp(),lastPurchaseAmount:amount,updatedAt:serverTimestamp()};
     if(useWallet)patch.walletBalance=Math.max(0,wallet-amount);
     if(referralBonus){patch.referralRewarded=true;patch.referralRewardedAt=serverTimestamp();patch.referralStatus='rewarded'}
     tx.update(cr,patch);
@@ -100,8 +107,7 @@ async function fidPurchaseTransaction(code,amount,useWallet){
     if(referralBonus){
       const inv=inviterSnap.data()||{},invPts=Number(inv.points||0);
       tx.update(inviterRef,{points:invPts+5,updatedAt:serverTimestamp()});
-      const rt=doc(collection(db,'fidelityTransactions'));
-      tx.set(rt,{customerCode:inviterCode,points:5,type:'referral_first_purchase',referredCustomerCode:code,createdAt:serverTimestamp(),createdBy:auth.currentUser?.uid||null});
+      tx.set(bonusRef,{customerCode:inviterCode,points:5,type:'referral_first_purchase',referredCustomerCode:code,createdAt:serverTimestamp(),createdBy:auth.currentUser?.uid||null});
     }
   });
 }
