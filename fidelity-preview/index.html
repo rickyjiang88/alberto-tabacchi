@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="fidelity-app-build-marker" content="2026-10-11-update-2">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#b5101b">
 <title>Alberto Fidelity | Prova iPhone</title>
 <link rel="manifest" href="/fidelity-preview/manifest.webmanifest">
@@ -1069,5 +1071,19 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
  });
 })();
 </script>
-</body>
+<script id="fidelity-app-resume-refresh">
+(function(){
+ // Installed iOS web apps can remain suspended for days. Refresh only after a
+ // long absence, and never while the user is filling out a form.
+ let hiddenAt=0;
+ document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){hiddenAt=Date.now();return;}
+  if(hiddenAt&&Date.now()-hiddenAt>20*60*1000){
+   const focused=document.activeElement;
+   if(focused&&focused.matches('input,textarea,select,[contenteditable]'))return;
+   location.reload();
+  }
+ });
+})();
+</script></body>
 </html>
