@@ -191,6 +191,7 @@ body.fidelity-app .shell,body.fidelity-app .main,body.fidelity-app .view{min-wid
 .fidelity-settings-row{display:flex;justify-content:space-between;align-items:center;width:100%;background:#fff;border:0;border-bottom:1px solid #eadfd4;padding:17px 3px;text-align:left;font-weight:750;color:#211d1a;font-size:15px}
 .fidelity-settings-row span{font-size:25px;color:#b5101b}.fidelity-settings-note{font-size:12px;color:#786e67;margin:9px 0 0}
 #profileEditPanel[hidden]{display:none!important}#profileEditPanel>.card{border:0;box-shadow:none;padding:14px 0;margin:0!important}
+.fidelity-logout-row{color:#b5101b!important;font-weight:800!important}
 </style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
@@ -381,6 +382,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
             </div></div>
         <button type="button" class="fidelity-settings-row" id="resetProfilePassword">Cambia password <span>›</span></button>
         <p class="fidelity-settings-note">Riceverai un'email per impostare una nuova password.</p>
+        <button type="button" class="fidelity-settings-row fidelity-logout-row" id="profileLogoutBtn">Esci dall’account <span>↗</span></button>
       </div>
     </section>
 
@@ -1057,6 +1059,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 <script id="fidelity-settings-panel">
 (function(){
  const toggle=document.getElementById('toggleProfileEdit'),panel=document.getElementById('profileEditPanel');
+ document.getElementById('profileLogoutBtn')?.addEventListener('click',()=>document.getElementById('logoutBtn')?.click());
  if(toggle&&panel)toggle.addEventListener('click',()=>{panel.hidden=!panel.hidden;toggle.setAttribute('aria-expanded',String(!panel.hidden));});
  document.getElementById('resetProfilePassword')?.addEventListener('click',()=>{
   const email=document.getElementById('detailEmail')?.textContent?.trim();
