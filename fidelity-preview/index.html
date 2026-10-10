@@ -170,6 +170,18 @@ body.fidelity-app .sidebar .navbtn{min-height:44px}
 .fidelity-client-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .fidelity-client-grid button{border:1px solid #e5d9d1;background:#faf8f6;color:#231e1b;border-radius:12px;padding:15px 8px;font-weight:700;font-size:13px}
 }
+
+/* Compact customer-area navigation on mobile */
+@media(max-width:850px){
+#view-profile .fidelity-profile-services{margin:0 0 18px!important;padding:17px!important;border-radius:18px}
+#view-profile .fidelity-profile-services .section-title{margin:0 0 12px!important}
+#view-profile .fidelity-profile-services .section-title h2{font-size:21px!important;margin:0!important}
+#view-profile .fidelity-profile-services .quick{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+#view-profile .fidelity-profile-services .quick button{min-height:0!important;height:auto!important;margin:0!important;padding:15px 9px!important;border-radius:12px!important;text-align:center!important;background:#faf7f4!important;color:#251c1b!important}
+#view-profile .fidelity-profile-services .quick button b{margin:0!important;font-size:13px!important;color:inherit!important;line-height:1.25!important}
+#view-profile .fidelity-profile-services .quick button span{display:none!important}
+#view-profile .fidelity-profile-services + .eyebrow{margin-top:0!important}
+}
 </style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
@@ -301,10 +313,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
         <div class="fidelity-home-qr-heading"><span class="eyebrow">LA TUA TESSERA</span><h2>Il tuo QR Alberto</h2><p>Mostralo alla cassa per accumulare punti.</p></div>
         <div class="fidelity-home-qr-code"><div id="homeQr"></div><div id="homeQrCode" class="code">—</div></div>
       </div>
-    <div class="fidelity-app-services" aria-label="Servizi Alberto">
-      <a href="/preordina/"><span>🛍️</span> Preordina</a>
-    </div>
-      <div class="grid4">
+    <div class="grid4">
         <div class="card dark"><small>PUNTI ALBERTO</small><div id="dashPoints" class="metric">0</div><div class="metric-sub">punti disponibili</div></div>
         <div class="card"><small>ORDINI</small><div id="dashOrders" class="metric">0</div><div class="metric-sub">ordini registrati</div></div>
         <div class="card"><small>PRENOTAZIONI</small><div id="dashBookings" class="metric">0</div><div class="metric-sub">prenotazioni registrate</div></div>
@@ -330,7 +339,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
     </section>
 
     <section id="view-profile" class="view">
-      <div class="card fidelity-profile-services" style="margin:16px 0"><div class="section-title"><h2>Area clienti</h2></div><div class="quick"><button type="button" data-go="bookings"><b>Le mie prenotazioni</b><span>Gestisci i tavoli</span></button><button type="button" data-go="orders"><b>I miei ordini</b><span>Controlla gli ordini</span></button><button type="button" data-go="group"><b>Gruppo ufficio</b><span>Gestisci il gruppo</span></button><button type="button" data-go="points"><b>Punti e movimenti</b><span>Saldo e storico</span></button><button type="button" data-go="invite"><b>Porta un amico</b><span>Inviti e premi</span></button><button type="button" data-go="notifications"><b>Notifiche</b><span>Messaggi e aggiornamenti</span></button></div></div>
+      <div class="card fidelity-profile-services"><div class="section-title"><h2>Area clienti</h2></div><div class="quick"><button type="button" data-go="bookings"><b>Prenotazioni</b></button><button type="button" data-go="orders"><b>I miei ordini</b></button><button type="button" data-go="group"><b>Gruppo ufficio</b></button><button type="button" data-go="points"><b>Punti e premi</b></button><button type="button" data-go="invite"><b>Porta un amico</b></button><button type="button" data-go="notifications"><b>Notifiche</b></button></div></div>
       <span class="eyebrow">IL MIO ALBERTO</span><h1>Profilo</h1><p class="lead">I tuoi dati e il QR personale.</p>
       <div class="split">
         <div>
