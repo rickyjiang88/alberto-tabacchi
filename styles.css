@@ -2,3 +2,20 @@
 
 /* Alberto Card */
 .card-hero{padding:80px 6%;background:linear-gradient(120deg,#111 0%,#111 58%,#d71920 58%,#ed1c24 100%);color:#fff;display:grid;grid-template-columns:1.2fr .8fr;gap:50px;align-items:center}.card-hero h1{font-size:clamp(48px,7vw,92px);line-height:.92;margin:14px 0 24px;text-transform:uppercase}.card-hero p{font-size:18px;max-width:680px}.card-badge{background:#fff;color:#111;border-radius:24px;padding:34px;transform:rotate(2deg);box-shadow:0 20px 50px #0004}.card-badge strong{font-size:36px}.card-badge small{display:block;margin-top:35px}.card-benefits{padding:70px 6%;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}.card-benefits article{border:1px solid #e7e7e7;padding:28px;border-radius:16px}.card-benefits b{display:block;font-size:18px;margin-bottom:8px}.card-benefits span{font-size:30px;color:#df1d22}.card-register{margin:0 6% 70px;padding:55px;background:#f4f4f4;border-radius:20px;display:flex;align-items:center;justify-content:space-between;gap:30px}.card-register h2{font-size:clamp(32px,5vw,62px);line-height:1;margin:8px 0 14px;text-transform:uppercase}.card-register .actions{display:flex;gap:12px;flex-wrap:wrap}@media(max-width:800px){.card-hero{grid-template-columns:1fr}.card-benefits{grid-template-columns:1fr 1fr}.card-register{display:block}.card-register .actions{margin-top:25px}}@media(max-width:520px){.card-benefits{grid-template-columns:1fr}}
+
+/* SEO locale: sezione informativa homepage */
+.local-seo{padding:78px 6vw;background:#fbf8f5;border-top:1px solid #eee;border-bottom:1px solid #eee}
+.local-seo-head{max-width:1000px;margin:0 0 32px}
+.local-seo .redlabel{font-size:12px;font-weight:800;letter-spacing:.13em;color:#c81822}
+.local-seo h2{font-size:clamp(34px,4.8vw,64px);line-height:1.03;letter-spacing:-.045em;margin:14px 0 18px;color:#181818}
+.local-seo-head p{font-size:17px;line-height:1.7;color:#525252;max-width:750px}
+.local-seo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.local-seo-grid article{display:flex;flex-direction:column;align-items:flex-start;padding:30px;background:#fff;border:1px solid #e9e0db;border-radius:14px;min-height:255px}
+.local-seo-grid h3{font-size:23px;line-height:1.16;letter-spacing:-.02em;margin:0 0 16px}
+.local-seo-grid p{font-size:14px;line-height:1.7;color:#555;margin:0 0 22px}
+.local-seo-link{margin-top:auto;color:#c81822!important;font-weight:800;font-size:12px;letter-spacing:.035em;text-decoration:none}
+.local-seo-location{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-top:28px;padding:20px 24px;background:#fff;border-left:4px solid #d71920}
+.local-seo-location p{margin:0;font-size:14px;line-height:1.6}
+.local-seo-location a{color:#c81822;font-size:13px;font-weight:800;white-space:nowrap}
+@media(max-width:900px){.local-seo-grid{grid-template-columns:1fr 1fr}.local-seo-grid article:last-child{grid-column:1/-1}.local-seo{padding:62px 5vw}}
+@media(max-width:650px){.local-seo{padding:54px 24px}.local-seo-head p{font-size:15px}.local-seo-grid{grid-template-columns:1fr}.local-seo-grid article:last-child{grid-column:auto}.local-seo-grid article{min-height:auto;padding:25px}.local-seo-location{flex-direction:column;align-items:flex-start}}
