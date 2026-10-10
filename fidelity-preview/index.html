@@ -935,7 +935,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 (function(){
   const standalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
   if(standalone || new URLSearchParams(location.search).get('source')==='pwa')document.body.classList.add('fidelity-app');
-  if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/fidelity-preview/sw.js').catch(err=>console.warn('PWA service worker:',err)))}
+  if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/fidelity-preview/sw.js', {updateViaCache:'none'}).catch(err=>console.warn('PWA service worker:',err)))}
   if(standalone)return;
   const ua=navigator.userAgent;
   const ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -1006,8 +1006,10 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
  tabs.forEach(button=>button.addEventListener('click',()=>{
   const tab=button.dataset.appTab;
   if(tab==='preorder'){
-    const link=document.querySelector('.fidelity-app-services a[href="/preordina/"]');
-    if(link)link.click();
+    const overlay=document.getElementById('fidelityServiceOverlay');
+    const frame=document.getElementById('fidelityServiceFrame');
+    const title=document.getElementById('fidelityServiceTitle');
+    if(overlay&&frame){if(title)title.textContent='Menù';if(frame.getAttribute('src')!=='/preordina/?app=1')frame.src='/preordina/?app=1';overlay.hidden=false;document.body.style.overflow='hidden';}
   }else{
     const overlay=document.getElementById('fidelityServiceOverlay');
     if(overlay&&!overlay.hidden){overlay.hidden=true;document.body.style.overflow='';document.getElementById('fidelityServiceFrame').src='about:blank';}
