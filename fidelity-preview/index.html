@@ -934,7 +934,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 <script id="alberto-fidelity-pwa">
 (function(){
   const standalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
-  if(standalone || new URLSearchParams(location.search).get('source')==='pwa')document.body.classList.add('fidelity-app');
+  if(standalone || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || new URLSearchParams(location.search).get('source')==='pwa')document.body.classList.add('fidelity-app');
   if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/fidelity-preview/sw.js', {updateViaCache:'none'}).catch(err=>console.warn('PWA service worker:',err)))}
   if(standalone)return;
   const ua=navigator.userAgent;
