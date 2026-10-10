@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#b5101b">
 <title>Area Clienti | Alberto Tabacchi</title>
+<link rel="manifest" href="/fidelity-app.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Alberto Fidelity">
+<link rel="apple-touch-icon" href="https://primary.jwwb.nl/public/k/m/t/temp-uuviykehkzslooegqmdl/image-high-zhh1za.png?enable=upscale&amp;enable-io=true&amp;height=180">
+<meta name="application-name" content="Alberto Fidelity">
+
 <link rel="icon" href="https://primary.jwwb.nl/public/k/m/t/temp-uuviykehkzslooegqmdl/image-high-zhh1za.png?enable=upscale&enable-io=true&height=70">
 <style>
 :root{--red:#b5101b;--red2:#d21a27;--ink:#191512;--muted:#786e67;--paper:#fbf7f1;--card:#fff;--line:#eadfd4;--dark:#211d1a;--soft:#f0e7dc;--ok:#25643a}
@@ -71,6 +78,25 @@
 .wallet-qr-box #walletQr{width:100%!important;max-width:240px!important;min-height:0!important;height:auto!important;display:block!important;margin:0 auto 18px!important;overflow:hidden!important}
 .wallet-qr-box #walletQr svg,.wallet-qr-box #walletQr img,.wallet-qr-box #walletQr canvas{display:block!important;width:100%!important;max-width:240px!important;height:auto!important;aspect-ratio:1/1!important;margin:0 auto!important;position:static!important;transform:none!important}
 .wallet-qr-box>b{display:block!important;clear:both!important;margin:0 0 8px!important}
+
+/* Alberto Fidelity PWA: esperienza a schermo intero, senza navigazione del sito. */
+body.fidelity-app .site-strip,body.fidelity-app .main-site-nav,body.fidelity-app .site-toggle{display:none!important}
+body.fidelity-app .shell{min-height:100dvh;grid-template-rows:76px minmax(0,1fr)}
+body.fidelity-app .topbar{height:76px;min-height:76px;background:#b5101b;color:#fff;border:0;padding-top:env(safe-area-inset-top)}
+body.fidelity-app .site-brand-copy strong,body.fidelity-app .site-brand-copy small{color:#fff}
+body.fidelity-app .site-brand img{filter:brightness(0) invert(1)}
+body.fidelity-app .login-wrap{min-height:calc(100dvh - 76px)}
+body.fidelity-app .content{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+body.fidelity-app #view-dashboard>.lead{display:none}
+body.fidelity-app .top-actions{display:none}
+body.fidelity-app .sidebar .navbtn{min-height:44px}
+#fidelity-install{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));left:12px;right:12px;z-index:95;max-width:520px;margin:auto;background:#fff;border:1px solid #e8d9d9;border-radius:18px;padding:15px 16px;box-shadow:0 8px 32px #0002;color:#211d1a}
+#fidelity-install[hidden]{display:none!important}
+#fidelity-install h3{margin:0 0 6px;font-size:17px}
+#fidelity-install p{font-size:13px;line-height:1.45;margin:0 0 12px}
+#fidelity-install button{border:0;border-radius:10px;background:#b5101b;color:#fff;padding:10px 14px;font-weight:800}
+#fidelity-install .install-close{background:#f1e9e5;color:#211d1a;margin-left:8px}
+@media(max-width:850px){body.fidelity-app .shell{min-height:100dvh}body.fidelity-app .topbar{position:sticky;top:0;z-index:10;height:calc(72px + env(safe-area-inset-top));min-height:72px}body.fidelity-app .sidebar{position:sticky;top:calc(72px + env(safe-area-inset-top));z-index:9;background:#fff}body.fidelity-app .login-card{border-radius:18px}body.fidelity-app .login-wrap{padding:16px;min-height:calc(100dvh - 72px)}}
 </style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
@@ -813,5 +839,45 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
     applyHidden();
   }
 })();
-</script><script id="menu-4ott-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".menu-4ott-link").forEach(function(a){a.remove()})}})();</script></body>
+</script><script id="menu-4ott-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".menu-4ott-link").forEach(function(a){a.remove()})}})();</script>
+<script id="alberto-fidelity-pwa">
+(function(){
+  const standalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+  if(standalone || new URLSearchParams(location.search).get('source')==='pwa')document.body.classList.add('fidelity-app');
+  if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/fidelity-sw.js').catch(err=>console.warn('PWA service worker:',err)))}
+  if(standalone)return;
+  const ua=navigator.userAgent;
+  const ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const android=/Android/.test(ua);
+  if(!ios&&!android)return;
+  let deferred=null;
+  const panel=document.createElement('div');
+  panel.id='fidelity-install';
+  panel.hidden=true;
+  panel.innerHTML='<h3>Installa Alberto Fidelity</h3><p id="fidelity-install-info"></p><button type="button" id="fidelity-install-action">Installa app</button><button type="button" class="install-close" id="fidelity-install-close">Non ora</button>';
+  document.body.appendChild(panel);
+  const info=panel.querySelector('#fidelity-install-info'),action=panel.querySelector('#fidelity-install-action');
+  function show(){
+    if(sessionStorage.getItem('alberto-install-dismissed'))return;
+    if(ios){
+      info.textContent='Su iPhone apri questa pagina in Safari, tocca Condividi e scegli “Aggiungi alla schermata Home”, poi apri l’icona Alberto Fidelity.';
+      action.textContent='Ho capito';
+    }else{
+      info.textContent='Aggiungi Alberto Fidelity alla schermata Home: si aprirà a schermo intero, senza barra del browser.';
+      action.textContent=deferred?'Installa app':'Come installare';
+    }
+    panel.hidden=false;
+  }
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;show()});
+  action.addEventListener('click',async()=>{
+    if(deferred){const p=deferred;deferred=null;panel.hidden=true;await p.prompt();return}
+    if(android){info.textContent='In Chrome apri il menu ⋮ e scegli “Installa app” oppure “Aggiungi alla schermata Home”.';return}
+    panel.hidden=true;
+  });
+  panel.querySelector('#fidelity-install-close').addEventListener('click',()=>{panel.hidden=true;sessionStorage.setItem('alberto-install-dismissed','1')});
+  window.addEventListener('appinstalled',()=>{panel.hidden=true});
+  if(ios)setTimeout(show,1800);
+})();
+</script>
+</body>
 </html>
