@@ -1063,7 +1063,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   if(!email||email==='—'){alert('Email del profilo non disponibile.');return;}
   if(!confirm('Inviare il link per cambiare password a '+email+'?'))return;
   const login=document.getElementById('loginEmail'),forgot=document.getElementById('forgotBtn');
-  if(login&&forgot){login.value=email;forgot.click();alert('Richiesta inviata. Controlla la tua email; se non arriva, riprova più tardi.');}
+  if(login&&forgot){login.value=email;forgot.click();}
  });
 })();
 </script>
