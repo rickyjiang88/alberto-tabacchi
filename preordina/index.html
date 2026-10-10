@@ -242,5 +242,22 @@ function update(){const qty=cart.reduce((s,p)=>s+(p[4]||1),0);if(qty>previousCar
     applyHidden();
   }
 })();
-</script><script id="menu-4ott-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".menu-4ott-link").forEach(function(a){a.remove()})}})();</script></body></html>
+</script><script id="menu-4ott-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".menu-4ott-link").forEach(function(a){a.remove()})}})();</script><script id="daily-menu-resume-refresh">
+(function(){
+ // Recheck live menu when the ordering page returns to foreground.
+ document.addEventListener('visibilitychange',()=>{
+  if(document.hidden)return;
+  if(typeof window.readLatestShopSettings!=='function')return;
+  window.readLatestShopSettings().then(data=>{
+   if(!Array.isArray(data.items))return;
+   const items=data.items.map(x=>[x.category||'',x.name||'',x.description||'',Number(x.price||0),x.available!==false]);
+   const fresh=JSON.stringify(items);
+   if(fresh!==localStorage.getItem('albertoDailyV2')){
+    localStorage.setItem('albertoDailyV2',fresh);
+    location.reload();
+   }
+  }).catch(()=>{});
+ });
+})();
+</script></body></html>
 <!-- deploy lunchbox multi 2026-09-20 -->
