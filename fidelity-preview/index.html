@@ -187,6 +187,10 @@ body.fidelity-app .sidebar .navbtn{min-height:44px}
 html,body{max-width:100%;overflow-x:hidden;touch-action:pan-y}
 body.fidelity-app .shell,body.fidelity-app .main,body.fidelity-app .view{min-width:0;max-width:100%}
 @media(max-width:850px){body.fidelity-app input,body.fidelity-app select,body.fidelity-app textarea{font-size:16px!important}}
+
+.fidelity-settings-row{display:flex;justify-content:space-between;align-items:center;width:100%;background:#fff;border:0;border-bottom:1px solid #eadfd4;padding:17px 3px;text-align:left;font-weight:750;color:#211d1a;font-size:15px}
+.fidelity-settings-row span{font-size:25px;color:#b5101b}.fidelity-settings-note{font-size:12px;color:#786e67;margin:9px 0 0}
+#profileEditPanel[hidden]{display:none!important}#profileEditPanel>.card{border:0;box-shadow:none;padding:14px 0;margin:0!important}
 </style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
@@ -357,7 +361,16 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
               <div class="detail"><small>DATA DI NASCITA</small><b id="detailBirth">—</b></div>
             </div>
           </div>
-          <div class="card" style="margin-top:14px">
+
+          </div>
+        </div>
+        <div class="qrbox"><div id="qr"></div><b style="margin-top:14px">QR ALBERTO</b><small style="color:var(--muted);margin-top:5px">Mostralo alla cassa per i punti.</small><div id="customerCode" class="code">—</div></div>
+      </div>
+
+      <div class="card fidelity-account-settings" style="margin-top:14px">
+        <div class="section-title"><h2>Impostazioni account</h2></div>
+        <button type="button" class="fidelity-settings-row" id="toggleProfileEdit" aria-expanded="false">Modifica profilo <span>›</span></button>
+        <div id="profileEditPanel" hidden>          <div class="card" style="margin-top:14px">
             <div class="section-title" style="margin:0 0 14px"><h2>Modifica profilo</h2></div>
             <div class="form">
               <label>Nome</label><input id="editName">
@@ -365,10 +378,9 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
               <label>Telefono</label><input id="editPhone" type="tel">
               <label>Data di nascita</label><input id="editBirth" type="date">
               <button id="saveProfileBtn" class="btn">SALVA MODIFICHE</button>
-            </div>
-          </div>
-        </div>
-        <div class="qrbox"><div id="qr"></div><b style="margin-top:14px">QR ALBERTO</b><small style="color:var(--muted);margin-top:5px">Mostralo alla cassa per i punti.</small><div id="customerCode" class="code">—</div></div>
+            </div></div>
+        <button type="button" class="fidelity-settings-row" id="resetProfilePassword">Cambia password <span>›</span></button>
+        <p class="fidelity-settings-note">Riceverai un'email per impostare una nuova password.</p>
       </div>
     </section>
 
@@ -1039,6 +1051,20 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
     if(e.target.closest('input,textarea,select,[contenteditable],button,a'))return;
     var now=Date.now();if(now-lastTouchEnd<300)e.preventDefault();lastTouchEnd=now;
   },{passive:false});
+})();
+</script>
+
+<script id="fidelity-settings-panel">
+(function(){
+ const toggle=document.getElementById('toggleProfileEdit'),panel=document.getElementById('profileEditPanel');
+ if(toggle&&panel)toggle.addEventListener('click',()=>{panel.hidden=!panel.hidden;toggle.setAttribute('aria-expanded',String(!panel.hidden));});
+ document.getElementById('resetProfilePassword')?.addEventListener('click',()=>{
+  const email=document.getElementById('detailEmail')?.textContent?.trim();
+  if(!email||email==='—'){alert('Email del profilo non disponibile.');return;}
+  if(!confirm('Inviare il link per cambiare password a '+email+'?'))return;
+  const login=document.getElementById('loginEmail'),forgot=document.getElementById('forgotBtn');
+  if(login&&forgot){login.value=email;forgot.click();alert('Richiesta inviata. Controlla la tua email; se non arriva, riprova più tardi.');}
+ });
 })();
 </script>
 </body>
