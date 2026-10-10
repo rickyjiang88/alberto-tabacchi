@@ -152,6 +152,14 @@ body.fidelity-app .sidebar .navbtn{min-height:44px}
  body.fidelity-app .fidelity-bottom-nav{grid-template-columns:repeat(3,minmax(0,1fr))!important}
  body.fidelity-app .fidelity-bottom-nav button{font-size:10px;white-space:nowrap}
 }
+
+/* Keep the three app tabs visible while browsing Preordina */
+@media(max-width:850px){
+ body.fidelity-app .fidelity-service-overlay{z-index:90;bottom:calc(83px + env(safe-area-inset-bottom,0px));padding-top:env(safe-area-inset-top,0px)}
+ body.fidelity-app .fidelity-bottom-nav{z-index:110}
+ body.fidelity-app .fidelity-service-bar{min-height:49px;padding:9px 16px}
+ body.fidelity-app .fidelity-service-frame{min-height:0}
+}
 </style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
@@ -948,7 +956,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 <button type="button" data-app-tab="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg>PROFILO</button>
 </nav>
 <div id="fidelityServiceOverlay" class="fidelity-service-overlay" hidden aria-label="Servizio Alberto">
-  <div class="fidelity-service-bar"><button type="button" id="fidelityServiceBack" class="fidelity-service-back">← Indietro</button><span id="fidelityServiceTitle" class="fidelity-service-title">Alberto</span></div>
+  <div class="fidelity-service-bar"><span id="fidelityServiceTitle" class="fidelity-service-title">Alberto</span></div>
   <iframe id="fidelityServiceFrame" class="fidelity-service-frame" title="Servizio Alberto" loading="eager"></iframe>
 </div>
 <script>
@@ -956,7 +964,6 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   const overlay=document.getElementById('fidelityServiceOverlay');
   const frame=document.getElementById('fidelityServiceFrame');
   const title=document.getElementById('fidelityServiceTitle');
-  const back=document.getElementById('fidelityServiceBack');
   const links=document.querySelectorAll('.fidelity-app-services a');
   links.forEach(link=>{
     if(!/^\/(fidelity-preview\/menu\.html|preordina\/)/.test(link.getAttribute('href')||''))return;
@@ -968,11 +975,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
       frame.src=link.getAttribute('href')+(link.getAttribute('href')==='/preordina/'?'?app=1':'');
     });
   });
-  back.addEventListener('click',()=>{
-    overlay.hidden=true;
-    document.body.style.overflow='';
-    frame.src='about:blank';
-  });
+
 })();
 </script>
 <script>
@@ -986,15 +989,13 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
     if(link)link.click();
   }else{
     const overlay=document.getElementById('fidelityServiceOverlay');
-    if(overlay&&!overlay.hidden)document.getElementById('fidelityServiceBack').click();
+    if(overlay&&!overlay.hidden){overlay.hidden=true;document.body.style.overflow='';document.getElementById('fidelityServiceFrame').src='about:blank';}
     const target=tab==='home'?'dashboard':'profile';
     const nav=document.querySelector('.sidebar .navbtn[data-go="'+target+'"]');
     if(nav)nav.click();
   }
   select(tab);
  }));
- const back=document.getElementById('fidelityServiceBack');
- if(back)back.addEventListener('click',()=>select('profile'));
 })();
 </script>
 </body>
