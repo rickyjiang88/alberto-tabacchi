@@ -284,7 +284,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
         <div class="fidelity-home-qr-code"><div id="homeQr"></div><div id="homeQrCode" class="code">—</div></div>
       </div>
     <div class="fidelity-app-services" aria-label="Servizi Alberto">
-      <a href="/pranzo.html#menu"><span>🍽️</span> Menù del giorno</a>
+      <a href="/fidelity-preview/menu.html"><span>🍽️</span> Menù del giorno</a>
       <a href="/preordina/"><span>🛍️</span> Preordina</a>
     </div>
       <div class="grid4">
@@ -961,7 +961,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   const back=document.getElementById('fidelityServiceBack');
   const links=document.querySelectorAll('.fidelity-app-services a');
   links.forEach(link=>{
-    if(!/^\/(pranzo\.html|preordina\/)/.test(link.getAttribute('href')||''))return;
+    if(!/^\/(fidelity-preview\/menu\.html|preordina\/)/.test(link.getAttribute('href')||''))return;
     link.addEventListener('click',event=>{
       event.preventDefault();
       title.textContent=link.textContent.trim().replace(/^[^\p{L}]+/u,'');
@@ -984,7 +984,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
  tabs.forEach(button=>button.addEventListener('click',()=>{
   const tab=button.dataset.appTab;
   if(tab==='preorder'||tab==='menu'){
-    const link=document.querySelector(tab==='preorder'?'.fidelity-app-services a[href="/preordina/"]':'.fidelity-app-services a[href="/pranzo.html#menu"]');
+    const link=document.querySelector(tab==='preorder'?'.fidelity-app-services a[href="/preordina/"]':'.fidelity-app-services a[href="/fidelity-preview/menu.html"]');
     if(link)link.click();
   }else{
     const overlay=document.getElementById('fidelityServiceOverlay');
