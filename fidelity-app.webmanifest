@@ -1,0 +1,19 @@
+{
+  "name": "Alberto Fidelity",
+  "short_name": "Alberto",
+  "description": "La tua tessera fedeltà Alberto, prenotazioni e preordini",
+  "lang": "it",
+  "start_url": "/areaclienti.html?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#c60016",
+  "theme_color": "#c60016",
+  "icons": [
+    {
+      "src": "/fidelity-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
