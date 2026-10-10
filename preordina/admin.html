@@ -65,12 +65,83 @@ window.renderFidelityCustomerList=()=>{const box=document.getElementById('fideli
 window.openFidelityCustomerFromList=async code=>{await handleFidelityCode('ALBERTO-FIDELITY:'+code)};
 function escapeFidHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 window.updateFidelityPreview=()=>{const amount=Number(document.getElementById('fidReceiptAmount')?.value||0);document.getElementById('fidNewPoints').textContent=Math.max(0,Math.floor(amount))};
-window.creditFidelityPoints=async()=>{if(!currentFidelityCustomer)return;const amount=Number(document.getElementById('fidReceiptAmount').value||0),points=Math.max(0,Math.floor(amount)),status=document.getElementById('fidCreditStatus');if(!(amount>0)||points<1){status.textContent='Inserisci un importo valido.';return}status.textContent='Accredito in corso…';try{if(!fidelityApi){status.textContent='Firebase non pronto.';return}const ref=fidelityApi.doc(fidelityApi.db,'fidelityCustomers',currentFidelityCustomer.code);await fidelityApi.runTransaction(fidelityApi.db,async tx=>{const s=await tx.get(ref);if(!s.exists())throw new Error('Cliente non trovato');const before=Number(s.data().points||0);tx.update(ref,{points:before+points,lastPurchaseAt:fidelityApi.serverTimestamp(),lastPurchaseAmount:amount,updatedAt:fidelityApi.serverTimestamp()});const logRef=fidelityApi.doc(fidelityApi.collection(fidelityApi.db,'fidelityTransactions'));tx.set(logRef,{customerCode:currentFidelityCustomer.code,uid:s.data().uid||null,type:'PURCHASE',amount,points,balanceBefore:before,balanceAfter:before+points,createdAt:fidelityApi.serverTimestamp(),createdBy:fidelityApi.auth.currentUser.uid});currentFidelityCustomer={...currentFidelityCustomer,points:before+points}});document.getElementById('fidCurrentPoints').textContent=currentFidelityCustomer.points;document.getElementById('fidReceiptAmount').value='';document.getElementById('fidNewPoints').textContent='0';status.textContent='Punti accreditati correttamente.';await loadFidelityHistory(currentFidelityCustomer.code);loadFidelityCustomerList()}catch(e){status.textContent='Accredito non riuscito: '+(e.code||e.message)}};
 
-
+// Both types of paid purchases use one atomic transaction, including the referral bonus.
+// Only a genuinely new customer's first registered paid purchase can trigger the bonus.
+async function processPaidFidelityPurchase(code,amount,useWallet){
+  if(!fidelityApi||!fidelityApi.auth.currentUser)throw new Error('Firebase non pronto.');
+  code=String(code||'').trim().toUpperCase();
+  if(!(Number(amount)>0))throw new Error('Importo non valido.');
+  let result=null;
+  await fidelityApi.runTransaction(fidelityApi.db,async tx=>{
+    const customerRef=fidelityApi.doc(fidelityApi.db,'fidelityCustomers',code);
+    const customerSnap=await tx.get(customerRef);
+    if(!customerSnap.exists())throw new Error('Cliente non trovato');
+    const data=customerSnap.data()||{},before=Number(data.points||0),wallet=Number(data.walletBalance||0),pts=Math.floor(Number(amount));
+    if(useWallet&&wallet+0.0001<amount)throw new Error('Credito portafoglio insufficiente');
+    const inviterCode=String(data.referredBy||'').trim().toUpperCase();
+    const eligible=inviterCode&&inviterCode!==code&&!data.referralRewarded&&!data.lastPurchaseAt;
+    let inviterRef=null,inviterSnap=null,logMarkerRef=null,logMarkerSnap=null;
+    if(eligible){
+      inviterRef=fidelityApi.doc(fidelityApi.db,'fidelityCustomers',inviterCode);
+      inviterSnap=await tx.get(inviterRef);
+      if(inviterSnap.exists()){
+        logMarkerRef=fidelityApi.doc(fidelityApi.db,'fidelityTransactions','referral_first_purchase_'+code);
+        logMarkerSnap=await tx.get(logMarkerRef);
+      }
+    }
+    const reward=!!(eligible&&inviterSnap?.exists()&&!logMarkerSnap?.exists());
+    const patch={points:before+pts,lastPurchaseAt:fidelityApi.serverTimestamp(),lastPurchaseAmount:amount,updatedAt:fidelityApi.serverTimestamp()};
+    if(useWallet)patch.walletBalance=Math.max(0,wallet-amount);
+    if(reward){patch.referralRewarded=true;patch.referralRewardedAt=fidelityApi.serverTimestamp();patch.referralStatus='rewarded'}
+    tx.update(customerRef,patch);
+    const saleRef=fidelityApi.doc(fidelityApi.collection(fidelityApi.db,'fidelityTransactions'));
+    tx.set(saleRef,{customerCode:code,uid:data.uid||null,type:useWallet?'WALLET_PURCHASE':'PURCHASE',amount,points:pts,walletDebit:useWallet?amount:0,balanceBefore:before,balanceAfter:before+pts,createdAt:fidelityApi.serverTimestamp(),createdBy:fidelityApi.auth.currentUser.uid});
+    if(reward){
+      const inviter=inviterSnap.data()||{};
+      tx.update(inviterRef,{points:Number(inviter.points||0)+5,updatedAt:fidelityApi.serverTimestamp()});
+      tx.set(logMarkerRef,{customerCode:inviterCode,points:5,type:'referral_first_purchase',referredCustomerCode:code,createdAt:fidelityApi.serverTimestamp(),createdBy:fidelityApi.auth.currentUser.uid});
+    }
+    result={points:before+pts,walletBalance:useWallet?Math.max(0,wallet-amount):wallet,referralAwarded:reward};
+  });
+  return result;
+}
+window.creditFidelityPoints=async()=>{
+  if(!currentFidelityCustomer)return;
+  const amount=Number(document.getElementById('fidReceiptAmount').value||0),points=Math.floor(amount),status=document.getElementById('fidCreditStatus');
+  if(!(amount>0)||points<1){status.textContent='Inserisci un importo valido.';return}
+  status.textContent='Accredito in corso…';
+  try{
+    const result=await processPaidFidelityPurchase(currentFidelityCustomer.code,amount,false);
+    currentFidelityCustomer={...currentFidelityCustomer,points:result.points};
+    document.getElementById('fidCurrentPoints').textContent=result.points;
+    document.getElementById('fidReceiptAmount').value='';
+    document.getElementById('fidNewPoints').textContent='0';
+    status.textContent='Punti accreditati correttamente.'+(result.referralAwarded?' Bonus Porta un amico: +5 punti all’invitante.':'');
+    await loadFidelityHistory(currentFidelityCustomer.code);
+    loadFidelityCustomerList();
+  }catch(e){status.textContent='Accredito non riuscito: '+(e.code||e.message)}
+};
 window.updateFidelityRewardButton=()=>{const btn=document.getElementById('fidRewardBtn'),hint=document.getElementById('fidRewardHint'),pts=Number(currentFidelityCustomer?.points||0);if(!btn)return;btn.disabled=pts<300;btn.classList.toggle('red',pts>=300);if(hint)hint.textContent=pts>=300?'Buono disponibile: scala 300 punti e applica €10 di sconto.':'Mancano '+Math.max(0,300-pts)+' punti al buono da €10.'};
 window.redeemFidelityReward=async()=>{if(!currentFidelityCustomer)return;const status=document.getElementById('fidCreditStatus'),pts=Number(currentFidelityCustomer.points||0);if(pts<300){status.textContent='Punti insufficienti: servono 300 punti.';return}if(!confirm('Usare 300 punti per un buono da €10?'))return;status.textContent='Utilizzo buono in corso…';try{if(!fidelityApi)throw new Error('Firebase non pronto');const ref=fidelityApi.doc(fidelityApi.db,'fidelityCustomers',currentFidelityCustomer.code);await fidelityApi.runTransaction(fidelityApi.db,async tx=>{const s=await tx.get(ref);if(!s.exists())throw new Error('Cliente non trovato');const d=s.data()||{},before=Number(d.points||0);if(before<300)throw new Error('Punti insufficienti');tx.update(ref,{points:before-300,lastRewardAt:fidelityApi.serverTimestamp(),updatedAt:fidelityApi.serverTimestamp()});const logRef=fidelityApi.doc(fidelityApi.collection(fidelityApi.db,'fidelityTransactions'));tx.set(logRef,{customerCode:currentFidelityCustomer.code,uid:d.uid||null,type:'REWARD_10_EURO',points:-300,rewardValue:10,balanceBefore:before,balanceAfter:before-300,createdAt:fidelityApi.serverTimestamp(),createdBy:fidelityApi.auth.currentUser.uid});currentFidelityCustomer={...currentFidelityCustomer,points:before-300}});document.getElementById('fidCurrentPoints').textContent=Number(currentFidelityCustomer.points||0);window.updateFidelityRewardButton();status.textContent='Buono da €10 utilizzato. Scala €10 dal conto del cliente.';await loadFidelityHistory(currentFidelityCustomer.code);loadFidelityCustomerList()}catch(e){status.textContent='Buono non utilizzato: '+(e.message||e.code)}};
-window.payWithFidelityWallet=async()=>{if(!currentFidelityCustomer)return;const amount=Number(document.getElementById('fidReceiptAmount')?.value||0),points=Math.max(0,Math.floor(amount)),status=document.getElementById('fidCreditStatus');if(!(amount>0)){status.textContent='Inserisci un importo valido.';return}if(!confirm('Confermi pagamento di '+amount.toLocaleString('it-IT',{style:'currency',currency:'EUR'})+' con il portafoglio?'))return;status.textContent='Pagamento portafoglio in corso…';try{if(!fidelityApi)throw new Error('Firebase non pronto');const ref=fidelityApi.doc(fidelityApi.db,'fidelityCustomers',currentFidelityCustomer.code);await fidelityApi.runTransaction(fidelityApi.db,async tx=>{const s=await tx.get(ref);if(!s.exists())throw new Error('Cliente non trovato');const d=s.data()||{},beforePoints=Number(d.points||0),beforeWallet=Number(d.walletBalance||0);if(beforeWallet+0.0001<amount)throw new Error('Credito portafoglio insufficiente');tx.update(ref,{points:beforePoints+points,walletBalance:Math.max(0,beforeWallet-amount),lastPurchaseAt:fidelityApi.serverTimestamp(),lastPurchaseAmount:amount,updatedAt:fidelityApi.serverTimestamp()});const logRef=fidelityApi.doc(fidelityApi.collection(fidelityApi.db,'fidelityTransactions'));tx.set(logRef,{customerCode:currentFidelityCustomer.code,uid:d.uid||null,type:'WALLET_PURCHASE',amount,points,walletDebit:amount,balanceBefore:beforePoints,balanceAfter:beforePoints+points,createdAt:fidelityApi.serverTimestamp(),createdBy:fidelityApi.auth.currentUser.uid});currentFidelityCustomer={...currentFidelityCustomer,points:beforePoints+points,walletBalance:Math.max(0,beforeWallet-amount)}});document.getElementById('fidCurrentPoints').textContent=Number(currentFidelityCustomer.points||0);document.getElementById('fidWalletBalance').textContent=Number(currentFidelityCustomer.walletBalance||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'});document.getElementById('fidReceiptAmount').value='';document.getElementById('fidNewPoints').textContent='0';status.textContent='Pagamento registrato. Saldo portafoglio aggiornato e punti accreditati.';await loadFidelityHistory(currentFidelityCustomer.code);loadFidelityCustomerList()}catch(e){status.textContent='Pagamento non riuscito: '+(e.message||e.code)}};
+window.payWithFidelityWallet=async()=>{
+  if(!currentFidelityCustomer)return;
+  const amount=Number(document.getElementById('fidReceiptAmount')?.value||0),status=document.getElementById('fidCreditStatus');
+  if(!(amount>0)){status.textContent='Inserisci un importo valido.';return}
+  if(!confirm('Confermi pagamento di '+amount.toLocaleString('it-IT',{style:'currency',currency:'EUR'})+' con il portafoglio?'))return;
+  status.textContent='Pagamento portafoglio in corso…';
+  try{
+    const result=await processPaidFidelityPurchase(currentFidelityCustomer.code,amount,true);
+    currentFidelityCustomer={...currentFidelityCustomer,points:result.points,walletBalance:result.walletBalance};
+    document.getElementById('fidCurrentPoints').textContent=result.points;
+    document.getElementById('fidWalletBalance').textContent=result.walletBalance.toLocaleString('it-IT',{style:'currency',currency:'EUR'});
+    document.getElementById('fidReceiptAmount').value='';
+    document.getElementById('fidNewPoints').textContent='0';
+    status.textContent='Pagamento registrato. Saldo portafoglio aggiornato e punti accreditati.'+(result.referralAwarded?' Bonus Porta un amico: +5 punti all’invitante.':'');
+    await loadFidelityHistory(currentFidelityCustomer.code);
+    loadFidelityCustomerList();
+  }catch(e){status.textContent='Pagamento non riuscito: '+(e.message||e.code)}
+};
 window.topupFidelityWallet=async()=>{if(!currentFidelityCustomer)return;const amount=Number(document.getElementById('fidTopupAmount')?.value||0),status=document.getElementById('fidWalletStatus');if(!(amount>0)){status.textContent='Inserisci un importo valido.';return}const bonus=amount>=80?Math.round(amount*10)/100:0,total=amount+bonus;if(!confirm('Confermi ricarica '+amount.toLocaleString('it-IT',{style:'currency',currency:'EUR'})+(bonus?' + bonus '+bonus.toLocaleString('it-IT',{style:'currency',currency:'EUR'}):'')+'?'))return;status.textContent='Ricarica in corso…';try{if(!fidelityApi)throw new Error('Firebase non pronto');const ref=fidelityApi.doc(fidelityApi.db,'fidelityCustomers',currentFidelityCustomer.code);await fidelityApi.runTransaction(fidelityApi.db,async tx=>{const s=await tx.get(ref);if(!s.exists())throw new Error('Cliente non trovato');const d=s.data()||{},before=Number(d.walletBalance||0);tx.update(ref,{walletBalance:before+total,walletActive:true,walletUpdatedAt:fidelityApi.serverTimestamp(),updatedAt:fidelityApi.serverTimestamp()});const logRef=fidelityApi.doc(fidelityApi.collection(fidelityApi.db,'fidelityTransactions'));tx.set(logRef,{customerCode:currentFidelityCustomer.code,uid:d.uid||null,type:'WALLET_TOPUP',amount,bonus,walletCredit:total,points:0,createdAt:fidelityApi.serverTimestamp(),createdBy:fidelityApi.auth.currentUser.uid});currentFidelityCustomer={...currentFidelityCustomer,walletBalance:before+total,walletActive:true}});document.getElementById('fidWalletBalance').textContent=Number(currentFidelityCustomer.walletBalance||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'});document.getElementById('fidTopupAmount').value='';status.textContent='Ricarica completata: accreditati '+total.toLocaleString('it-IT',{style:'currency',currency:'EUR'})+'.';await loadFidelityHistory(currentFidelityCustomer.code);loadFidelityCustomerList()}catch(e){status.textContent='Ricarica non riuscita: '+(e.message||e.code)}};
 window.openFidelityCamera=async()=>{const card=document.getElementById('fidelityCameraCard'),video=document.getElementById('fidelityVideo'),status=document.getElementById('fidelityCameraStatus');card.style.display='block';document.getElementById('fidelityCustomerCard').style.display='none';status.textContent='Apertura fotocamera…';card.scrollIntoView({behavior:'smooth',block:'start'});try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('unsupported');if(fidelityCameraStream)fidelityCameraStream.getTracks().forEach(t=>t.stop());fidelityCameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});video.srcObject=fidelityCameraStream;await video.play();const detector=('BarcodeDetector'in window)?new BarcodeDetector({formats:['qr_code']}):null,canvas=document.getElementById('fidelityCanvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});status.textContent='Fotocamera attiva. Inquadra il QR Fidelity del cliente.';fidelityScanTimer=setInterval(async()=>{if(video.readyState<2)return;try{let raw='';if(detector){const codes=await detector.detect(video);raw=codes&&codes[0]?.rawValue||''}if(!raw&&typeof jsQR==='function'){const w=video.videoWidth,h=video.videoHeight;if(w&&h){canvas.width=w;canvas.height=h;ctx.drawImage(video,0,0,w,h);const img=ctx.getImageData(0,0,w,h),qr=jsQR(img.data,w,h,{inversionAttempts:'attemptBoth'});raw=qr?.data||''}}if(raw)await handleFidelityCode(raw)}catch(e){}},300)}catch(e){status.textContent='Scanner non disponibile: '+(e.message||'controlla il permesso fotocamera del browser.')}};
 window.closeFidelityCamera=(hide=true)=>{if(fidelityScanTimer){clearInterval(fidelityScanTimer);fidelityScanTimer=null}if(fidelityCameraStream){fidelityCameraStream.getTracks().forEach(t=>t.stop());fidelityCameraStream=null}const v=document.getElementById('fidelityVideo');if(v)v.srcObject=null;const c=document.getElementById('fidelityCameraCard');if(c&&hide)c.style.display='none'};
@@ -566,6 +637,37 @@ window.loadReferralAudit=async()=>{
     out.textContent="Impossibile leggere le registrazioni da Firebase: "+String(e?.code||e?.message||"errore sconosciuto");
   }
 };
+
+window.creditMissingReferral=async invitedCode=>{
+  if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID){alert("Accesso amministratore richiesto.");return;}
+  const row=referralAuditRows.find(x=>referralAuditCode(x.invitee.code)===referralAuditCode(invitedCode));
+  if(!row||!row.paid||row.rewarded||!row.inviter||row.inviterCode===referralAuditCode(invitedCode)){alert("Questo invito non è idoneo all'accredito.");return;}
+  if(!confirm("Confermi che il primo acquisto di "+referralAuditName(row.invitee)+" è stato pagato? Assegnerò 5 punti a "+referralAuditName(row.inviter)+". Questa operazione può avvenire una sola volta."))return;
+  const out=document.getElementById("referralAuditResults");
+  out.textContent="Controllo e accredito dei 5 punti in corso…";
+  try{
+    await runTransaction(db,async tx=>{
+      const code=referralAuditCode(invitedCode),invitedRef=doc(db,"fidelityCustomers",code);
+      const invitedSnap=await tx.get(invitedRef);
+      if(!invitedSnap.exists())throw new Error("Cliente invitato non trovato");
+      const invited=invitedSnap.data()||{},inviterCode=referralAuditCode(invited.referredBy);
+      if(!invited.lastPurchaseAt)throw new Error("Primo acquisto non registrato");
+      if(!inviterCode||inviterCode===code)throw new Error("Invito non valido");
+      if(invited.referralRewarded)throw new Error("Bonus già accreditato");
+      const inviterRef=doc(db,"fidelityCustomers",inviterCode);
+      const inviterSnap=await tx.get(inviterRef);
+      if(!inviterSnap.exists())throw new Error("Cliente invitante non trovato");
+      const awardRef=doc(db,"fidelityTransactions","referral_first_purchase_"+code);
+      const awardSnap=await tx.get(awardRef);
+      if(awardSnap.exists())throw new Error("Bonus già registrato");
+      tx.update(invitedRef,{referralRewarded:true,referralRewardedAt:serverTimestamp(),referralStatus:"rewarded",updatedAt:serverTimestamp()});
+      tx.update(inviterRef,{points:Number(inviterSnap.data().points||0)+5,updatedAt:serverTimestamp()});
+      tx.set(awardRef,{customerCode:inviterCode,referredCustomerCode:code,points:5,type:"referral_first_purchase",createdAt:serverTimestamp(),createdBy:auth.currentUser.uid,reason:"Accredito recuperato dopo il primo acquisto pagato"});
+    });
+    await window.loadReferralAudit();
+    alert("Bonus Porta un amico: 5 punti accreditati una sola volta. Lo storico è stato aggiornato.");
+  }catch(e){await window.loadReferralAudit();alert("Accredito non eseguito: "+String(e?.message||e?.code||e));}
+};
 window.renderReferralAudit=()=>{
   const out=document.getElementById("referralAuditResults");
   if(!out||!referralAuditReady)return;
@@ -585,6 +687,7 @@ window.renderReferralAudit=()=>{
     +'<div>Invitato da: <b>'+referralAuditEsc(x.inviter?referralAuditName(x.inviter):"Codice non trovato")+'</b> <small>'+referralAuditEsc(x.inviterCode)+'</small></div>'
     +'<small>Primo acquisto: '+(x.paid?"registrato":"non registrato")+'</small>'
     +'<div><b>'+referralAuditEsc(x.status)+'</b></div>'
+    +(x.paid&&!x.rewarded&&x.inviter&&x.inviterCode!==referralAuditCode(x.invitee.code)&&/^[A-Z0-9-]+$/.test(referralAuditCode(x.invitee.code))?'<button type="button" class="red" style="margin-top:8px;padding:10px 12px;border:0;border-radius:9px;cursor:pointer" onclick="window.creditMissingReferral(\''+referralAuditEsc(referralAuditCode(x.invitee.code))+'\')">ACCREDITA 5 PUNTI ALL’INVITANTE</button>':'')
     +'</div>').join("");
   out.innerHTML=stats+(cards||'<p class="status-note">Nessun invito personale trovato'+(q?" per questa ricerca":"")+'. Chi entra solo con un link di gruppo può non risultare qui.</p>')
     +'<p class="status-note" style="margin-top:12px">Report di sola lettura. I bonus da verificare non vengono assegnati automaticamente.</p>';
