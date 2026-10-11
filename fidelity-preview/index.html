@@ -796,7 +796,7 @@ $('forgotBtn').addEventListener('click',async()=>{
   const email=$('loginEmail').value.trim();if(!email)return toast('Inserisci prima la tua email.');
   try{await sendPasswordResetEmail(auth,email);toast('Email di recupero inviata.')}catch(e){toast('Non riesco a inviare il recupero.')}
 });
-$('logoutBtn').addEventListener('click',()=>signOut(auth));
+$('logoutBtn').addEventListener('click',async()=>{try{await signOut(auth);for(const id of ['loginEmail','loginPassword','regName','regSurname','regEmail','regPhone','regBirth','regPassword']){const el=$(id);if(el)el.value='';}$('registerPane').classList.add('hidden');$('loginPane').classList.remove('hidden');}catch(e){console.warn('Logout non riuscito',e);toast('Uscita non riuscita. Riprova.')}});
 $('copyInviteBtn').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('inviteUrl').textContent);toast('Link copiato.')}catch(e){toast('Copia non disponibile.')}});
 $('groupCreateBtn').addEventListener('click',async()=>{
   const user=auth.currentUser,name=$('groupNameInput').value.trim();if(!user||!name)return toast('Scrivi il nome del gruppo.');
