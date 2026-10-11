@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="fidelity-app-build-marker" content="2026-10-11-booking-button-2">
+<meta name="fidelity-app-build-marker" content="2026-10-11-booking-button-3">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#b5101b">
 <title>Alberto Fidelity | Prova iPhone</title>
@@ -198,6 +198,10 @@ body.fidelity-app .sidebar .navbtn{min-height:44px}
 #view-profile .fidelity-profile-services + .eyebrow{margin-top:0!important}
 }
 
+/* Booking form: scrollable safe area above fixed PWA tabs on Fold and phones. */
+body.fidelity-app #view-bookings .booking-layout{padding-bottom:180px!important}
+body.fidelity-app #view-bookings #bookingFormCard{padding-bottom:28px!important;margin-bottom:120px!important}
+body.fidelity-app #view-bookings #createBookingBtn{margin-bottom:20px!important}
 /* Prevent horizontal overflow and iOS input focus zoom in the app */
 html,body{max-width:100%;overflow-x:hidden;touch-action:pan-y}
 body.fidelity-app .shell,body.fidelity-app .main,body.fidelity-app .view{min-width:0;max-width:100%}
