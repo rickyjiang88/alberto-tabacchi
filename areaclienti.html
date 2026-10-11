@@ -78,6 +78,17 @@
   .login-card{min-height:0!important;width:100%;margin:0 auto;display:block!important}
   .login-form{padding:26px 22px!important;justify-content:flex-start!important}
 }
+
+/* Compact authentication forms for installed mobile web apps. */
+@media(max-width:850px){
+ .login-wrap{padding:8px 12px calc(120px + env(safe-area-inset-bottom,0px))!important;align-content:start!important;align-items:start!important}
+ .login-card{border-radius:18px!important;min-height:0!important;align-self:start!important}
+ .login-form{padding:18px 20px 28px!important;justify-content:flex-start!important}
+ .login-form h1{margin:8px 0 6px!important}
+ .login-form .lead{margin:0 0 18px!important}
+ #loginPane,#registerPane{margin:0!important;padding:0!important}
+ #registerPane .form,#loginPane .form{margin-top:0!important}
+}
 </style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
