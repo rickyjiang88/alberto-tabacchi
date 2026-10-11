@@ -399,7 +399,7 @@ window.setBookingStatus=async(id,status)=>{
  const buttons=document.querySelectorAll("#bookingList button");buttons.forEach(btn=>btn.disabled=true);
  try{
    const patch={bookingStatus:status,bookingUpdatedAt:serverTimestamp()};
-   if(status==="CONFERMATA")patch.bookingConfirmedAt=serverTimestamp();
+   if(status==="CONFERMATA"){patch.bookingConfirmedAt=serverTimestamp();patch.pushEvent={type:"booking_confirmed",requestedAt:serverTimestamp(),status:"pending"};}
    await updateDoc(doc(db,"orders",id),patch);
  }catch(e){console.error(e);alert("Non è stato possibile aggiornare la prenotazione.");window.renderBookings();}
  finally{buttons.forEach(btn=>btn.disabled=false);}
@@ -488,7 +488,11 @@ window.saveServiceSettings=async()=>{
  btn.disabled=false;if(ok)alert("Orari salvati. Il negozio è "+(enabled?"attivo.":"temporaneamente chiuso."));
 };
 
-window.setOrderStatus=async(id,status)=>{await updateDoc(doc(db,"orders",id),{status})};
+window.setOrderStatus=async(id,status)=>{
+ const patch={status};
+ if(status==="PRONTO")patch.pushEvent={type:"order_ready",requestedAt:serverTimestamp(),status:"pending"};
+ await updateDoc(doc(db,"orders",id),patch);
+};
 
 const DDT_SELLER={name:"JM SRL",vat:"04248601207",legalAddress:"Via del Commercio Associato 30, Bologna",departureAddress:"Via dei Valtorta 44, Milano"};
 const DDT_CLIENTS=[
