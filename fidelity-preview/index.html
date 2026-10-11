@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="fidelity-app-build-marker" content="2026-10-11-booking-button-3">
+<meta name="fidelity-app-build-marker" content="2026-10-11-booking-confirmation-1">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#b5101b">
 <title>Alberto Fidelity | Prova iPhone</title>
@@ -485,6 +485,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
 
             <label>Note</label><input id="bookNotes">
             <button id="createBookingBtn" class="btn">PRENOTA TAVOLO</button>
+            <p id="bookingSubmitStatus" role="status" aria-live="polite" style="display:none;margin:4px 0 0;font-size:14px;font-weight:700;color:#27643c"></p>
           </div>
         </div>
       </div>
@@ -888,6 +889,7 @@ $('saveProfileBtn').addEventListener('click',async()=>{
   const patch={name:$('editName').value.trim(),surname:$('editSurname').value.trim(),phone:$('editPhone').value.trim(),birthDate:$('editBirth').value};
   try{await setDoc(doc(db,'fidelityCustomers',customerCode()),patch,{merge:true});profile={...profile,...patch};render();const editPanel=document.getElementById('profileEditPanel'),editToggle=document.getElementById('toggleProfileEdit');if(editPanel)editPanel.hidden=true;if(editToggle)editToggle.setAttribute('aria-expanded','false');toast('Modifiche salvate correttamente ✓');try{await updateProfile(user,{displayName:[patch.name,patch.surname].filter(Boolean).join(' ')})}catch(authErr){console.warn('Nome Auth non sincronizzato; dati Fidelity salvati',authErr)}}catch(e){console.warn(e);toast('Salvataggio non riuscito.')}
 });
+let lastSubmittedBookingKey='';
 $('createBookingBtn').addEventListener('click',async()=>{
   const btn=$('createBookingBtn');
   if(btn.disabled)return;
@@ -904,6 +906,10 @@ $('createBookingBtn').addEventListener('click',async()=>{
   if(useGroup&&!members.length)return toast('Seleziona almeno una persona del gruppo.');
   if(useGroup&&covers<members.length){covers=members.length;$('bookCovers').value=covers}
   const allRegistered=useGroup?bookingGroupMembers.filter(m=>m&&m.uid):[];
+  const bookingKey=JSON.stringify([user.uid,date,time,name,phone,covers,useGroup,gcode,members.map(m=>m.uid||m.code||m.name).sort(),notes]);
+  const bookingStatusEl=$('bookingSubmitStatus');
+  if(bookingKey===lastSubmittedBookingKey){if(bookingStatusEl){bookingStatusEl.style.display='block';bookingStatusEl.textContent='Prenotazione già inviata. Controlla «Le mie prenotazioni» prima di inviarne un’altra.';}return;}
+  if(bookingStatusEl){bookingStatusEl.style.display='block';bookingStatusEl.style.color='#786e67';bookingStatusEl.textContent='Invio della prenotazione in corso…';}
   btn.disabled=true;btn.textContent='INVIO IN CORSO…';
   try{
     await addDoc(collection(db,'orders'),{
@@ -918,12 +924,13 @@ $('createBookingBtn').addEventListener('click',async()=>{
       registeredGroupGuests:useGroup?members.length:0,
       source:'Alberto Area Clienti Sito',createdAt:serverTimestamp()
     });
+    lastSubmittedBookingKey=bookingKey;
     toast('Prenotazione inviata, in attesa di conferma.');
-    $('bookNotes').value='';
-    alert('Prenotazione inviata correttamente!\n\n'+date.split('-').reverse().join('/')+' alle '+time+' · '+covers+' coperti.\n\nIn attesa di conferma del locale.');
+    if(bookingStatusEl){bookingStatusEl.style.color='#27643c';bookingStatusEl.textContent='✓ Prenotazione inviata! '+date.split('-').reverse().join('/')+' alle '+time+' · '+covers+' coperti. In attesa di conferma del locale.';}
     btn.textContent='PRENOTAZIONE INVIATA ✓';
-    setTimeout(()=>{btn.disabled=false;btn.textContent='PRENOTA TAVOLO'},3500);
-  }catch(e){console.warn(e);toast('Prenotazione non riuscita.');alert('Prenotazione non riuscita. Riprova.');btn.disabled=false;btn.textContent='PRENOTA TAVOLO'}
+    btn.disabled=false;
+    setTimeout(()=>{if(btn.textContent==='PRENOTAZIONE INVIATA ✓')btn.textContent='PRENOTA TAVOLO'},4500);
+  }catch(e){console.warn(e);toast('Prenotazione non riuscita.');if(bookingStatusEl){bookingStatusEl.style.display='block';bookingStatusEl.style.color='#b42318';bookingStatusEl.textContent='Prenotazione non riuscita. Riprova.';}btn.disabled=false;btn.textContent='PRENOTA TAVOLO'}
 });
 $('groupRenameBtn').addEventListener('click',async()=>{
   const user=auth.currentUser,code=profile.officeGroupCode||profile.groupCode||'',name=$('groupRenameInput').value.trim();
