@@ -1060,7 +1060,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
     const overlay=document.getElementById('fidelityServiceOverlay');
     const frame=document.getElementById('fidelityServiceFrame');
     const title=document.getElementById('fidelityServiceTitle');
-    if(overlay&&frame){if(title)title.textContent='Menù';const loading=document.getElementById('fidelityMenuLoading');if(loading)loading.hidden=false;frame.style.visibility='hidden';if(frame.getAttribute('src')!=='/preordina/?app=1')frame.src='/preordina/?app=1';overlay.hidden=false;document.body.style.overflow='hidden';}
+    if(overlay&&frame){if(title)title.textContent='Menù';const loading=document.getElementById('fidelityMenuLoading');const newPage=frame.getAttribute('src')!=='/preordina/?app=1';if(newPage){if(loading)loading.hidden=false;frame.style.visibility='hidden';frame.src='/preordina/?app=1';}else{if(loading)loading.hidden=true;frame.style.visibility='visible';}overlay.hidden=false;document.body.style.overflow='hidden';}
   }else{
     const overlay=document.getElementById('fidelityServiceOverlay');
     if(overlay&&!overlay.hidden){overlay.hidden=true;document.body.style.overflow='';/* Keep the embedded menu loaded for instant return; do not reset its cart or state. */}
