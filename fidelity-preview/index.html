@@ -738,7 +738,8 @@ onAuthStateChanged(auth,async user=>{
   $('loginWrap').classList.add('hidden');
   const code='ALB'+user.uid.slice(0,10).toUpperCase();
   profile={uid:user.uid,code,email:user.email||'',name:(user.displayName||'Cliente').split(' ')[0]||'Cliente',surname:(user.displayName||'').split(' ').slice(1).join(' ')};
-  try{const s=await getDoc(doc(db,'fidelityCustomers',code));if(s.exists())profile={...profile,...s.data(),uid:user.uid,code}}catch(e){console.warn(e)}
+  try{const customerSnap=await getDoc(doc(db,'fidelityCustomers',code));if(customerSnap.exists())profile={...profile,...customerSnap.data(),uid:user.uid,code};else console.warn('Profilo cliente non trovato',code)}catch(e){console.warn('Caricamento profilo cliente non riuscito',e)}
+  try{const userSnap=await getDoc(doc(db,'fidelityUsers',user.uid));if(userSnap.exists()){const userData=userSnap.data()||{};if(userData.name&&(!profile.name||profile.name==='Cliente'))profile.name=userData.name;if(userData.surname&&!profile.surname)profile.surname=userData.surname;if(userData.phone&&!profile.phone)profile.phone=userData.phone;if(userData.birthDate&&!profile.birthDate)profile.birthDate=userData.birthDate}}catch(e){console.warn('Dati utente aggiuntivi non disponibili',e)}
   if(profile.name==='Cliente'&&!profile.surname&&user.displayName){const parts=user.displayName.trim().split(/\s+/);if(parts[0])profile.name=parts[0];if(parts.length>1)profile.surname=parts.slice(1).join(' ');}
   const params=new URLSearchParams(location.search),group=params.get('group'),ref=params.get('ref');
   if(ref&&!profile.referredBy&&!profile.lastPurchaseAt){profile.referredBy=ref;try{await setDoc(doc(db,'fidelityCustomers',code),{referredBy:ref,referralStatus:'pending_first_purchase'},{merge:true})}catch(e){}}
