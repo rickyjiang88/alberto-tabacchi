@@ -741,6 +741,7 @@ onAuthStateChanged(auth,async user=>{
   const code='ALB'+user.uid.slice(0,10).toUpperCase();
   profile={uid:user.uid,code,email:user.email||'',name:(user.displayName||'Cliente').split(' ')[0]||'Cliente',surname:(user.displayName||'').split(' ').slice(1).join(' ')};
   try{const s=await getDoc(doc(db,'fidelityCustomers',code));if(s.exists())profile={...profile,...s.data(),uid:user.uid,code}}catch(e){console.warn(e)}
+  if(profile.name==='Cliente'&&!profile.surname&&user.displayName){const parts=user.displayName.trim().split(/\s+/);if(parts[0])profile.name=parts[0];if(parts.length>1)profile.surname=parts.slice(1).join(' ');}
   const params=new URLSearchParams(location.search),group=params.get('group'),ref=params.get('ref');
   if(ref&&!profile.referredBy&&!profile.lastPurchaseAt){profile.referredBy=ref;try{await setDoc(doc(db,'fidelityCustomers',code),{referredBy:ref,referralStatus:'pending_first_purchase'},{merge:true})}catch(e){}}
   if(group&&!groupCodes().includes(group)){try{
@@ -820,6 +821,8 @@ $('registerBtn').addEventListener('click',async()=>{
     await updateProfile(cred.user,{displayName:(name+' '+surname).trim()});
     await setDoc(doc(db,'fidelityCustomers',code),{uid:cred.user.uid,code,name,surname,email,phone,birthDate,points:0,walletBalance:0,walletActive:true,officeGroupCodes:[],createdAt:serverTimestamp()},{merge:true});
     await setDoc(doc(db,'fidelityUsers',cred.user.uid),{customerCode:code},{merge:true});
+    profile={...profile,uid:cred.user.uid,code,name,surname,email,phone,birthDate,points:0,walletBalance:0,walletActive:true};
+    render();
     toast('Account creato.');
   }catch(e){console.warn(e);toast(String(e.code||'Registrazione non riuscita').replace('auth/',''))}
 });
