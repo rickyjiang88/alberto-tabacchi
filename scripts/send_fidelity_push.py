@@ -59,9 +59,26 @@ def deliver(order_ref):
     if kind == "booking_confirmed":
         uids.update(str(uid).strip() for uid in (order.get("groupMemberUids") or []))
     uids.discard("")
-    title = "Alberto Fidelity"
-    body = ("Il tuo ordine è pronto per il ritiro!" if kind == "order_ready"
-            else "La tua prenotazione è stata confermata!")
+    if kind == "order_ready":
+        number = order.get("orderNumber")
+        order_label = f"#{int(number):04d}" if str(number or "").isdigit() else f"#{order_ref.id[:8]}"
+        title = f"Alberto · Ordine {order_label} pronto"
+        body = f"Il tuo ordine {order_label} è pronto per il ritiro!"
+    else:
+        title = "Alberto · Prenotazione confermata"
+        covers = order.get("covers") or order.get("guests")
+        date = str(order.get("date") or "")
+        if len(date) == 10 and date[4] == "-" and date[7] == "-":
+            date = f"{date[8:10]}/{date[5:7]}/{date[:4]}"
+        time = str(order.get("time") or "")
+        details = []
+        if covers:
+            details.append(f"per {covers} coperti")
+        if date:
+            details.append(f"del {date}")
+        if time:
+            details.append(f"alle ore {time}")
+        body = "La tua prenotazione " + " ".join(details) + " è confermata." if details else "La tua prenotazione è stata confermata!"
     sent = 0
     failures = []
     for uid in sorted(uids):
