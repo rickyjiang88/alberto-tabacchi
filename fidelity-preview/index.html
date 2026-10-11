@@ -790,6 +790,8 @@ function watchUser(uid){
 }
 
 onAuthStateChanged(auth,async user=>{
+  window.currentFidelityUid=user?.uid||'';
+  if(typeof window.sendFidelityUidToMenu==='function')window.sendFidelityUidToMenu();
   unsubs.forEach(stop=>{try{stop()}catch{}});unsubs=[];
   orders=[];bookings=[];groupMetas=[];bookingSelectedGroupCode='';profile={};
   if(!user){$('loginWrap').classList.remove('hidden');return}
@@ -1089,6 +1091,15 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   const overlay=document.getElementById('fidelityServiceOverlay');
   const frame=document.getElementById('fidelityServiceFrame');
   const title=document.getElementById('fidelityServiceTitle');
+  window.sendFidelityUidToMenu=()=>{
+    const uid=String(window.currentFidelityUid||'');
+    if(uid&&frame?.contentWindow)frame.contentWindow.postMessage({type:'alberto-fidelity-uid',uid},location.origin);
+  };
+  frame?.addEventListener('load',()=>window.sendFidelityUidToMenu());
+  window.addEventListener('message',event=>{
+    if(event.origin!==location.origin||event.source!==frame?.contentWindow)return;
+    if(event.data?.type==='alberto-fidelity-request-uid')window.sendFidelityUidToMenu();
+  });
   const links=document.querySelectorAll('.fidelity-app-services a');
   links.forEach(link=>{
     if(!document.body.classList.contains('fidelity-app'))return;
