@@ -82,6 +82,8 @@
 .wallet-qr-box>b{display:block!important;clear:both!important;margin:0 0 8px!important}
 
 #addAppleWalletBtn,#addGoogleWalletBtn,.wallet-pass-actions{display:none!important}
+/* In Safari/browser, use the site's regular navigation rather than the fixed app tabs. */
+@media(max-width:850px){body:not(.fidelity-app) .fidelity-bottom-nav{display:none!important}}
 /* Alberto Fidelity PWA: esperienza a schermo intero, senza navigazione del sito. */
 body.fidelity-app .site-strip,body.fidelity-app .main-site-nav,body.fidelity-app .site-toggle{display:none!important}
 body.fidelity-app .shell{min-height:100dvh;grid-template-rows:76px minmax(0,1fr)}
