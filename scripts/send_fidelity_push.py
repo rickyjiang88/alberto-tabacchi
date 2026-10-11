@@ -108,7 +108,7 @@ def deliver(order_ref):
 # Four-week lunch campaign: 12 October – 6 November 2026, weekdays only.
 # A daily Firestore claim prevents duplicate broadcasts across scheduled runs.
 LUNCH_CAMPAIGN_START = date(2026, 10, 12)
-LUNCH_CAMPAIGN_END = date(2026, 11, 6)
+LUNCH_CAMPAIGN_END = date(2026, 10, 30)
 LUNCH_MESSAGES = [
     (10, 0, "Alberto · Il lunedì ha fame", "Il weekend è finito, la fame no. Il menù di oggi è pronto!"),
     (9, 50, "Alberto · Pensieri importanti", "Cosa mangi a pranzo? Risolviamo subito il dilemma: guarda il menù!"),
@@ -125,11 +125,6 @@ LUNCH_MESSAGES = [
     (10, 20, "Alberto · Pausa pranzo cercasi", "L'abbiamo trovata! Ora manca solo scegliere cosa mangiare."),
     (10, 5, "Alberto · Un dubbio amletico", "Primo o secondo? Il menù di oggi potrebbe complicarti piacevolmente la scelta!"),
     (10, 10, "Alberto · Buon venerdì!", "Prima del weekend, una decisione importante: cosa mangiamo oggi?"),
-    (9, 55, "Alberto · Il lunedì si affronta", "Con calma, un caffè e un buon pranzo. Scopri il menù del giorno!"),
-    (10, 20, "Alberto · La fame non aspetta", "Ma puoi giocare d'anticipo: scegli ora il tuo pranzo dal menù!"),
-    (10, 0, "Alberto · Spoiler di oggi", "A pranzo si mangia! Il resto lo scopri nel menù del giorno."),
-    (10, 15, "Alberto · Ultima chiamata?", "Macché, hai ancora tempo per scegliere il pranzo. Dai un'occhiata!"),
-    (9, 50, "Alberto · È venerdì!", "Chiudiamo la settimana con gusto: il menù del giorno è pronto!"),
 ]
 
 def send_lunch_campaign():
