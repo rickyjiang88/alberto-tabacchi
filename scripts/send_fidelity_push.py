@@ -110,11 +110,26 @@ def deliver(order_ref):
 LUNCH_CAMPAIGN_START = date(2026, 10, 12)
 LUNCH_CAMPAIGN_END = date(2026, 11, 6)
 LUNCH_MESSAGES = [
-    (10, 0, "🍽️ Alberto · Che si mangia oggi?", "Il menù del giorno è pronto! Dai un'occhiata e scegli il tuo pranzo."),
-    (9, 50, "Alberto · Pausa pranzo in arrivo?", "Non aspettare di avere fame: scopri già adesso i piatti di oggi!"),
-    (10, 15, "🍴 Alberto · Il pranzo ti aspetta", "Primo, secondo o qualcosa di sfizioso? Il menù di oggi è online!"),
-    (10, 20, "Alberto · Hai già scelto?", "La pausa pranzo si avvicina. Scopri cosa abbiamo preparato oggi!"),
-    (10, 5, "😋 Alberto · Oggi cosa mangiamo?", "Il menù del giorno è pronto: trova il tuo piatto preferito da Alberto!")
+    (10, 0, "🍝 Alberto · Il lunedì ha fame", "Il weekend è finito, la fame no. Il menù di oggi è pronto!"),
+    (9, 50, "😋 Alberto · Pensieri importanti", "Cosa mangi a pranzo? Risolviamo subito il dilemma: guarda il menù!"),
+    (10, 15, "🍴 Alberto · Riunione urgente", "Ordine del giorno: decidere il pranzo. Il menù è online!"),
+    (10, 20, "🥗 Alberto · Fame in arrivo?", "Non aspettare che lo stomaco protesti: scegli il pranzo di oggi!"),
+    (10, 5, "🎉 Alberto · Venerdì, finalmente!", "Il weekend si avvicina. Intanto festeggiamo con un buon pranzo!"),
+    (9, 55, "🍝 Alberto · Missione pranzo", "Obiettivo di oggi: mangiare bene. Primo passo: aprire il nostro menù!"),
+    (10, 10, "😎 Alberto · Pausa strategica", "Hai già deciso cosa mangiare? Noi abbiamo preparato qualche buona idea."),
+    (10, 0, "🍴 Alberto · Domanda difficile", "Pasta o secondo? Dai un'occhiata al menù e lascia parlare la fame."),
+    (10, 25, "🤭 Alberto · Lo stomaco ha scritto", "Dice che vuole sapere cosa c'è a pranzo. Il menù di oggi è pronto!"),
+    (9, 45, "🍽️ Alberto · Venerdì senza pensieri", "A cosa mangiare pensiamo noi. Tu scegli dal menù di oggi!"),
+    (10, 15, "🥄 Alberto · Si accettano idee", "Per il pranzo, però, ne abbiamo già tante: scopri il menù di oggi!"),
+    (9, 50, "😋 Alberto · Non è troppo presto", "Per pensare al pranzo non è mai troppo presto. Guarda cosa c'è oggi!"),
+    (10, 20, "🍝 Alberto · Pausa pranzo cercasi", "L'abbiamo trovata! Ora manca solo scegliere cosa mangiare."),
+    (10, 5, "🤔 Alberto · Un dubbio amletico", "Primo o secondo? Il menù di oggi potrebbe complicarti piacevolmente la scelta!"),
+    (10, 10, "🍴 Alberto · Buon venerdì!", "Prima del weekend, una decisione importante: cosa mangiamo oggi?"),
+    (9, 55, "😄 Alberto · Il lunedì si affronta", "Con calma, un caffè e un buon pranzo. Scopri il menù del giorno!"),
+    (10, 20, "🍽️ Alberto · La fame non aspetta", "Ma puoi giocare d'anticipo: scegli ora il tuo pranzo dal menù!"),
+    (10, 0, "😋 Alberto · Spoiler di oggi", "A pranzo si mangia! Il resto lo scopri nel menù del giorno."),
+    (10, 15, "🍝 Alberto · Ultima chiamata?", "Macché, hai ancora tempo per scegliere il pranzo. Dai un'occhiata!"),
+    (9, 50, "🎊 Alberto · È venerdì!", "Chiudiamo la settimana con gusto: il menù del giorno è pronto!"),
 ]
 
 def send_lunch_campaign():
@@ -122,7 +137,10 @@ def send_lunch_campaign():
     today = now.date()
     if not (LUNCH_CAMPAIGN_START <= today <= LUNCH_CAMPAIGN_END) or today.weekday() >= 5:
         return
-    hour, minute, title, body = LUNCH_MESSAGES[today.weekday()]
+    campaign_day = sum(1 for n in range((today - LUNCH_CAMPAIGN_START).days + 1) if (LUNCH_CAMPAIGN_START + timedelta(days=n)).weekday() < 5) - 1
+    if campaign_day >= len(LUNCH_MESSAGES):
+        return
+    hour, minute, title, body = LUNCH_MESSAGES[campaign_day]
     planned = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
     if not (planned <= now < planned + timedelta(minutes=45)):
         return
