@@ -975,7 +975,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 (function(){
   const standalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
   const inviteSiteView=new URLSearchParams(location.search).get('view')==='site';
-  if(standalone || (!inviteSiteView && (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || new URLSearchParams(location.search).get('source')==='pwa')))document.body.classList.add('fidelity-app');
+  if(standalone)document.body.classList.add('fidelity-app');
   if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/fidelity-preview/sw.js', {updateViaCache:'none'}).catch(err=>console.warn('PWA service worker:',err)))}
   if(standalone)return;
   const ua=navigator.userAgent;
@@ -1028,6 +1028,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   const title=document.getElementById('fidelityServiceTitle');
   const links=document.querySelectorAll('.fidelity-app-services a');
   links.forEach(link=>{
+    if(!document.body.classList.contains('fidelity-app'))return;
     if(!/^\/(fidelity-preview\/menu\.html|preordina\/)/.test(link.getAttribute('href')||''))return;
     link.addEventListener('click',event=>{
       event.preventDefault();
