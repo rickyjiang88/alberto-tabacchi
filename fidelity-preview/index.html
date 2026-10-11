@@ -82,6 +82,8 @@
 .wallet-qr-box>b{display:block!important;clear:both!important;margin:0 0 8px!important}
 
 #addAppleWalletBtn,#addGoogleWalletBtn,.wallet-pass-actions{display:none!important}
+/* Management is invisible by default until the group owner is verified. */
+#bookingGroupManageBtn[hidden]{display:none!important}
 /* In Safari/browser, use the site's regular navigation rather than the fixed app tabs. */
 @media(max-width:850px){body:not(.fidelity-app) .fidelity-bottom-nav{display:none!important}}
 /* Alberto Fidelity PWA: esperienza a schermo intero, senza navigazione del sito. */
@@ -556,7 +558,7 @@ function customerCode(){return profile.code|| (auth.currentUser?'ALB'+auth.curre
 function groupCodes(){return [...new Set([...(Array.isArray(profile.officeGroupCodes)?profile.officeGroupCodes:[]),profile.officeGroupCode,profile.groupCode].filter(Boolean))]}
 function activeBookingGroupCode(){return bookingSelectedGroupCode||profile.officeGroupCode||profile.groupCode||groupCodes()[0]||''}
 function activeBookingGroupMeta(){const code=activeBookingGroupCode();return groupMetas.find(g=>g.code===code)||{code,name:profile.officeGroupName||profile.groupName||'Gruppo Alberto',ownerName:profile.officeGroupOwnerName||''}}
-function updateBookingGroupManage(){const btn=$('bookingGroupManageBtn');if(!btn)return;const meta=groupMetas.find(g=>g.code===activeBookingGroupCode());const isOwner=!!(meta?.ownerUid&&auth.currentUser?.uid===meta.ownerUid);btn.hidden=!isOwner;btn.style.display=isOwner?'':'none';}
+function updateBookingGroupManage(){const btn=$('bookingGroupManageBtn');if(!btn)return;const meta=groupMetas.find(g=>g.code===activeBookingGroupCode());const isOwner=!!(meta?.ownerUid&&auth.currentUser?.uid===meta.ownerUid);btn.hidden=!isOwner;btn.style.setProperty('display',isOwner?'inline-flex':'none','important');}
 async function loadGroupMemberships(){
   const codes=groupCodes(),rows=[];
   for(const code of codes){try{const s=await getDoc(doc(db,'officeGroups',code));if(s.exists())rows.push({code,...s.data()})}catch(e){console.warn('Gruppo non leggibile',code,e)}}
