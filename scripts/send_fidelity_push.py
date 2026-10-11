@@ -179,6 +179,53 @@ def send_lunch_campaign():
         claim_ref.update({"status":"failed","failedAt":firestore.SERVER_TIMESTAMP})
         raise
 
+def send_manual_broadcasts():
+    docs = db.collection("fidelityPushBroadcasts").where(
+        filter=FieldFilter("status", "==", "pending")
+    ).limit(10).stream()
+    for snap in docs:
+        ref = snap.reference
+        @firestore.transactional
+        def claim(tx):
+            current = ref.get(transaction=tx)
+            if not current.exists or current.to_dict().get("status") != "pending":
+                return None
+            data = current.to_dict()
+            if data.get("kind") != "marketing" or data.get("createdBy") != "vaQyMYFpkrNU0rsc6aGSnNTHmt43":
+                tx.update(ref, {"status":"rejected"})
+                return None
+            tx.update(ref, {"status":"processing","processingAt":firestore.SERVER_TIMESTAMP})
+            return data
+        data = claim(db.transaction())
+        if not data:
+            continue
+        sent, failed = 0, 0
+        try:
+            for customer in db.collection("fidelityPushTokens").where(
+                filter=FieldFilter("marketingConsent", "==", True)
+            ).stream():
+                for token in registered_tokens(customer.id):
+                    try:
+                        messaging.send(messaging.Message(
+                            token=token,
+                            notification=messaging.Notification(title=data["title"], body=data["body"]),
+                            webpush=messaging.WebpushConfig(
+                                fcm_options=messaging.WebpushFCMOptions(
+                                    link="https://albertotabacchi.com/fidelity-preview/")
+                            ),
+                            data={"url":"/fidelity-preview/","kind":"marketing","broadcastId":snap.id},
+                        ))
+                        sent += 1
+                    except Exception as exc:
+                        failed += 1
+                        print(f"Broadcast {snap.id}: {type(exc).__name__}")
+            ref.update({"status":"completed","sent":sent,"failed":failed,
+                        "completedAt":firestore.SERVER_TIMESTAMP})
+        except Exception:
+            ref.update({"status":"failed","failedAt":firestore.SERVER_TIMESTAMP})
+            raise
+        print(f"Broadcast {snap.id}: sent={sent}, failed={failed}")
+
 def main():
     test_uid = os.environ.get('TEST_PUSH_UID', '').strip()
     if test_uid:
@@ -195,6 +242,7 @@ def main():
             print('Test push accepted by Firebase:', message_id)
         return
     send_lunch_campaign()
+    send_manual_broadcasts()
     docs = db.collection("orders").where(
         filter=FieldFilter("pushEvent.status", "==", "pending")
     ).limit(100).stream()
