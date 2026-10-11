@@ -492,8 +492,8 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
     <section id="view-wallet" class="view">
       <span class="eyebrow">PORTAFOGLIO</span><h1>Portafoglio Alberto</h1><p class="lead">Ricarica il tuo credito Alberto e usalo per i tuoi acquisti.</p>
       <div class="grid2">
-        <div class="card dark"><small>STATO</small><div id="walletStatus" style="font-size:25px;font-weight:900;margin:12px 0">NON ATTIVO</div><div class="metric-sub">Il portafoglio è facoltativo: puoi continuare a pagare normalmente con gli altri metodi.</div></div>
-        <div class="card"><small>SALDO</small><div id="walletBalance" class="metric">€ 0,00</div><div class="metric-sub">Saldo sincronizzato con la cassa. Ricariche e pagamenti vengono registrati tramite il tuo QR.</div></div>
+        <div class="card dark"><small>STATO</small><div id="walletStatus" style="font-size:25px;font-weight:900;margin:12px 0">ATTIVO</div><div class="metric-sub">Il portafoglio è facoltativo: puoi continuare a pagare normalmente con gli altri metodi.</div></div>
+        <div class="card"><small>SALDO</small><div id="walletBalance" class="metric">0,00 €</div><div class="metric-sub">Saldo sincronizzato con la cassa. Ricariche e pagamenti vengono registrati tramite il tuo QR.</div></div>
       </div>
 
       <div class="card wallet-offer">
@@ -518,7 +518,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
         </div>
       </div>
 
-      <div class="actions"><button id="walletToggleBtn" class="btn">ATTIVA PORTAFOGLIO</button></div>
+      
     </section>
 
     <section id="view-invite" class="view">
@@ -648,7 +648,7 @@ $('bookGroupBtn')?.addEventListener('click',()=>setBookingMode('group'));
 $('bookingGroupSelect')?.addEventListener('change',e=>{bookingSelectedGroupCode=e.target.value;loadBookingGroupMembers()});
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-select-group]');if(!b)return;const code=b.dataset.selectGroup,meta=groupMetas.find(g=>g.code===code)||{};bookingSelectedGroupCode=code;profile.officeGroupCode=code;profile.groupCode=code;profile.officeGroupName=meta.name||profile.officeGroupName||'Gruppo Alberto';profile.officeGroupOwnerName=meta.ownerName||'';try{await setDoc(doc(db,'fidelityCustomers',customerCode()),{officeGroupCode:code,groupCode:code,officeGroupName:profile.officeGroupName,officeGroupOwnerName:profile.officeGroupOwnerName,officeGroupCodes:groupCodes()},{merge:true})}catch(err){console.warn(err)}render();await loadGroupMemberships();toast('Gruppo selezionato.')});
 
-function renderWallet(){const bal=Number(profile.walletBalance||0),enabled=profile.walletActive===true;if($('walletStatus'))$('walletStatus').textContent=enabled?'ATTIVO':'NON ATTIVO';if($('walletBalance'))$('walletBalance').textContent='€ '+bal.toFixed(2).replace('.',',');if($('walletToggleBtn'))$('walletToggleBtn').textContent=enabled?'DISATTIVA PORTAFOGLIO':'ATTIVA PORTAFOGLIO'}
+function renderWallet(){const raw=Number(profile.walletBalance||0),bal=Number.isFinite(raw)?raw:0;if($('walletStatus'))$('walletStatus').textContent='ATTIVO';if($('walletBalance'))$('walletBalance').textContent=bal.toFixed(2).replace('.',',')+' €'}
 function render(){
   const full=[profile.name,profile.surname].filter(Boolean).join(' ')||auth.currentUser?.displayName||'Cliente Alberto';
   const email=profile.email||auth.currentUser?.email||'—',pts=Number(profile.points||0);
@@ -814,7 +814,7 @@ $('registerBtn').addEventListener('click',async()=>{
   try{
     const cred=await createUserWithEmailAndPassword(auth,email,password),code='ALB'+cred.user.uid.slice(0,10).toUpperCase();
     await updateProfile(cred.user,{displayName:(name+' '+surname).trim()});
-    await setDoc(doc(db,'fidelityCustomers',code),{uid:cred.user.uid,code,name,surname,email,phone,birthDate,points:0,walletBalance:0,walletActive:false,officeGroupCodes:[],createdAt:serverTimestamp()},{merge:true});
+    await setDoc(doc(db,'fidelityCustomers',code),{uid:cred.user.uid,code,name,surname,email,phone,birthDate,points:0,walletBalance:0,walletActive:true,officeGroupCodes:[],createdAt:serverTimestamp()},{merge:true});
     await setDoc(doc(db,'fidelityUsers',cred.user.uid),{customerCode:code},{merge:true});
     toast('Account creato.');
   }catch(e){console.warn(e);toast(String(e.code||'Registrazione non riuscita').replace('auth/',''))}
@@ -824,7 +824,6 @@ $('saveProfileBtn').addEventListener('click',async()=>{
   const patch={name:$('editName').value.trim(),surname:$('editSurname').value.trim(),phone:$('editPhone').value.trim(),birthDate:$('editBirth').value};
   try{await setDoc(doc(db,'fidelityCustomers',customerCode()),patch,{merge:true});await updateProfile(user,{displayName:[patch.name,patch.surname].filter(Boolean).join(' ')});profile={...profile,...patch};render();toast('Profilo aggiornato.')}catch(e){console.warn(e);toast('Salvataggio non riuscito.')}
 });
-$('walletToggleBtn').addEventListener('click',async()=>{const on=profile.walletActive===true,next=!on;try{await setDoc(doc(db,'fidelityCustomers',customerCode()),{walletActive:next},{merge:true});profile.walletActive=next;renderWallet();toast(next?'Portafoglio attivato.':'Portafoglio disattivato.')}catch(e){console.warn(e);toast('Modifica portafoglio non riuscita.')}});
 $('createBookingBtn').addEventListener('click',async()=>{
   const user=auth.currentUser;if(!user)return toast('Accedi prima.');
   const date=$('bookDate').value,time=$('bookTime').value,name=$('bookName').value.trim(),phone=$('bookPhone').value.trim(),notes=$('bookNotes').value.trim();
