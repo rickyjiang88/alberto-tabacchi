@@ -827,7 +827,7 @@ $('registerBtn').addEventListener('click',async()=>{
 $('saveProfileBtn').addEventListener('click',async()=>{
   const user=auth.currentUser;if(!user)return;
   const patch={name:$('editName').value.trim(),surname:$('editSurname').value.trim(),phone:$('editPhone').value.trim(),birthDate:$('editBirth').value};
-  try{await setDoc(doc(db,'fidelityCustomers',customerCode()),patch,{merge:true});await updateProfile(user,{displayName:[patch.name,patch.surname].filter(Boolean).join(' ')});profile={...profile,...patch};render();const editPanel=document.getElementById('profileEditPanel'),editToggle=document.getElementById('toggleProfileEdit');if(editPanel)editPanel.hidden=true;if(editToggle)editToggle.setAttribute('aria-expanded','false');toast('Modifiche salvate correttamente ✓')}catch(e){console.warn(e);toast('Salvataggio non riuscito.')}
+  try{await setDoc(doc(db,'fidelityCustomers',customerCode()),patch,{merge:true});profile={...profile,...patch};render();const editPanel=document.getElementById('profileEditPanel'),editToggle=document.getElementById('toggleProfileEdit');if(editPanel)editPanel.hidden=true;if(editToggle)editToggle.setAttribute('aria-expanded','false');toast('Modifiche salvate correttamente ✓');try{await updateProfile(user,{displayName:[patch.name,patch.surname].filter(Boolean).join(' ')})}catch(authErr){console.warn('Nome Auth non sincronizzato; dati Fidelity salvati',authErr)}}catch(e){console.warn(e);toast('Salvataggio non riuscito.')}
 });
 $('createBookingBtn').addEventListener('click',async()=>{
   const user=auth.currentUser;if(!user)return toast('Accedi prima.');
