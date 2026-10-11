@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 
 import firebase_admin
 from firebase_admin import credentials, firestore, messaging
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 secret = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON")
 if not secret:
@@ -77,7 +78,7 @@ def deliver(order_ref):
 
 def main():
     docs = db.collection("orders").where(
-        filter=firestore.FieldFilter("pushEvent.status", "==", "pending")
+        filter=FieldFilter("pushEvent.status", "==", "pending")
     ).limit(100).stream()
     for snapshot in docs:
         try:
