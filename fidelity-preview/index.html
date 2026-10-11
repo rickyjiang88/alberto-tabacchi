@@ -885,6 +885,8 @@ $('saveProfileBtn').addEventListener('click',async()=>{
   try{await setDoc(doc(db,'fidelityCustomers',customerCode()),patch,{merge:true});profile={...profile,...patch};render();const editPanel=document.getElementById('profileEditPanel'),editToggle=document.getElementById('toggleProfileEdit');if(editPanel)editPanel.hidden=true;if(editToggle)editToggle.setAttribute('aria-expanded','false');toast('Modifiche salvate correttamente ✓');try{await updateProfile(user,{displayName:[patch.name,patch.surname].filter(Boolean).join(' ')})}catch(authErr){console.warn('Nome Auth non sincronizzato; dati Fidelity salvati',authErr)}}catch(e){console.warn(e);toast('Salvataggio non riuscito.')}
 });
 $('createBookingBtn').addEventListener('click',async()=>{
+  const btn=$('createBookingBtn');
+  if(btn.disabled)return;
   const user=auth.currentUser;if(!user)return toast('Accedi prima.');
   const date=$('bookDate').value,time=$('bookTime').value,name=$('bookName').value.trim(),phone=$('bookPhone').value.trim(),notes=$('bookNotes').value.trim();
   let covers=Math.max(1,Number($('bookCovers').value||1));
@@ -898,6 +900,7 @@ $('createBookingBtn').addEventListener('click',async()=>{
   if(useGroup&&!members.length)return toast('Seleziona almeno una persona del gruppo.');
   if(useGroup&&covers<members.length){covers=members.length;$('bookCovers').value=covers}
   const allRegistered=useGroup?bookingGroupMembers.filter(m=>m&&m.uid):[];
+  btn.disabled=true;btn.textContent='INVIO IN CORSO…';
   try{
     await addDoc(collection(db,'orders'),{
       type:'TABLE_BOOKING',name,phone,date,time,covers,guests:covers,notes,
@@ -911,9 +914,12 @@ $('createBookingBtn').addEventListener('click',async()=>{
       registeredGroupGuests:useGroup?members.length:0,
       source:'Alberto Area Clienti Sito',createdAt:serverTimestamp()
     });
-    toast(useGroup?'Prenotazione di gruppo inviata.':'Prenotazione inviata.');
+    toast('Prenotazione inviata, in attesa di conferma.');
     $('bookNotes').value='';
-  }catch(e){console.warn(e);toast('Prenotazione non riuscita.')}
+    alert('Prenotazione inviata correttamente!\n\n'+date.split('-').reverse().join('/')+' alle '+time+' · '+covers+' coperti.\n\nIn attesa di conferma del locale.');
+    btn.textContent='PRENOTAZIONE INVIATA ✓';
+    setTimeout(()=>{btn.disabled=false;btn.textContent='PRENOTA TAVOLO'},3500);
+  }catch(e){console.warn(e);toast('Prenotazione non riuscita.');alert('Prenotazione non riuscita. Riprova.');btn.disabled=false;btn.textContent='PRENOTA TAVOLO'}
 });
 $('groupRenameBtn').addEventListener('click',async()=>{
   const user=auth.currentUser,code=profile.officeGroupCode||profile.groupCode||'',name=$('groupRenameInput').value.trim();
