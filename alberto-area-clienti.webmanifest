@@ -1,0 +1,16 @@
+{
+  "name": "Alberto - Area Clienti",
+  "short_name": "Alberto",
+  "start_url": "/areaclienti.html?app=1",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#aa2525",
+  "theme_color": "#aa2525",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
