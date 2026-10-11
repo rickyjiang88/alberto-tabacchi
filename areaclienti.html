@@ -830,5 +830,12 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
     applyHidden();
   }
 })();
-</script><script id="menu-4ott-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".menu-4ott-link").forEach(function(a){a.remove()})}})();</script></body>
+</script><script id="menu-4ott-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".menu-4ott-link").forEach(function(a){a.remove()})}})();</script>
+<style id="alberto-fixed-mobile-tabs">
+@media(max-width:850px){body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}#alberto-fixed-tabs{position:fixed;display:flex;left:0;right:0;bottom:0;z-index:99999;background:white;border-top:1px solid #e8d9d4;min-height:76px;padding:9px 10px calc(10px + env(safe-area-inset-bottom,0px));justify-content:space-around;align-items:center}#alberto-fixed-tabs a,#alberto-fixed-tabs button{border:0;background:none;color:#685753;text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:800;min-width:80px}#alberto-fixed-tabs svg{height:25px;width:25px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}#alberto-fixed-tabs .active{color:#b5101b}}
+@media(min-width:851px){#alberto-fixed-tabs{display:none}}
+</style>
+<nav id="alberto-fixed-tabs" aria-label="Navigazione Alberto Fidelity"><a href="/fidelity-preview/?source=pwa" aria-label="Home"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10H3zM9 20v-7h6v7"/></svg>HOME</a><a href="/fidelity-preview/?source=pwa&tab=menu" aria-label="Menù"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>MENÙ</a><button class="active" type="button" id="alberto-fixed-profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-5 3-8 8-8s8 3 8 8"/></svg>PROFILO</button></nav>
+<script>document.getElementById('alberto-fixed-profile')?.addEventListener('click',function(){document.getElementById('loginWrap')?.scrollIntoView({block:'start',behavior:'smooth'});});</script>
+</body>
 </html>
