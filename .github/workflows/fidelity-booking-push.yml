@@ -1,0 +1,25 @@
+name: Alberto Fidelity booking push
+on:
+  schedule:
+    - cron: '2-59/5 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: alberto-fidelity-booking-push
+  cancel-in-progress: false
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock --prefix /tmp/alberto-push firebase-admin@13
+      - name: Send confirmed booking notifications
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          NODE_PATH: /tmp/alberto-push/node_modules
+        run: node scripts/fidelity-booking-push.cjs
