@@ -871,6 +871,7 @@ $('groupRenameBtn').addEventListener('click',async()=>{
     }
     await setDoc(ref,{name,updatedAt:serverTimestamp()},{merge:true});
     profile.officeGroupName=name;
+    groupMetas=groupMetas.map(g=>g.code===code?{...g,name}:g);
     $('groupName').textContent=name;
     $('groupRenameInput').value=name;
     $('dashGroup').textContent=name;
@@ -880,10 +881,14 @@ $('groupRenameBtn').addEventListener('click',async()=>{
     }catch(syncErr){
       console.warn('Nome gruppo salvato; sincronizzazione profilo non riuscita',syncErr);
     }
-    toast('Nome gruppo aggiornato.');
+    render();
+    btn.textContent='SALVATO ✓';
+    toast('Nome del gruppo salvato ✓');
   }catch(e){
     console.warn('Rinomina gruppo non riuscita',e);
-    toast(e?.message==='group-not-found'?'Gruppo non trovato.':'Rinomina non riuscita.');
+    const message=e?.message==='group-not-found'?'Gruppo non trovato.':e?.code==='permission-denied'?'Non hai il permesso di rinominare questo gruppo.':'Rinomina non riuscita: '+String(e?.code||e?.message||'riprova');
+    toast(message);
+    alert(message);
   }finally{
     btn.disabled=false;btn.textContent=oldText;
   }
