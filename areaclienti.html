@@ -134,7 +134,17 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",activate);else activate();
 })();
-</script><style>.site-strip .phone-top-link,.site-strip .phone-top-link:link,.site-strip .phone-top-link:visited{color:white!important;text-decoration:none!important;-webkit-text-fill-color:white!important}</style></head>
+</script><style>.site-strip .phone-top-link,.site-strip .phone-top-link:link,.site-strip .phone-top-link:visited{color:white!important;text-decoration:none!important;-webkit-text-fill-color:white!important}</style><style id="mobile-auth-layout-final">
+/* Definitive mobile auth placement: override legacy grid centering and offsets. */
+@media screen and (max-width:850px){
+ body .shell{display:flex!important;flex-direction:column!important;min-height:100dvh!important;overflow:visible!important}
+ body .shell>.topbar{flex:0 0 94px!important}
+ body .shell>#loginWrap:not(.hidden){position:relative!important;inset:auto!important;top:0!important;transform:none!important;flex:1 0 auto!important;display:block!important;min-height:0!important;height:auto!important;margin:0!important;padding:12px 12px calc(110px + env(safe-area-inset-bottom,0px))!important}
+ body .shell>#loginWrap .login-card{margin:0 auto!important;min-height:0!important;height:auto!important;display:block!important}
+ body .shell>#loginWrap .login-form{min-height:0!important;height:auto!important;padding:20px 22px 28px!important;display:block!important}
+ body .shell>#loginWrap .login-form h1{margin:8px 0!important}
+}
+</style></head>
 <body>
 <div class="site-strip"><span>Via Valtorta 44, Milano</span><span><a href="tel:+39022896720" class="phone-top-link">02 289 6720</a></span><span>Lun–Sab 6:30–19:00</span></div>
 
