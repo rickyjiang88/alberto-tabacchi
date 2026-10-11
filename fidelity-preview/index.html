@@ -312,6 +312,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
           <label>Telefono *</label><input id="regPhone" type="tel" autocomplete="tel">
           <label>Data di nascita</label><input id="regBirth" type="date">
           <label>Password *</label><input id="regPassword" type="password" autocomplete="new-password">
+          <label style="display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.5;cursor:pointer"><input id="regMarketingConsent" type="checkbox" style="width:20px;height:20px;flex-shrink:0;margin-top:2px"><span>Desidero ricevere notifiche push con il menù del giorno, offerte e promozioni di Alberto. <b>(Facoltativo)</b> Posso cambiare idea in qualsiasi momento nella sezione Notifiche.</span></label>
           <button id="registerBtn" class="btn">CREA ACCOUNT</button>
         </div>
         <button id="backLoginBtn" class="btn secondary" style="width:100%;margin-top:10px">TORNA AD ACCEDI</button>
@@ -923,13 +924,14 @@ $('groupCreateBtn').addEventListener('click',async()=>{
 $('openRegisterBtn').addEventListener('click',()=>{$('loginPane').classList.add('hidden');$('registerPane').classList.remove('hidden')});
 $('backLoginBtn').addEventListener('click',()=>{$('registerPane').classList.add('hidden');$('loginPane').classList.remove('hidden')});
 $('registerBtn').addEventListener('click',async()=>{
-  const name=$('regName').value.trim(),surname=$('regSurname').value.trim(),email=$('regEmail').value.trim(),phone=$('regPhone').value.trim(),birthDate=$('regBirth').value,password=$('regPassword').value;
+  const name=$('regName').value.trim(),surname=$('regSurname').value.trim(),email=$('regEmail').value.trim(),phone=$('regPhone').value.trim(),birthDate=$('regBirth').value,password=$('regPassword').value,marketingConsent=$('regMarketingConsent').checked;
   if(!name||!surname||!email||!phone||!password)return toast('Compila i campi obbligatori.');
   try{
     const cred=await createUserWithEmailAndPassword(auth,email,password),code='ALB'+cred.user.uid.slice(0,10).toUpperCase();
     await updateProfile(cred.user,{displayName:(name+' '+surname).trim()});
     await setDoc(doc(db,'fidelityCustomers',code),{uid:cred.user.uid,code,name,surname,email,phone,birthDate,points:0,walletBalance:0,walletActive:true,officeGroupCodes:[],createdAt:serverTimestamp()},{merge:true});
     await setDoc(doc(db,'fidelityUsers',cred.user.uid),{customerCode:code},{merge:true});
+    await setDoc(doc(db,'fidelityPushTokens',cred.user.uid),{uid:cred.user.uid,marketingConsent,marketingConsentUpdatedAt:serverTimestamp(),marketingConsentSource:'fidelity-preview/registration'},{merge:true});
     profile={...profile,uid:cred.user.uid,code,name,surname,email,phone,birthDate,points:0,walletBalance:0,walletActive:true};
     render();
     toast('Account creato.');
