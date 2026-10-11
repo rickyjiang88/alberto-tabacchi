@@ -428,6 +428,15 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const fmtDate=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||''))?String(v).slice(8,10)+'-'+String(v).slice(5,7)+'-'+String(v).slice(0,4):String(v||'');
 function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200)}
+window.__albertoAuthReady=true;
+$('loginBtn').addEventListener('click',async()=>{
+ const btn=$('loginBtn'),email=$('loginEmail').value.trim(),password=$('loginPassword').value;
+ if(!email||!password){toast('Inserisci email e password.');return;}
+ btn.disabled=true;btn.textContent='ACCESSO IN CORSO…';
+ try{await signInWithEmailAndPassword(auth,email,password);toast('Accesso effettuato.');}
+ catch(e){console.error('Alberto login',e?.code||e);toast(e?.code==='auth/network-request-failed'?'Connessione non disponibile. Riprova.':'Accesso non riuscito. Controlla email e password.');}
+ finally{btn.disabled=false;btn.textContent='ACCEDI';}
+});
 function initials(){const n=[profile.name,profile.surname].filter(Boolean).join(' ').trim();return (n||profile.email||'A').split(/\s+/).slice(0,2).map(x=>x[0]?.toUpperCase()).join('')||'A'}
 function customerCode(){return profile.code|| (auth.currentUser?'ALB'+auth.currentUser.uid.slice(0,10).toUpperCase():'')}
 function groupCodes(){return [...new Set([...(Array.isArray(profile.officeGroupCodes)?profile.officeGroupCodes:[]),profile.officeGroupCode,profile.groupCode].filter(Boolean))]}
@@ -663,11 +672,7 @@ async function requestNativeWallet(platform){
 $('addAppleWalletBtn')?.addEventListener('click',()=>requestNativeWallet('apple'));
 $('addGoogleWalletBtn')?.addEventListener('click',()=>requestNativeWallet('google'));
 
-$('loginBtn').addEventListener('click',async()=>{
-  const email=$('loginEmail').value.trim(),password=$('loginPassword').value;
-  if(!email||!password)return toast('Inserisci email e password.');
-  try{await signInWithEmailAndPassword(auth,email,password)}catch(e){toast('Email o password non corretti.')}
-});
+
 $('forgotBtn').addEventListener('click',async()=>{
   const email=$('loginEmail').value.trim();if(!email)return toast('Inserisci prima la tua email.');
   try{await sendPasswordResetEmail(auth,email);toast('Email di recupero inviata.')}catch(e){toast('Non riesco a inviare il recupero.')}
@@ -837,5 +842,5 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 </style>
 <nav id="alberto-fixed-tabs" aria-label="Navigazione Alberto Fidelity"><a href="/fidelity-preview/?source=pwa" aria-label="Home"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10H3zM9 20v-7h6v7"/></svg>HOME</a><a href="/fidelity-preview/?source=pwa&tab=menu" aria-label="Menù"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>MENÙ</a><button class="active" type="button" id="alberto-fixed-profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-5 3-8 8-8s8 3 8 8"/></svg>PROFILO</button></nav>
 <script>document.getElementById('alberto-fixed-profile')?.addEventListener('click',function(){document.getElementById('loginWrap')?.scrollIntoView({block:'start',behavior:'smooth'});});</script>
-</body>
+<script id="alberto-login-loading-check">(function(){var b=document.getElementById('loginBtn');if(!b)return;setTimeout(function(){if(window.__albertoAuthReady)return;var msg=document.getElementById('alberto-login-error');if(!msg){msg=document.createElement('p');msg.id='alberto-login-error';msg.style.cssText='color:#b5101b;font-weight:700;font-size:13px;margin:12px 0';b.insertAdjacentElement('afterend',msg)}msg.textContent='Servizio di accesso non caricato. Aggiorna la pagina e riprova.';},5500);})();</script></body>
 </html>
