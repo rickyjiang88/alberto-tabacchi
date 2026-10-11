@@ -278,6 +278,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
           <label>Email</label><input id="loginEmail" type="email" autocomplete="email">
           <label>Password</label><input id="loginPassword" type="password" autocomplete="current-password">
           <button id="loginBtn" class="btn">ACCEDI</button>
+          <p id="loginError" role="alert" aria-live="polite" hidden style="color:#b70e1b;font-weight:700;margin:8px 0 0">Email o password errati.</p>
         </div>
         <button id="forgotBtn" style="border:0;background:none;color:var(--red);font-size:10px;font-weight:900;margin-top:14px">PASSWORD DIMENTICATA?</button>
         <div class="login-note">Non hai ancora un account?</div>
@@ -790,8 +791,9 @@ $('addGoogleWalletBtn')?.addEventListener('click',()=>requestNativeWallet('googl
 
 $('loginBtn').addEventListener('click',async()=>{
   const email=$('loginEmail').value.trim(),password=$('loginPassword').value;
-  if(!email||!password)return toast('Inserisci email e password.');
-  try{await signInWithEmailAndPassword(auth,email,password)}catch(e){toast('Email o password non corretti.')}
+  const error=$('loginError');if(error)error.hidden=true;
+  if(!email||!password){if(error){error.textContent='Inserisci email e password.';error.hidden=false}return}
+  try{await signInWithEmailAndPassword(auth,email,password)}catch(e){if(error){error.textContent='Email o password errati.';error.hidden=false}}
 });
 $('forgotBtn').addEventListener('click',async()=>{
   const email=$('loginEmail').value.trim();if(!email)return toast('Inserisci prima la tua email.');
