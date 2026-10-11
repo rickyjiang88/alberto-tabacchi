@@ -5,7 +5,8 @@ No Firebase private key is ever included in the public website.
 """
 import json
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, date
+from zoneinfo import ZoneInfo
 
 import firebase_admin
 from firebase_admin import credentials, firestore, messaging
@@ -104,6 +105,67 @@ def deliver(order_ref):
     order_ref.update(update)
     print(f"{order_ref.id}: {kind}: sent={sent}, failures={len(failures)}")
 
+# Four-week lunch campaign: 12 October – 6 November 2026, weekdays only.
+# A daily Firestore claim prevents duplicate broadcasts across scheduled runs.
+LUNCH_CAMPAIGN_START = date(2026, 10, 12)
+LUNCH_CAMPAIGN_END = date(2026, 11, 6)
+LUNCH_MESSAGES = [
+    (10, 0, "🍽️ Alberto · Che si mangia oggi?", "Il menù del giorno è pronto! Dai un'occhiata e scegli il tuo pranzo."),
+    (9, 50, "Alberto · Pausa pranzo in arrivo?", "Non aspettare di avere fame: scopri già adesso i piatti di oggi!"),
+    (10, 15, "🍴 Alberto · Il pranzo ti aspetta", "Primo, secondo o qualcosa di sfizioso? Il menù di oggi è online!"),
+    (10, 20, "Alberto · Hai già scelto?", "La pausa pranzo si avvicina. Scopri cosa abbiamo preparato oggi!"),
+    (10, 5, "😋 Alberto · Oggi cosa mangiamo?", "Il menù del giorno è pronto: trova il tuo piatto preferito da Alberto!")
+]
+
+def send_lunch_campaign():
+    now = datetime.now(ZoneInfo("Europe/Rome"))
+    today = now.date()
+    if not (LUNCH_CAMPAIGN_START <= today <= LUNCH_CAMPAIGN_END) or today.weekday() >= 5:
+        return
+    hour, minute, title, body = LUNCH_MESSAGES[today.weekday()]
+    planned = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if not (planned <= now < planned + timedelta(minutes=45)):
+        return
+    key = today.isoformat()
+    claim_ref = db.collection("fidelityPushCampaignRuns").document("lunch-" + key)
+    @firestore.transactional
+    def claim(tx):
+        snap = claim_ref.get(transaction=tx)
+        if snap.exists:
+            return False
+        tx.set(claim_ref, {"campaign":"lunch", "date":key, "status":"processing",
+                           "startedAt":firestore.SERVER_TIMESTAMP})
+        return True
+    if not claim(db.transaction()):
+        return
+    sent = 0
+    failed = 0
+    try:
+        for snap in db.collection("fidelityPushTokens").where(
+            filter=FieldFilter("marketingConsent", "==", True)
+        ).stream():
+            for token in registered_tokens(snap.id):
+                try:
+                    messaging.send(messaging.Message(
+                        token=token,
+                        notification=messaging.Notification(title=title, body=body),
+                        webpush=messaging.WebpushConfig(
+                            fcm_options=messaging.WebpushFCMOptions(
+                                link="https://albertotabacchi.com/pranzo.html")
+                        ),
+                        data={"url":"/pranzo.html","kind":"lunch_menu","campaignDate":key},
+                    ))
+                    sent += 1
+                except Exception as exc:
+                    failed += 1
+                    print(f"Lunch push failed: {snap.id}: {type(exc).__name__}")
+        claim_ref.update({"status":"completed","sent":sent,"failed":failed,
+                          "completedAt":firestore.SERVER_TIMESTAMP})
+        print(f"Lunch {key}: sent={sent}, failed={failed}")
+    except Exception:
+        claim_ref.update({"status":"failed","failedAt":firestore.SERVER_TIMESTAMP})
+        raise
+
 def main():
     test_uid = os.environ.get('TEST_PUSH_UID', '').strip()
     if test_uid:
@@ -119,6 +181,7 @@ def main():
             ))
             print('Test push accepted by Firebase:', message_id)
         return
+    send_lunch_campaign()
     docs = db.collection("orders").where(
         filter=FieldFilter("pushEvent.status", "==", "pending")
     ).limit(100).stream()
