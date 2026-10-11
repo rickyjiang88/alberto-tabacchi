@@ -244,7 +244,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
 
 <div class="shell">
   <header class="topbar">
-    <a class="brand site-brand" href="/index.html" aria-label="Alberto Home"><img src="https://primary.jwwb.nl/public/k/m/t/temp-uuviykehkzslooegqmdl/image-high-zhh1za.png?enable=upscale&enable-io=true&height=70" alt="Alberto"><div class="site-brand-copy"><strong>ALBERTO</strong><small>TABACCHI BAR CON CUCINA</small></div></a>
+    <a class="brand site-brand" href="/fidelity-preview/?source=pwa" aria-label="Home Alberto Fidelity"><img src="https://primary.jwwb.nl/public/k/m/t/temp-uuviykehkzslooegqmdl/image-high-zhh1za.png?enable=upscale&enable-io=true&height=70" alt="Alberto"><div class="site-brand-copy"><strong>ALBERTO</strong><small>TABACCHI BAR CON CUCINA</small></div></a>
     <button class="site-toggle" type="button" aria-label="Apri menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -1022,6 +1022,11 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 </script>
 <script>
 (function(){
+ // Keep Home and the brand inside the installed Fidelity app, not on the public website.
+ document.querySelectorAll('a.site-brand').forEach(a=>a.addEventListener('click',e=>{
+  if(!document.body.classList.contains('fidelity-app'))return;
+  e.preventDefault();document.querySelector('[data-app-tab="home"]')?.click();
+ }));
  document.querySelectorAll('[data-client-go]').forEach(b=>b.addEventListener('click',()=>{const nav=document.querySelector('.sidebar .navbtn[data-go="'+b.dataset.clientGo+'"]');if(nav)nav.click();}));
  const tabs=[...document.querySelectorAll('[data-app-tab]')];
  function select(tab){tabs.forEach(b=>b.classList.toggle('active',b.dataset.appTab===tab))}
