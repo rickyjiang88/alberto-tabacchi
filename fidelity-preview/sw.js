@@ -11,3 +11,28 @@ self.addEventListener('fetch',event=>{
  if(ASSETS.includes(url.pathname)){
   event.respondWith(fetch(request).then(response=>{if(response.ok){const copy=response.clone();event.waitUntil(caches.open(CACHE).then(cache=>cache.put(request,copy)))}return response}).catch(()=>caches.match(request)));}
 });
+
+// Notifiche push: gestione in background per la PWA installata.
+// L'iscrizione e l'invio sicuro saranno configurati separatamente.
+self.addEventListener('push',event=>{
+ let payload={};
+ try{payload=event.data?event.data.json():{}}catch(_){payload={body:event.data?event.data.text():''}}
+ const title=String(payload.title||payload.notification?.title||'Alberto Fidelity');
+ const body=String(payload.body||payload.notification?.body||'Hai un nuovo aggiornamento.');
+ const url=String(payload.url||payload.data?.url||'/fidelity-preview/');
+ const safeUrl=url.startsWith('/')&&!url.startsWith('//')?url:'/fidelity-preview/';
+ event.waitUntil(self.registration.showNotification(title,{
+  body,icon:'/fidelity-preview/icon-180.png',badge:'/fidelity-preview/icon-180.png',
+  tag:String(payload.tag||payload.data?.tag||'alberto-fidelity'),
+  data:{url:safeUrl}
+ }));
+});
+self.addEventListener('notificationclick',event=>{
+ event.notification.close();
+ const url=new URL(event.notification.data?.url||'/fidelity-preview/',self.location.origin).href;
+ event.waitUntil((async()=>{
+  const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+  for(const client of windows){if(new URL(client.url).origin===self.location.origin){await client.focus();if('navigate' in client)await client.navigate(url);return}}
+  await self.clients.openWindow(url);
+ })());
+});
