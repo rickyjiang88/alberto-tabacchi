@@ -17,6 +17,20 @@ if not secret:
 firebase_admin.initialize_app(credentials.Certificate(json.loads(secret)))
 db = firestore.client()
 
+def registered_tokens(uid):
+    """Return all distinct device tokens, including the original single-device field."""
+    snapshot = db.collection("fidelityPushTokens").document(uid).get()
+    record = snapshot.to_dict() or {}
+    tokens = set()
+    if isinstance(record.get("token"), str) and record["token"]:
+        tokens.add(record["token"])
+    devices = record.get("devices") or {}
+    if isinstance(devices, dict):
+        for device in devices.values():
+            if isinstance(device, dict) and isinstance(device.get("token"), str) and device["token"]:
+                tokens.add(device["token"])
+    return sorted(tokens)
+
 def deliver(order_ref):
     @firestore.transactional
     def claim(tx):
@@ -51,22 +65,19 @@ def deliver(order_ref):
     sent = 0
     failures = []
     for uid in sorted(uids):
-        token_doc = db.collection("fidelityPushTokens").document(uid).get()
-        token = (token_doc.to_dict() or {}).get("token") if token_doc.exists else None
-        if not token:
-            continue
-        try:
-            messaging.send(messaging.Message(
-                token=token,
-                notification=messaging.Notification(title=title, body=body),
-                webpush=messaging.WebpushConfig(
-                    fcm_options=messaging.WebpushFCMOptions(link="https://albertotabacchi.com/fidelity-preview/")
-                ),
-                data={"url": "/fidelity-preview/", "orderId": order_ref.id, "kind": kind},
-            ))
-            sent += 1
-        except Exception as exc:
-            failures.append(f"{uid}: {type(exc).__name__}")
+        for token in registered_tokens(uid):
+            try:
+                messaging.send(messaging.Message(
+                    token=token,
+                    notification=messaging.Notification(title=title, body=body),
+                    webpush=messaging.WebpushConfig(
+                        fcm_options=messaging.WebpushFCMOptions(link="https://albertotabacchi.com/fidelity-preview/")
+                    ),
+                    data={"url": "/fidelity-preview/", "orderId": order_ref.id, "kind": kind},
+                ))
+                sent += 1
+            except Exception as exc:
+                failures.append(f"{uid}: {type(exc).__name__}")
     update = {"pushEvent.status": "sent" if sent else "no_recipient",
               "pushEvent.sentAt": firestore.SERVER_TIMESTAMP, "pushEvent.sentCount": sent}
     if failures:
@@ -79,17 +90,17 @@ def deliver(order_ref):
 def main():
     test_uid = os.environ.get('TEST_PUSH_UID', '').strip()
     if test_uid:
-        token_doc = db.collection('fidelityPushTokens').document(test_uid).get()
-        token = (token_doc.to_dict() or {}).get('token') if token_doc.exists else None
-        if not token:
+        tokens = registered_tokens(test_uid)
+        if not tokens:
             raise SystemExit('Test not sent: no registered push token for this UID')
-        message_id = messaging.send(messaging.Message(
-            token=token,
-            notification=messaging.Notification(title='Alberto Fidelity', body='Notifica di prova: tutto funziona!'),
-            webpush=messaging.WebpushConfig(fcm_options=messaging.WebpushFCMOptions(link='https://albertotabacchi.com/fidelity-preview/')),
-            data={'url': '/fidelity-preview/', 'kind': 'test'},
-        ))
-        print('Test push accepted by Firebase:', message_id)
+        for token in tokens:
+            message_id = messaging.send(messaging.Message(
+                token=token,
+                notification=messaging.Notification(title='Alberto Fidelity', body='Notifica di prova: tutto funziona!'),
+                webpush=messaging.WebpushConfig(fcm_options=messaging.WebpushFCMOptions(link='https://albertotabacchi.com/fidelity-preview/')),
+                data={'url': '/fidelity-preview/', 'kind': 'test'},
+            ))
+            print('Test push accepted by Firebase:', message_id)
         return
     docs = db.collection("orders").where(
         filter=FieldFilter("pushEvent.status", "==", "pending")
