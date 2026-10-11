@@ -570,6 +570,21 @@ async function enablePushForUser(user){
  if(Notification.permission!=='granted')return false;
  const reg=await navigator.serviceWorker.register('/fidelity-preview/sw.js',{updateViaCache:'none'});
  messaging=messaging||getMessaging(fb);
+ if(!window.albertoForegroundPushListener){
+  window.albertoForegroundPushListener=onMessage(messaging,async payload=>{
+   try{
+    const data=payload.data||{},notice=payload.notification||{};
+    const title=notice.title||'Alberto Fidelity';
+    const body=notice.body||'Hai un nuovo aggiornamento.';
+    const url=data.url||'/fidelity-preview/';
+    await reg.showNotification(title,{
+     body,icon:'/fidelity-preview/icon-180.png',
+     tag:'alberto-'+(data.orderId||'update')+'-'+(data.kind||'push'),
+     data:{url}
+    });
+   }catch(error){console.warn('Notifica in primo piano:',error)}
+  });
+ }
  const token=await getToken(messaging,{vapidKey:VAPID_KEY,serviceWorkerRegistration:reg});
  if(!token)return false;
  const bytes=new TextEncoder().encode(token);
