@@ -695,20 +695,23 @@ function makeQR(){
 
 function watchUser(uid){
   unsubs.forEach(f=>{try{f()}catch{}});unsubs=[];
+  orders=[];bookings=[];
+  const ownBookingsById=new Map(),sharedBookingsById=new Map();
+  const refreshBookings=()=>{bookings=[...new Map([...ownBookingsById,...sharedBookingsById]).values()].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));render();};
   unsubs.push(onSnapshot(doc(db,'fidelityCustomers',customerCode()),s=>{if(s.exists()){profile={...profile,...s.data(),uid,code:customerCode()};render();loadGroupMemberships()}},e=>console.warn('Profilo Fidelity non sincronizzato',e)));
   const ownQ=query(collection(db,'orders'),where('customerUid','==',uid));
   unsubs.push(onSnapshot(ownQ,s=>{
     const all=s.docs.map(d=>({id:d.id,...d.data()}));
     orders=all.filter(x=>x.type!=='TABLE_BOOKING').sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
     const ownBookings=all.filter(x=>x.type==='TABLE_BOOKING');
-    bookings=[...ownBookings,...bookings.filter(x=>x.customerUid!==uid)].reduce((acc,x)=>acc.some(y=>y.id===x.id)?acc:[...acc,x],[]).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
-    render();
+    ownBookingsById.clear();ownBookings.forEach(x=>ownBookingsById.set(x.id,x));
+    refreshBookings();
   }));
   const groupQ=query(collection(db,'orders'),where('groupMemberUids','array-contains',uid));
   unsubs.push(onSnapshot(groupQ,s=>{
     const shared=s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.type==='TABLE_BOOKING');
-    bookings=[...bookings.filter(x=>x.customerUid===uid),...shared].reduce((acc,x)=>acc.some(y=>y.id===x.id)?acc:[...acc,x],[]).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
-    render();
+    sharedBookingsById.clear();shared.forEach(x=>sharedBookingsById.set(x.id,x));
+    refreshBookings();
   }));
   const activeCode=activeBookingGroupCode();
   if(activeCode){
@@ -725,17 +728,12 @@ function watchUser(uid){
       }
     },e=>console.warn('Nome gruppo non leggibile',e)));
   }
-  groupCodes().forEach(gcode=>{
-    const officeQ=query(collection(db,'orders'),where('groupCode','==',gcode));
-    unsubs.push(onSnapshot(officeQ,s=>{
-      const shared=s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.type==='TABLE_BOOKING');
-      bookings=[...bookings,...shared].reduce((acc,x)=>acc.some(y=>y.id===x.id)?acc:[...acc,x],[]).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
-      render();
-    },e=>console.warn('Prenotazioni gruppo non leggibili',gcode,e)));
-  });
+
 }
 
 onAuthStateChanged(auth,async user=>{
+  unsubs.forEach(stop=>{try{stop()}catch{}});unsubs=[];
+  orders=[];bookings=[];groupMetas=[];bookingSelectedGroupCode='';profile={};
   if(!user){$('loginWrap').classList.remove('hidden');return}
   $('loginWrap').classList.add('hidden');
   const code='ALB'+user.uid.slice(0,10).toUpperCase();
