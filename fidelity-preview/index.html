@@ -462,7 +462,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
               <label id="bookingGroupSelectWrap" class="hidden">Scegli gruppo<select id="bookingGroupSelect"></select></label>
               <div class="booking-group-head">
                 <div><small>GRUPPO UFFICIO</small><b id="bookingGroupName">Il tuo gruppo</b></div>
-                <button type="button" class="btn secondary" data-go="group">GESTISCI</button>
+                <button type="button" id="bookingGroupManageBtn" class="btn secondary" data-go="group" hidden style="display:none">GESTISCI</button>
               </div>
               <div id="bookingGroupMembers" class="booking-member-list"><div class="empty">Caricamento membri…</div></div>
               <small style="color:var(--muted);font-size:9px">Seleziona i colleghi registrati che saranno presenti. I coperti si adeguano almeno al numero di persone selezionate.</small>
@@ -556,10 +556,12 @@ function customerCode(){return profile.code|| (auth.currentUser?'ALB'+auth.curre
 function groupCodes(){return [...new Set([...(Array.isArray(profile.officeGroupCodes)?profile.officeGroupCodes:[]),profile.officeGroupCode,profile.groupCode].filter(Boolean))]}
 function activeBookingGroupCode(){return bookingSelectedGroupCode||profile.officeGroupCode||profile.groupCode||groupCodes()[0]||''}
 function activeBookingGroupMeta(){const code=activeBookingGroupCode();return groupMetas.find(g=>g.code===code)||{code,name:profile.officeGroupName||profile.groupName||'Gruppo Alberto',ownerName:profile.officeGroupOwnerName||''}}
+function updateBookingGroupManage(){const btn=$('bookingGroupManageBtn');if(!btn)return;const meta=groupMetas.find(g=>g.code===activeBookingGroupCode());const isOwner=!!(meta?.ownerUid&&auth.currentUser?.uid===meta.ownerUid);btn.hidden=!isOwner;btn.style.display=isOwner?'':'none';}
 async function loadGroupMemberships(){
   const codes=groupCodes(),rows=[];
   for(const code of codes){try{const s=await getDoc(doc(db,'officeGroups',code));if(s.exists())rows.push({code,...s.data()})}catch(e){console.warn('Gruppo non leggibile',code,e)}}
   groupMetas=rows;
+  updateBookingGroupManage();
   const activeCode=profile.officeGroupCode||profile.groupCode||codes[0]||'';
   const activeMeta=rows.find(g=>g.code===activeCode);
   const renameControls=$('groupRenameControls');
@@ -570,7 +572,7 @@ async function loadGroupMemberships(){
   if(wrap)wrap.classList.toggle('hidden',rows.length<=1);
   const card=$('groupMembershipsCard'),list=$('groupMemberships');
   if(card&&list){card.classList.toggle('hidden',rows.length===0);list.innerHTML=rows.map(g=>'<div class="row"><div><b>'+esc(g.name||'Gruppo Alberto')+'</b><small>Creato da: '+esc(g.ownerName||'—')+' · '+esc(g.code)+'</small></div><button class="btn secondary" type="button" data-select-group="'+esc(g.code)+'">USA</button></div>').join('')}
-  const meta=activeBookingGroupMeta();if($('bookingGroupName'))$('bookingGroupName').textContent=meta.name||'Il tuo gruppo';
+  const meta=activeBookingGroupMeta();if($('bookingGroupName'))$('bookingGroupName').textContent=meta.name||'Il tuo gruppo';updateBookingGroupManage();
 }
 
 function go(view){
