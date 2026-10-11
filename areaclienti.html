@@ -31,7 +31,7 @@
 .login-wrap:not(.hidden)~.sidebar,.login-wrap:not(.hidden)~.content{display:none}.toast{position:fixed;right:24px;bottom:24px;background:var(--dark);color:#fff;border-radius:13px;padding:12px 15px;font-size:11px;box-shadow:0 14px 40px #0003;z-index:100;display:none}.toast.on{display:block}
 @media(max-width:1050px){.site-brand-copy small{display:none}.brand{min-width:150px}.account-chip div:not(.avatar){display:none}.shell{grid-template-columns:220px minmax(0,1fr)}.content{padding:28px;overflow:visible}.grid4,.quick{grid-template-columns:repeat(2,1fr)}.split,.booking-layout{grid-template-columns:1fr}.login-card{grid-template-columns:1fr}.login-visual{display:none}}
 @media(max-width:850px){
-  .site-strip{height:42px;padding:0 4%;font-size:10px}
+  html.alberto-installed-app .site-strip{height:42px;padding:0 4%;font-size:10px}
   .shell{display:block;width:100%;min-height:calc(100vh - 42px);margin:0;border-radius:0;overflow:visible}
   .topbar{height:94px;min-height:94px;padding:0 4vw;display:flex;align-items:center;gap:12px;position:relative;background:#fff}
   .site-brand{min-width:0;display:flex}
@@ -142,20 +142,21 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
 /* Definitive mobile auth placement: override legacy grid centering and offsets. */
 @media screen and (max-width:850px){
  body .shell{display:flex!important;flex-direction:column!important;min-height:100dvh!important;overflow:visible!important}
- body .shell>.topbar{flex:0 0 94px!important}
- body .shell>#loginWrap:not(.hidden){position:relative!important;inset:auto!important;top:0!important;transform:none!important;flex:1 0 auto!important;display:block!important;min-height:0!important;height:auto!important;margin:0!important;padding:12px 12px calc(110px + env(safe-area-inset-bottom,0px))!important}
+ body html.alberto-installed-app .shell>.topbar{flex:0 0 94px!important}
+ html.alberto-installed-app body .shell>#loginWrap:not(.hidden){position:relative!important;inset:auto!important;top:0!important;transform:none!important;flex:1 0 auto!important;display:block!important;min-height:0!important;height:auto!important;margin:0!important;padding:12px 12px calc(110px + env(safe-area-inset-bottom,0px))!important}
  body .shell>#loginWrap .login-card{margin:0 auto!important;min-height:0!important;height:auto!important;display:block!important}
  body .shell>#loginWrap .login-form{min-height:0!important;height:auto!important;padding:20px 22px 28px!important;display:block!important}
  body .shell>#loginWrap .login-form h1{margin:8px 0!important}
 }
-</style><style id="alberto-standalone-app-nav">
-@media(max-width:850px) and (display-mode:standalone){
+</style><script>if(window.navigator.standalone===true||window.matchMedia("(display-mode: standalone)").matches||window.matchMedia("(display-mode: fullscreen)").matches){document.documentElement.classList.add("alberto-installed-app")}</script><style id="alberto-standalone-app-nav">
+@media(max-width:850px){
+ html.alberto-installed-app
  body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}
  .site-strip{display:none!important}
  .shell>.topbar{background:#aa2525!important;color:#fff!important;flex-basis:100px!important}
- .shell>.topbar .site-brand-copy,.shell>.topbar .site-brand-copy strong,.shell>.topbar .site-brand-copy small{color:#fff!important}
- .shell>.topbar .site-toggle span{background:#fff!important}
- .alberto-app-bottom{display:flex!important}
+ html.alberto-installed-app .shell>.topbar .site-brand-copy,.shell>.topbar .site-brand-copy strong,.shell>.topbar .site-brand-copy small{color:#fff!important}
+ html.alberto-installed-app .shell>.topbar .site-toggle span{background:#fff!important}
+ html.alberto-installed-app .alberto-app-bottom{display:flex!important}
  body .shell>#loginWrap:not(.hidden){padding-bottom:20px!important}
 }
 .alberto-app-bottom{display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#fff;border-top:1px solid #e7d6d3;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));justify-content:space-around;box-shadow:0 -4px 18px #00000012}
