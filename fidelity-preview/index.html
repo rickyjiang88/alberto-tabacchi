@@ -177,6 +177,8 @@ body.fidelity-app .sidebar .navbtn{min-height:44px}
 .fidelity-client-grid button{border:1px solid #e5d9d1;background:#faf8f6;color:#231e1b;border-radius:12px;padding:15px 8px;font-weight:700;font-size:13px}
 }
 
+/* Browser mobile keeps site navigation; installed app retains its existing tabs and appearance. */
+@media(max-width:850px){body:not(.fidelity-app) .fidelity-bottom-nav{display:none!important}body:not(.fidelity-app) .fidelity-client-links{display:none!important}}
 /* Compact customer-area navigation on mobile */
 @media(max-width:850px){
 #view-profile .fidelity-profile-services{margin:0 0 18px!important;padding:17px!important;border-radius:18px}
@@ -974,7 +976,6 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 <script id="alberto-fidelity-pwa">
 (function(){
   const standalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
-  const inviteSiteView=new URLSearchParams(location.search).get('view')==='site';
   if(standalone)document.body.classList.add('fidelity-app');
   if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/fidelity-preview/sw.js', {updateViaCache:'none'}).catch(err=>console.warn('PWA service worker:',err)))}
   if(standalone)return;
