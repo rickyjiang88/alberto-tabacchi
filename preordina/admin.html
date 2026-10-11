@@ -47,7 +47,7 @@ body{background:#f7f6f3;color:#222}header{padding:16px 5%}header h1{font-size:cl
     <div class="card"><h3>GRUPPI UFFICIO</h3><p class="status-note">Premi sul gruppo per vedere chi ne fa parte e quante prenotazioni ha effettuato.</p><input type="search" id="officeSearch" placeholder="Cerca gruppo o cliente…" oninput="window.renderOfficeOverview()" aria-label="Cerca gruppo ufficio"><div id="officeGroups">Caricamento gruppi…</div></div>
     <div class="card"><h3>TAVOLI PRENOTATI</h3><p class="status-note">Tavoli da oggi in avanti, esclusi gli annullati.</p><div id="officeBookings">Caricamento prenotazioni…</div><button type="button" class="red" onclick="tab('bookingPanel')" style="margin-top:12px">VEDI PRENOTAZIONI →</button></div>
   </div>
-</section><section id="menuHub" class="panel"><div class="page-intro"><div><small>GESTIONE SHOP</small><h2>Menu &amp; Shop</h2><p>Tutte le impostazioni del menu e dei preordini in un unico punto.</p></div></div><div class="manage-grid"><button onclick="tab('daily')"><b>PIATTI DEL GIORNO</b><span>Gestisci il menu quotidiano</span></button><button onclick="tab('stockPanel')"><b>DISPONIBILITÀ</b><span>Prodotti disponibili o esauriti</span></button><button onclick="tab('servicePanel')"><b>ORARI DI RITIRO</b><span>Preordini e fasce orarie</span></button><button onclick="tab('products')"><b>PRODOTTI</b><span>Gestione prodotti</span></button><button onclick="tab('ups')"><b>UPSELLING</b><span>Proposte aggiuntive</span></button></div></section><section id="pushPanel" class="panel"><div class="page-intro"><div><small>ALBERTO FIDELITY</small><h2>Notifiche push</h2><p>Invia un messaggio ai clienti che hanno autorizzato le promozioni.</p></div></div><div class="card" style="max-width:680px"><label class="fieldlabel" for="manualPushTitle">TITOLO</label><input id="manualPushTitle" maxlength="90" placeholder="Alberto · Una novità per te"><label class="fieldlabel" for="manualPushBody" style="display:block;margin-top:15px">MESSAGGIO</label><textarea id="manualPushBody" maxlength="250" rows="4" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:10px" placeholder="Scrivi qui il messaggio…"></textarea><p style="font-size:13px;color:#665">Destinatari: esclusivamente clienti con consenso alle notifiche promozionali e dispositivo registrato. Le notifiche di servizio sono separate.</p><button id="manualPushSend" type="button" class="red" onclick="window.sendManualPromoPush()">INVIA NOTIFICA</button><p id="manualPushStatus" role="status" style="font-size:13px"></p></div></section><section id="promoPanel" class="panel"><div class="page-intro"><div><small>MARKETING ALBERTO</small><h2>Calendario promozioni</h2><p>Programma le offerte e prepara i testi push. Le promozioni restano bozze finché non le approvi.</p></div></div><div class="card"><div class="row" style="align-items:end;gap:12px;flex-wrap:wrap"><div><label class="fieldlabel">MESE</label><input id="promoMonth" type="month" onchange="window.renderPromoCalendar()"></div><button class="red" type="button" onclick="window.addPromoCalendarItem()">+ NUOVA PROMO</button></div><div id="promoCalendar" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-top:16px;overflow-x:auto"></div><div id="promoCalendarItems"></div><p id="promoCalendarStatus" role="status" style="font-size:13px;color:#765"></p></div></section><section id="fidelityPanel" class="panel"><div class="page-intro"><div><small>ALBERTO FIDELITY</small><h2>Clienti / Fidelity</h2><p>Clienti, punti e scansione QR.</p></div><button class="red" type="button" onclick="openFidelityCamera()">SCANSIONA QR</button></div><div id="fidelityCameraCard" class="card" style="display:none"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><b>SCANNER QR FIDELITY</b><button type="button" onclick="closeFidelityCamera()" style="border:0;background:#eee;border-radius:8px;padding:8px 11px;font-weight:900">CHIUDI</button></div><p id="fidelityCameraStatus">Inquadra il QR Fidelity del cliente.</p><div class="fid-camera"><video id="fidelityVideo" autoplay playsinline muted></video><canvas id="fidelityCanvas" style="display:none"></canvas><div class="fid-frame"></div></div></div><div id="fidelityCustomerCard" class="card" style="display:none"><small>CLIENTE RICONOSCIUTO</small><h3 id="fidCustomerName">—</h3><p id="fidCustomerMeta">—</p><div id="fidCustomerDetails" style="font-size:13px;color:#666;margin:-4px 0 12px"></div><div class="dash-kpis" style="grid-template-columns:repeat(4,minmax(0,1fr));margin:12px 0"><div class="dash-tile"><small>SALDO PUNTI</small><strong id="fidCurrentPoints">0</strong></div><div class="dash-tile"><small>PORTAFOGLIO</small><strong id="fidWalletBalance">€0,00</strong></div><div class="dash-tile"><small>TOTALE SPESO</small><strong id="fidTotalSpent">€0,00</strong></div><div class="dash-tile"><small>ACQUISTI</small><strong id="fidPurchaseCount">0</strong></div></div><label><b>IMPORTO SCONTRINO</b></label><div style="display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap"><span style="font-size:24px;font-weight:900">€</span><input id="fidReceiptAmount" inputmode="decimal" type="number" min="0" step="0.01" placeholder="0,00" oninput="updateFidelityPreview()" style="max-width:220px"><button class="red" type="button" onclick="creditFidelityPoints()">PAGATO IN CASSA · + <span id="fidNewPoints">0</span> PT</button><button class="red" type="button" onclick="payWithFidelityWallet()" style="min-height:48px;padding:12px 18px;font-weight:900">PAGA CON PORTAFOGLIO + PUNTI</button></div><div style="margin-top:12px"><button id="fidRewardBtn" type="button" onclick="redeemFidelityReward()" style="min-height:48px;padding:12px 18px;font-weight:900" disabled>USA 300 PUNTI = BUONO €10</button><small id="fidRewardHint" style="display:block;margin-top:7px;color:#666">Servono almeno 300 punti.</small></div><p class="status-note" id="fidCreditStatus"></p><div style="border-top:1px solid #eee;margin-top:18px;padding-top:15px"><b>RICARICA PORTAFOGLIO</b><p class="status-note">Bonus automatico del 10% da €80 in su.</p><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:24px;font-weight:900">€</span><input id="fidTopupAmount" inputmode="decimal" type="number" min="1" step="0.01" placeholder="80,00" style="max-width:220px"><button class="red" type="button" onclick="topupFidelityWallet()">RICARICA</button></div><p class="status-note" id="fidWalletStatus"></p></div><div style="border-top:1px solid #eee;margin-top:18px;padding-top:15px"><b>STORICO PUNTI / ACQUISTI</b><div id="fidTransactionHistory"><p class="status-note">Nessun movimento caricato.</p></div></div></div><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b>CLIENTI FIDELITY</b><p style="margin:5px 0 0">Elenco clienti registrati e saldo punti.</p></div><button type="button" onclick="loadFidelityCustomerList()" style="border:0;background:#eee;border-radius:9px;padding:9px 12px;font-weight:900">AGGIORNA</button></div><div class="dash-kpis" style="grid-template-columns:repeat(3,minmax(0,1fr));margin:14px 0"><div class="dash-tile"><small>CLIENTI</small><strong id="fidListCount">0</strong></div><div class="dash-tile"><small>PUNTI TOTALI</small><strong id="fidListPoints">0</strong></div><div class="dash-tile"><small>SPESA REGISTRATA</small><strong id="fidListSpent">€0,00</strong></div></div><input id="fidCustomerSearch" type="search" placeholder="Cerca nome, email, telefono o codice…" oninput="renderFidelityCustomerList()" style="margin-bottom:8px"><div id="fidelityCustomerList" style="margin-top:12px"><p class="status-note">Caricamento clienti…</p></div></div>
+</section><section id="menuHub" class="panel"><div class="page-intro"><div><small>GESTIONE SHOP</small><h2>Menu &amp; Shop</h2><p>Tutte le impostazioni del menu e dei preordini in un unico punto.</p></div></div><div class="manage-grid"><button onclick="tab('daily')"><b>PIATTI DEL GIORNO</b><span>Gestisci il menu quotidiano</span></button><button onclick="tab('stockPanel')"><b>DISPONIBILITÀ</b><span>Prodotti disponibili o esauriti</span></button><button onclick="tab('servicePanel')"><b>ORARI DI RITIRO</b><span>Preordini e fasce orarie</span></button><button onclick="tab('products')"><b>PRODOTTI</b><span>Gestione prodotti</span></button><button onclick="tab('ups')"><b>UPSELLING</b><span>Proposte aggiuntive</span></button></div></section><section id="pushPanel" class="panel"><div class="page-intro"><div><small>ALBERTO FIDELITY</small><h2>Notifiche push</h2><p>Invia un messaggio ai clienti che hanno autorizzato le promozioni.</p></div></div><div class="card" style="max-width:680px"><label class="fieldlabel" for="manualPushTitle">TITOLO</label><input id="manualPushTitle" maxlength="90" placeholder="Alberto · Una novità per te"><label class="fieldlabel" for="manualPushBody" style="display:block;margin-top:15px">MESSAGGIO</label><textarea id="manualPushBody" maxlength="250" rows="4" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:10px" placeholder="Scrivi qui il messaggio…"></textarea><p style="font-size:13px;color:#665">Destinatari: esclusivamente clienti con consenso alle notifiche promozionali e dispositivo registrato. Le notifiche di servizio sono separate.</p><button id="manualPushSend" type="button" class="red" onclick="window.sendManualPromoPush()">INVIA NOTIFICA</button><p id="manualPushStatus" role="status" style="font-size:13px"></p></div></section><section id="promoPanel" class="panel"><div class="page-intro"><div><small>MARKETING ALBERTO</small><h2>Calendario promozioni</h2><p>Programma le offerte e prepara i testi push. Le promozioni restano bozze finché non le approvi.</p></div></div><div class="card"><div class="row" style="align-items:end;gap:12px;flex-wrap:wrap"><div><label class="fieldlabel">MESE</label><input id="promoMonth" type="month" onchange="window.renderPromoCalendar()"></div><button class="red" type="button" onclick="window.addPromoCalendarItem()">+ NUOVA PROMO</button><button type="button" onclick="window.loadOctoberPromoPlan()">CARICA PIANO OTTOBRE (22 BOZZE)</button></div><div id="promoCalendar" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-top:16px;overflow-x:auto"></div><div id="promoCalendarItems"></div><p id="promoCalendarStatus" role="status" style="font-size:13px;color:#765"></p></div></section><section id="fidelityPanel" class="panel"><div class="page-intro"><div><small>ALBERTO FIDELITY</small><h2>Clienti / Fidelity</h2><p>Clienti, punti e scansione QR.</p></div><button class="red" type="button" onclick="openFidelityCamera()">SCANSIONA QR</button></div><div id="fidelityCameraCard" class="card" style="display:none"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><b>SCANNER QR FIDELITY</b><button type="button" onclick="closeFidelityCamera()" style="border:0;background:#eee;border-radius:8px;padding:8px 11px;font-weight:900">CHIUDI</button></div><p id="fidelityCameraStatus">Inquadra il QR Fidelity del cliente.</p><div class="fid-camera"><video id="fidelityVideo" autoplay playsinline muted></video><canvas id="fidelityCanvas" style="display:none"></canvas><div class="fid-frame"></div></div></div><div id="fidelityCustomerCard" class="card" style="display:none"><small>CLIENTE RICONOSCIUTO</small><h3 id="fidCustomerName">—</h3><p id="fidCustomerMeta">—</p><div id="fidCustomerDetails" style="font-size:13px;color:#666;margin:-4px 0 12px"></div><div class="dash-kpis" style="grid-template-columns:repeat(4,minmax(0,1fr));margin:12px 0"><div class="dash-tile"><small>SALDO PUNTI</small><strong id="fidCurrentPoints">0</strong></div><div class="dash-tile"><small>PORTAFOGLIO</small><strong id="fidWalletBalance">€0,00</strong></div><div class="dash-tile"><small>TOTALE SPESO</small><strong id="fidTotalSpent">€0,00</strong></div><div class="dash-tile"><small>ACQUISTI</small><strong id="fidPurchaseCount">0</strong></div></div><label><b>IMPORTO SCONTRINO</b></label><div style="display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap"><span style="font-size:24px;font-weight:900">€</span><input id="fidReceiptAmount" inputmode="decimal" type="number" min="0" step="0.01" placeholder="0,00" oninput="updateFidelityPreview()" style="max-width:220px"><button class="red" type="button" onclick="creditFidelityPoints()">PAGATO IN CASSA · + <span id="fidNewPoints">0</span> PT</button><button class="red" type="button" onclick="payWithFidelityWallet()" style="min-height:48px;padding:12px 18px;font-weight:900">PAGA CON PORTAFOGLIO + PUNTI</button></div><div style="margin-top:12px"><button id="fidRewardBtn" type="button" onclick="redeemFidelityReward()" style="min-height:48px;padding:12px 18px;font-weight:900" disabled>USA 300 PUNTI = BUONO €10</button><small id="fidRewardHint" style="display:block;margin-top:7px;color:#666">Servono almeno 300 punti.</small></div><p class="status-note" id="fidCreditStatus"></p><div style="border-top:1px solid #eee;margin-top:18px;padding-top:15px"><b>RICARICA PORTAFOGLIO</b><p class="status-note">Bonus automatico del 10% da €80 in su.</p><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:24px;font-weight:900">€</span><input id="fidTopupAmount" inputmode="decimal" type="number" min="1" step="0.01" placeholder="80,00" style="max-width:220px"><button class="red" type="button" onclick="topupFidelityWallet()">RICARICA</button></div><p class="status-note" id="fidWalletStatus"></p></div><div style="border-top:1px solid #eee;margin-top:18px;padding-top:15px"><b>STORICO PUNTI / ACQUISTI</b><div id="fidTransactionHistory"><p class="status-note">Nessun movimento caricato.</p></div></div></div><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b>CLIENTI FIDELITY</b><p style="margin:5px 0 0">Elenco clienti registrati e saldo punti.</p></div><button type="button" onclick="loadFidelityCustomerList()" style="border:0;background:#eee;border-radius:9px;padding:9px 12px;font-weight:900">AGGIORNA</button></div><div class="dash-kpis" style="grid-template-columns:repeat(3,minmax(0,1fr));margin:14px 0"><div class="dash-tile"><small>CLIENTI</small><strong id="fidListCount">0</strong></div><div class="dash-tile"><small>PUNTI TOTALI</small><strong id="fidListPoints">0</strong></div><div class="dash-tile"><small>SPESA REGISTRATA</small><strong id="fidListSpent">€0,00</strong></div></div><input id="fidCustomerSearch" type="search" placeholder="Cerca nome, email, telefono o codice…" oninput="renderFidelityCustomerList()" style="margin-bottom:8px"><div id="fidelityCustomerList" style="margin-top:12px"><p class="status-note">Caricamento clienti…</p></div></div>
 <div class="card" id="referralAuditCard" style="margin-top:16px">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
     <div><b>PORTA UN AMICO · CONTROLLO INVITI</b><p class="status-note">Scopri chi ha invitato chi tramite il link personale e verifica i bonus da 5 punti.</p></div>
@@ -158,13 +158,231 @@ const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),A
 // Calendario promozioni: bozza locale al dispositivo amministratore; nessun invio automatico.
 const promoStoreKey='albertoPromoCalendarDraftV1';
 const promoDefaults=[
- {date:'2026-10-12',title:'Colazione Alberto',offer:'Cappuccino + brioche a 2,80 € anziché 3 €',start:'06:30',end:'11:00',push:'Lunedì si parte con gusto: cappuccino e brioche a 2,80 €!',approved:false},
- {date:'2026-10-13',title:'Aperitivo del martedì',offer:'Aperitivo con tagliere a 8 € anziché 10 €',start:'17:00',end:'19:00',push:'Martedì aperitivo: tagliere incluso a 8 € anziché 10 €!',approved:false},
- {date:'2026-10-14',title:'Pausa caffè',offer:'Biscottino in omaggio con il caffè',start:'15:00',end:'16:00',push:'Dalle 15 alle 16, il biscottino con il caffè te lo offriamo noi!',approved:false}
+ {
+  "id": "oct26-01",
+  "date": "2026-10-01",
+  "title": "Giovedì con gusto",
+  "offer": "Cappuccino + brioche a 3,30 € (prezzo di riferimento da verificare)",
+  "start": "07:00",
+  "end": "10:30",
+  "push": "La pausa del giovedì comincia con una colazione speciale.",
+  "approved": false
+ },
+ {
+  "id": "oct26-02",
+  "date": "2026-10-02",
+  "title": "Venerdì pranzo",
+  "offer": "Con un primo piatto, caffè omaggio (da verificare)",
+  "start": "12:00",
+  "end": "14:00",
+  "push": "Il venerdì il pranzo vale di più: scopri il piccolo omaggio di oggi.",
+  "approved": false
+ },
+ {
+  "id": "oct26-05",
+  "date": "2026-10-05",
+  "title": "Colazione sprint",
+  "offer": "Cappuccino + brioche a 3,20 € (prezzo di riferimento da verificare)",
+  "start": "06:30",
+  "end": "10:30",
+  "push": "Il lunedì comincia meglio da Alberto: scopri la colazione sprint!",
+  "approved": false
+ },
+ {
+  "id": "oct26-06",
+  "date": "2026-10-06",
+  "title": "Martedì aperitivo",
+  "offer": "Cocktail o birra + tagliere a 8,50 € anziché 10 €",
+  "start": "17:00",
+  "end": "19:00",
+  "push": "Martedì aperitivo: cocktail o birra con tagliere a 8,50 €!",
+  "approved": false
+ },
+ {
+  "id": "oct26-07",
+  "date": "2026-10-07",
+  "title": "Caffè con sorpresa",
+  "offer": "Biscottino in omaggio con ogni caffè",
+  "start": "15:00",
+  "end": "16:00",
+  "push": "Dalle 15 alle 16, con il caffè il biscottino lo offriamo noi!",
+  "approved": false
+ },
+ {
+  "id": "oct26-08",
+  "date": "2026-10-08",
+  "title": "Pausa del pomeriggio",
+  "offer": "Biscottino in omaggio con il tè o il cappuccino",
+  "start": "15:00",
+  "end": "17:00",
+  "push": "Un piccolo omaggio per la tua pausa pomeridiana.",
+  "approved": false
+ },
+ {
+  "id": "oct26-09",
+  "date": "2026-10-09",
+  "title": "Venerdì pausa pranzo",
+  "offer": "Con secondo + contorno, caffè omaggio (da verificare)",
+  "start": "12:00",
+  "end": "14:00",
+  "push": "Chiudi la settimana con gusto: un caffè omaggio con il pranzo.",
+  "approved": false
+ },
+ {
+  "id": "oct26-12",
+  "date": "2026-10-12",
+  "title": "Risveglio dolce",
+  "offer": "Con cappuccino e brioche, mini biscotto in omaggio",
+  "start": "07:00",
+  "end": "10:30",
+  "push": "Un piccolo buongiorno in più: mini biscotto omaggio con cappuccino e brioche.",
+  "approved": false
+ },
+ {
+  "id": "oct26-13",
+  "date": "2026-10-13",
+  "title": "Aperitivo tra amici",
+  "offer": "Due aperitivi con tagliere a 18 € anziché 20 €",
+  "start": "17:00",
+  "end": "19:00",
+  "push": "In due è meglio: due aperitivi con tagliere a 18 €!",
+  "approved": false
+ },
+ {
+  "id": "oct26-14",
+  "date": "2026-10-14",
+  "title": "Mercoledì dolce",
+  "offer": "Con cappuccino pomeridiano, biscotto in omaggio",
+  "start": "15:00",
+  "end": "17:00",
+  "push": "Il pomeriggio si addolcisce: biscotto omaggio con il cappuccino.",
+  "approved": false
+ },
+ {
+  "id": "oct26-15",
+  "date": "2026-10-15",
+  "title": "Giovedì in compagnia",
+  "offer": "Due caffè, due biscottini in omaggio",
+  "start": "15:00",
+  "end": "16:30",
+  "push": "Porta un collega: il biscottino con il caffè lo offriamo noi.",
+  "approved": false
+ },
+ {
+  "id": "oct26-16",
+  "date": "2026-10-16",
+  "title": "Pranzo del venerdì",
+  "offer": "Con il menù pranzo, biscotto omaggio al caffè",
+  "start": "12:00",
+  "end": "14:00",
+  "push": "Il venerdì ci mettiamo un piccolo extra: scopri l'offerta pranzo.",
+  "approved": false
+ },
+ {
+  "id": "oct26-19",
+  "date": "2026-10-19",
+  "title": "Lunedì in coppia",
+  "offer": "Due cappuccini + due brioche a 6,40 € (prezzo da verificare)",
+  "start": "07:00",
+  "end": "10:00",
+  "push": "La colazione è più bella in due: scopri l'offerta di oggi.",
+  "approved": false
+ },
+ {
+  "id": "oct26-20",
+  "date": "2026-10-20",
+  "title": "Tagliere del martedì",
+  "offer": "Birra + tagliere a 8 € anziché 10 €",
+  "start": "17:00",
+  "end": "19:00",
+  "push": "Oggi birra e tagliere a 8 €: il martedì ha più gusto.",
+  "approved": false
+ },
+ {
+  "id": "oct26-21",
+  "date": "2026-10-21",
+  "title": "Pausa di metà settimana",
+  "offer": "Caffè + biscottino in omaggio",
+  "start": "14:30",
+  "end": "15:30",
+  "push": "Una pausa veloce, una piccola sorpresa: biscotto offerto con il caffè.",
+  "approved": false
+ },
+ {
+  "id": "oct26-22",
+  "date": "2026-10-22",
+  "title": "Colazione lunga",
+  "offer": "Con cappuccino e brioche, biscotto in omaggio",
+  "start": "09:00",
+  "end": "11:00",
+  "push": "Hai fatto tardi a colazione? Ti aspettiamo con una piccola sorpresa.",
+  "approved": false
+ },
+ {
+  "id": "oct26-23",
+  "date": "2026-10-23",
+  "title": "Venerdì speciale",
+  "offer": "Con primo + contorno, caffè omaggio (da verificare)",
+  "start": "12:00",
+  "end": "14:00",
+  "push": "Il pranzo del venerdì ha una sorpresa: guarda la promo di oggi.",
+  "approved": false
+ },
+ {
+  "id": "oct26-26",
+  "date": "2026-10-26",
+  "title": "Lunedì senza fretta",
+  "offer": "Con una colazione completa, biscotto in omaggio",
+  "start": "08:00",
+  "end": "11:00",
+  "push": "Il lunedì merita un dolce in più: passa per la colazione Alberto.",
+  "approved": false
+ },
+ {
+  "id": "oct26-27",
+  "date": "2026-10-27",
+  "title": "Cocktail hour",
+  "offer": "Cocktail + tagliere a 9 € anziché 10 €",
+  "start": "17:00",
+  "end": "19:00",
+  "push": "Un'ora da dedicarti: cocktail e tagliere a 9 €!",
+  "approved": false
+ },
+ {
+  "id": "oct26-28",
+  "date": "2026-10-28",
+  "title": "Mercoledì pausa",
+  "offer": "Con il caffè, un piccolo dolce omaggio fino a esaurimento",
+  "start": "15:00",
+  "end": "16:00",
+  "push": "Oggi il caffè ha un piccolo regalo: passa a trovarci!",
+  "approved": false
+ },
+ {
+  "id": "oct26-29",
+  "date": "2026-10-29",
+  "title": "Giovedì con gusto",
+  "offer": "Cappuccino + brioche a 3,30 € (prezzo di riferimento da verificare)",
+  "start": "07:00",
+  "end": "10:30",
+  "push": "La pausa del giovedì comincia con una colazione speciale.",
+  "approved": false
+ },
+ {
+  "id": "oct26-30",
+  "date": "2026-10-30",
+  "title": "Venerdì pranzo",
+  "offer": "Con un primo piatto, caffè omaggio (da verificare)",
+  "start": "12:00",
+  "end": "14:00",
+  "push": "Il venerdì il pranzo vale di più: scopri il piccolo omaggio di oggi.",
+  "approved": false
+ }
 ];
 let promoItems=[];try{const stored=localStorage.getItem(promoStoreKey);promoItems=stored?JSON.parse(stored):promoDefaults.map((x,i)=>({...x,id:'example'+i}))}catch(_){promoItems=promoDefaults.map((x,i)=>({...x,id:'example'+i}))}
 const promoEsc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function promoSave(){localStorage.setItem(promoStoreKey,JSON.stringify(promoItems));window.renderPromoCalendar()}
+window.loadOctoberPromoPlan=()=>{if(!confirm('Caricare le 22 proposte di ottobre? Le promozioni già presenti saranno mantenute; le proposte con la stessa data e codice verranno aggiornate.'))return;for(const x of promoDefaults){const i=promoItems.findIndex(y=>y.id===x.id);if(i<0)promoItems.push({...x});else if(!promoItems[i].approved)promoItems[i]={...x}}document.getElementById('promoMonth').value='2026-10';promoSave()};
 window.addPromoCalendarItem=()=>{const month=document.getElementById('promoMonth').value||'2026-10';promoItems.push({id:'p'+Date.now(),date:month+'-01',title:'Nuova promozione',offer:'',start:'',end:'',push:'',approved:false});promoSave()};
 window.promoEdit=(id,field,value)=>{const x=promoItems.find(x=>x.id===id);if(x){x[field]=value;if(field!=='approved')x.approved=false;localStorage.setItem(promoStoreKey,JSON.stringify(promoItems));if(field==='date'||field==='approved')window.renderPromoCalendar()}};
 window.promoDelete=id=>{if(confirm('Eliminare questa promozione?')){promoItems=promoItems.filter(x=>x.id!==id);promoSave()}};
