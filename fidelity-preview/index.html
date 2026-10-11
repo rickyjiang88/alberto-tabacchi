@@ -903,7 +903,7 @@ $('groupRenameBtn').addEventListener('click',async()=>{
 });
 $('copyGroupInviteBtn').addEventListener('click',async()=>{
   const code=profile.officeGroupCode||profile.groupCode||'';if(!code)return;
-  const url=location.origin+location.pathname+'?group='+encodeURIComponent(code);
+  const url=location.origin+location.pathname+'?group='+encodeURIComponent(code)+'&view=site';
   try{await navigator.clipboard.writeText(url);toast('Invito gruppo copiato.')}catch(e){toast(url)}
 });
 const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome'}).format(new Date())}
@@ -968,7 +968,8 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 <script id="alberto-fidelity-pwa">
 (function(){
   const standalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
-  if(standalone || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || new URLSearchParams(location.search).get('source')==='pwa')document.body.classList.add('fidelity-app');
+  const inviteSiteView=new URLSearchParams(location.search).get('view')==='site';
+  if(standalone || (!inviteSiteView && (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || new URLSearchParams(location.search).get('source')==='pwa')))document.body.classList.add('fidelity-app');
   if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/fidelity-preview/sw.js', {updateViaCache:'none'}).catch(err=>console.warn('PWA service worker:',err)))}
   if(standalone)return;
   const ua=navigator.userAgent;
