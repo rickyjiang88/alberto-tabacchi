@@ -359,12 +359,12 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
       </div>
       <div class="grid2" style="margin-top:18px">
         <div>
-          <div class="section-title"><h2>Ultimi ordini</h2><button data-go="orders">VEDI TUTTI</button></div>
-          <div id="dashOrderList" class="list"><div class="empty">Caricamento…</div></div>
-        </div>
-        <div>
           <div class="section-title"><h2>Prossime prenotazioni</h2><button data-go="bookings">VEDI TUTTE</button></div>
           <div id="dashBookingList" class="list"><div class="empty">Caricamento…</div></div>
+        </div>
+        <div>
+          <div class="section-title"><h2>Ultimi ordini</h2><button data-go="orders">VEDI TUTTI</button></div>
+          <div id="dashOrderList" class="list"><div class="empty">Caricamento…</div></div>
         </div>
       </div>
     </section>
@@ -575,6 +575,7 @@ async function enablePushForUser(user){
  await setDoc(doc(db,'fidelityPushTokens',user.uid),{uid:user.uid,customerCode:'ALB'+user.uid.slice(0,10).toUpperCase(),token,platform:navigator.userAgent,updatedAt:serverTimestamp()},{merge:true});
  return true;
 }
+function setPushEnabledUI(){const btn=document.getElementById('enablePushBtn');if(btn)btn.textContent='NOTIFICHE ATTIVATE ✓';pushStatus('✓ Notifiche attivate su questo dispositivo.',true)}
 function pushStatus(message,ok=false){
  const el=document.getElementById('pushStatus');
  if(el){el.textContent=message;el.style.color=ok?'#25643a':'#786e67';}
@@ -591,7 +592,7 @@ async function requestPushForUser(){
   if(permission!=='granted'){pushStatus('Permesso non concesso. Controlla le impostazioni notifiche del telefono.');return}
   pushStatus('Permesso concesso. Registrazione Firebase in corso…');
   const result=await Promise.race([enablePushForUser(user),new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout registrazione Firebase')),12000))]);
-  if(result){pushStatus('Notifiche registrate su Firebase.',true);if(btn)btn.textContent='NOTIFICHE ATTIVATE'}
+  if(result){setPushEnabledUI()}
   else pushStatus('Permesso concesso, ma registrazione Firebase non disponibile.');
  }catch(e){console.warn('Push:',e);pushStatus('Registrazione non riuscita: '+String(e.message||e).slice(0,120))}
  finally{if(btn)btn.disabled=false}
@@ -734,7 +735,7 @@ function render(){
   $('dashOrderList').innerHTML=orders.length?orders.slice(0,3).map(rowOrder).join(''):'<div class="empty">Nessun ordine.</div>';
   const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome'}).format(new Date());
   const upcoming=bookings.filter(x=>String(x.date||'')>=today&&!String(x.bookingStatus||x.status||'').toLowerCase().includes('annull')).slice(0,3);
-  $('dashBookingList').innerHTML=upcoming.length?upcoming.map(rowBooking).join(''):'<div class="empty">Nessuna prenotazione futura.</div>';
+  $('dashBookingList').innerHTML=upcoming.length?upcoming.slice(0,1).map(rowBooking).join(''):'<div class="empty">Nessuna prenotazione futura.</div>';
   const confirmed=[...orders.filter(x=>String(x.status||'').toLowerCase().includes('conferm')).map(x=>({kind:'order',...x})),...bookings.filter(x=>/conferm|annull/i.test(String(x.bookingStatus||x.status||''))).map(x=>({kind:'booking',...x}))].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
   $('notificationsList').innerHTML=confirmed.length?confirmed.map(x=>x.kind==='booking'?rowBooking(x):rowOrder(x)).join(''):'<div class="empty">Nessuna nuova notifica.</div>';
   $('notifBadge').textContent=confirmed.length;$('notifBadge').classList.toggle('hidden',!confirmed.length);
@@ -793,7 +794,7 @@ onAuthStateChanged(auth,async user=>{
   orders=[];bookings=[];groupMetas=[];bookingSelectedGroupCode='';profile={};
   if(!user){$('loginWrap').classList.remove('hidden');return}
   $('loginWrap').classList.add('hidden');
-  if('Notification' in window && Notification.permission==='granted')enablePushForUser(user).catch(e=>console.warn('Push token:',e));
+  if('Notification' in window && Notification.permission==='granted')enablePushForUser(user).then(ok=>{if(ok)setPushEnabledUI()}).catch(e=>console.warn('Push token:',e));
   const code='ALB'+user.uid.slice(0,10).toUpperCase();
   profile={uid:user.uid,code,email:user.email||'',name:(user.displayName||'Cliente').split(' ')[0]||'Cliente',surname:(user.displayName||'').split(' ').slice(1).join(' ')};
   try{const customerSnap=await getDoc(doc(db,'fidelityCustomers',code));if(customerSnap.exists())profile={...profile,...customerSnap.data(),uid:user.uid,code};else console.warn('Profilo cliente non trovato',code)}catch(e){console.warn('Caricamento profilo cliente non riuscito',e)}
