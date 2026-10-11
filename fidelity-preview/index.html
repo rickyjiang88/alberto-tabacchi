@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="fidelity-app-build-marker" content="2026-10-11-push-1">
+<meta name="fidelity-app-build-marker" content="2026-10-11-push-2">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#b5101b">
 <title>Alberto Fidelity | Prova iPhone</title>
@@ -542,7 +542,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
 
     <section id="view-notifications" class="view">
       <span class="eyebrow">AGGIORNAMENTI</span><h1>Notifiche</h1><p class="lead">Conferme di ordini e prenotazioni.</p>
-      <div class="card" id="pushSetupCard"><b>Notifiche sul telefono</b><p style="margin:8px 0 12px;color:var(--muted)">Ricevi aggiornamenti di Alberto Fidelity anche quando l’app è chiusa.</p><button type="button" id="enablePushBtn" class="btn">ATTIVA NOTIFICHE</button></div>
+      <div class="card" id="pushSetupCard"><b>Notifiche sul telefono</b><p style="margin:8px 0 12px;color:var(--muted)">Ricevi aggiornamenti di Alberto Fidelity anche quando l’app è chiusa.</p><button type="button" id="enablePushBtn" class="btn">ATTIVA NOTIFICHE</button><p id="pushStatus" role="status" aria-live="polite" style="margin:10px 0 0;font-size:13px;color:#786e67">Premi il pulsante per verificare l’attivazione.</p></div>
       <div id="notificationsList" class="list"><div class="empty">Caricamento…</div></div>
     </section>
   </main>
@@ -570,12 +570,26 @@ async function enablePushForUser(user){
  await setDoc(doc(db,'fidelityPushTokens',user.uid),{uid:user.uid,customerCode:'ALB'+user.uid.slice(0,10).toUpperCase(),token,platform:navigator.userAgent,updatedAt:serverTimestamp()},{merge:true});
  return true;
 }
+function pushStatus(message,ok=false){
+ const el=document.getElementById('pushStatus');
+ if(el){el.textContent=message;el.style.color=ok?'#25643a':'#786e67';}
+}
 async function requestPushForUser(){
- const user=auth.currentUser;if(!user)return;
- if(!('Notification' in window)){toast('Notifiche non supportate su questo dispositivo.');return}
- const permission=await Notification.requestPermission();
- if(permission!=='granted'){toast('Notifiche non autorizzate.');return}
- try{await enablePushForUser(user);toast('Notifiche attivate.')}catch(e){console.warn('Push:',e);toast('Attivazione notifiche non riuscita.')}
+ const btn=document.getElementById('enablePushBtn');
+ pushStatus('Verifica in corso…');
+ if(btn)btn.disabled=true;
+ try{
+  const user=auth.currentUser;
+  if(!user){pushStatus('Accedi al tuo account per attivare le notifiche.');return}
+  if(!('Notification' in window)){pushStatus('Notifiche non supportate su questo dispositivo.');return}
+  const permission=Notification.permission==='granted'?'granted':await Notification.requestPermission();
+  if(permission!=='granted'){pushStatus('Permesso non concesso. Controlla le impostazioni notifiche del telefono.');return}
+  pushStatus('Permesso concesso. Registrazione Firebase in corso…');
+  const result=await Promise.race([enablePushForUser(user),new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout registrazione Firebase')),12000))]);
+  if(result){pushStatus('Notifiche registrate su Firebase.',true);if(btn)btn.textContent='NOTIFICHE ATTIVATE'}
+  else pushStatus('Permesso concesso, ma registrazione Firebase non disponibile.');
+ }catch(e){console.warn('Push:',e);pushStatus('Registrazione non riuscita: '+String(e.message||e).slice(0,120))}
+ finally{if(btn)btn.disabled=false}
 }
 let profile={},orders=[],bookings=[],unsubs=[],bookingMode='personal',bookingGroupMembers=[],bookingGroupUnsub=null,groupMetas=[],bookingSelectedGroupCode='';
 
@@ -774,7 +788,7 @@ onAuthStateChanged(auth,async user=>{
   orders=[];bookings=[];groupMetas=[];bookingSelectedGroupCode='';profile={};
   if(!user){$('loginWrap').classList.remove('hidden');return}
   $('loginWrap').classList.add('hidden');
-  if(Notification?.permission==='granted')enablePushForUser(user).catch(e=>console.warn('Push token:',e));
+  if('Notification' in window && Notification.permission==='granted')enablePushForUser(user).catch(e=>console.warn('Push token:',e));
   const code='ALB'+user.uid.slice(0,10).toUpperCase();
   profile={uid:user.uid,code,email:user.email||'',name:(user.displayName||'Cliente').split(' ')[0]||'Cliente',surname:(user.displayName||'').split(' ').slice(1).join(' ')};
   try{const customerSnap=await getDoc(doc(db,'fidelityCustomers',code));if(customerSnap.exists())profile={...profile,...customerSnap.data(),uid:user.uid,code};else console.warn('Profilo cliente non trovato',code)}catch(e){console.warn('Caricamento profilo cliente non riuscito',e)}
