@@ -1063,7 +1063,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 (function(){
  const toggle=document.getElementById('toggleProfileEdit'),panel=document.getElementById('profileEditPanel');
  document.getElementById('profileLogoutBtn')?.addEventListener('click',()=>document.getElementById('logoutBtn')?.click());
- if(toggle&&panel)toggle.addEventListener('click',()=>{panel.hidden=!panel.hidden;toggle.setAttribute('aria-expanded',String(!panel.hidden));});
+ if(toggle&&panel){const close=()=>{panel.hidden=true;toggle.setAttribute('aria-expanded','false');};close();document.querySelectorAll('[data-app-tab="profile"]').forEach(btn=>btn.addEventListener('click',close));toggle.addEventListener('click',()=>{panel.hidden=!panel.hidden;toggle.setAttribute('aria-expanded',String(!panel.hidden));});}
  document.getElementById('resetProfilePassword')?.addEventListener('click',()=>{
   const email=document.getElementById('detailEmail')?.textContent?.trim();
   if(!email||email==='—'){alert('Email del profilo non disponibile.');return;}
