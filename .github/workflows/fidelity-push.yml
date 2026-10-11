@@ -2,6 +2,11 @@ name: Alberto Fidelity push sender
 
 on:
   workflow_dispatch:
+    inputs:
+      test_uid:
+        description: 'Firebase UID destinatario (lascia vuoto per invio normale)'
+        required: false
+        type: string
   schedule:
     - cron: '*/5 * * * *'
 
@@ -26,4 +31,5 @@ jobs:
       - name: Deliver pending push notifications
         env:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          TEST_PUSH_UID: ${{ inputs.test_uid || '' }}
         run: python scripts/send_fidelity_push.py
