@@ -26,5 +26,5 @@ jobs:
           git add alberto-fidelity-icon.png
           if ! git diff --cached --quiet; then
             git commit -m "Publish Alberto Fidelity iPhone PNG icon"
-            git push
+            git push origin HEAD:${{ github.ref_name }}
           fi
