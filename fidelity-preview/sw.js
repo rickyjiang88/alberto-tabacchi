@@ -23,7 +23,7 @@ self.addEventListener('push',event=>{
  const safeUrl=url.startsWith('/')&&!url.startsWith('//')?url:'/fidelity-preview/';
  event.waitUntil(self.registration.showNotification(title,{
   body,icon:'/fidelity-preview/icon-180.png',badge:'/fidelity-preview/icon-180.png',
-  tag:String(payload.tag||payload.data?.tag||'alberto-fidelity'),
+  tag:String(payload.tag||payload.data?.tag||((payload.data?.kind||'push')+'-'+(payload.data?.broadcastId||payload.data?.campaignDate||payload.data?.orderId||'alberto'))),
   data:{url:safeUrl}
  }));
 });
