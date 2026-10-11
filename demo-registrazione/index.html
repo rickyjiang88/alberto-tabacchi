@@ -1,6 +1,141 @@
-<!doctype html>
-<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Demo accesso clienti | Alberto</title><style>
-:root{font-family:Arial,Helvetica,sans-serif;color:#221b19;background:#f9f3ec}*{box-sizing:border-box}body{margin:0}.top{background:#af101c;color:#fff;padding:16px 5%;display:flex;align-items:center;justify-content:space-between}.brand{font-size:27px;font-weight:900;letter-spacing:-1px}.demo{font-size:11px;border:1px solid #ffffff88;border-radius:99px;padding:6px 9px}.nav{display:flex;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap;padding:18px;background:white;font-weight:bold;font-size:13px}.nav a{color:#24201e;text-decoration:none}main{max-width:1100px;margin:auto;padding:54px 24px}.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}.eyebrow{color:#ad101b;font-weight:800;letter-spacing:2px;font-size:12px}h1{font-size:clamp(34px,5vw,66px);line-height:1.04;margin:15px 0}p{line-height:1.6;color:#665955}.hero-art{background:linear-gradient(135deg,#ac101c,#ec7b57);min-height:300px;border-radius:22px;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:28px;font-size:37px;font-weight:900}.btn{border:0;border-radius:10px;padding:15px 22px;background:#b5101b;color:white;font-weight:800;cursor:pointer;font-size:14px}.btn.alt{background:white;color:#a70d18;border:1px solid #cda4a6}.btn.dark{background:#241b19}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.note{font-size:12px;color:#82746c;margin-top:24px}.veil{position:fixed;inset:0;background:#171010a8;display:flex;justify-content:center;align-items:center;padding:16px;z-index:5}.veil.hidden{display:none}.modal{position:relative;background:#fffaf5;border-radius:22px;max-width:470px;width:100%;padding:32px 28px 26px;text-align:center;box-shadow:0 24px 90px #0004}.close{position:absolute;right:14px;top:12px;background:transparent;border:0;font-size:27px;cursor:pointer;color:#625650}.mini{font-size:12px;letter-spacing:2px;color:#b5101b;font-weight:900}.modal h2{font-size:31px;margin:14px 0 10px;line-height:1.1}.modal p{font-size:15px}.modal .btn{width:100%;margin-top:10px}.dismiss{border:0;background:transparent;color:#6b5b54;margin-top:15px;text-decoration:underline;cursor:pointer;padding:8px}.choice{display:none;margin-top:16px;background:#f4e9e2;border-radius:12px;padding:16px;text-align:left}.choice.active{display:block}.choice a{display:block;padding:12px;background:#b5101b;color:#fff;text-align:center;border-radius:8px;margin-top:9px;text-decoration:none;font-weight:bold}.choice a.secondary{background:white;color:#9d111a;border:1px solid #b5101b}.small{font-size:12px;color:#766963}.demo-flag{position:fixed;bottom:12px;right:12px;background:#24201e;color:white;padding:9px 13px;border-radius:10px;font-size:12px;z-index:6}@media(max-width:700px){.hero{grid-template-columns:1fr}.hero-art{min-height:190px;font-size:28px}.modal{padding:30px 20px 20px}main{padding:38px 22px}.nav{gap:13px;font-size:12px}}
-</style></head><body><header class="top"><div class="brand">Alberto</div><div class="demo">DEMO NON PUBBLICATA</div></header><nav class="nav"><a href="#" onclick="return false">HOME</a><a href="#" onclick="return false">COLAZIONE</a><a href="#" onclick="return false">PRANZO</a><a href="#" onclick="return false">SERVIZI</a><a href="#" onclick="return false">CONTATTI</a></nav><main><section class="hero"><div><div class="eyebrow">ALBERTO BAR CON CUCINA</div><h1>La tua pausa, come piace a te.</h1><p>Colazione, pranzo e servizi: scopri il mondo Alberto. Per prenotare un tavolo o preordinare, accedi alla tua Area Clienti.</p><div class="actions"><button class="btn" onclick="gate('booking')">PRENOTA UN TAVOLO</button><button class="btn alt" onclick="gate('order')">PREORDINA IL PRANZO</button></div><p class="note">Questa è una simulazione. Nessuna modifica è stata fatta al sito ufficiale o a WhatsApp.</p></div><div class="hero-art">BUONO, OGNI GIORNO.</div></section></main><div class="veil" id="veil" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal"><button class="close" onclick="closeModal()" aria-label="Chiudi">×</button><div class="mini">ALBERTO FIDELITY</div><h2 id="modalTitle">Il tuo Alberto, sempre con te.</h2><p>Prenota il tavolo, preordina il pranzo e raccogli punti Fidelity. Tutto in un unico posto, gratis.</p><button class="btn" onclick="showChoice()">REGISTRATI GRATIS</button><button class="btn alt" onclick="showChoice()">HO GIÀ UN ACCOUNT</button><div class="choice" id="choice"><strong>Accedi all'Area Clienti</strong><p class="small">Nella demo il pulsante apre l'Area Clienti esistente. Il sito ufficiale non viene modificato.</p><a href="https://albertotabacchi.com/fidelity-preview/">APRI ALBERTO FIDELITY</a><a class="secondary" href="#" onclick="closeModal();return false">CONTINUA A GUARDARE LA DEMO</a></div><button class="dismiss" onclick="closeModal()">Continua a visitare il sito</button></div></div><div class="demo-flag">ANTEPRIMA · NESSUN OBBLIGO DI REGISTRAZIONE</div><script>
-const veil=document.getElementById('veil'),choice=document.getElementById('choice');function closeModal(){veil.classList.add('hidden')}function showChoice(){choice.classList.add('active')}function gate(type){veil.classList.remove('hidden');choice.classList.remove('active');document.getElementById('modalTitle').textContent=type==='booking'?'Prenota con Alberto Fidelity':type==='order'?'Preordina con Alberto Fidelity':'Il tuo Alberto, sempre con te.'}document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});veil.addEventListener('click',e=>{if(e.target===veil)closeModal()});
-</script></body></html>
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bar a Turro Milano | Colazione e Pranzo | Alberto</title><meta name="description" content="Alberto Bar con Cucina a Turro, Milano: colazione, pausa pranzo, menu del giorno, preordini e catering aziendale in Via Valtorta 44."><meta name="robots" content="noindex,nofollow"><meta property="og:type" content="website"><meta property="og:locale" content="it_IT"><meta property="og:title" content="Alberto | Bar con Cucina a Turro, Milano"><meta property="og:description" content="Colazione, pausa pranzo, tabaccheria e catering aziendale a Turro, in Via Valtorta 44 a Milano."><meta property="og:url" content="https://albertotabacchi.com/"><meta property="og:image" content="https://primary.jwwb.nl/public/k/m/t/temp-uuviykehkzslooegqmdl/20250309_133343-standard-j9kqtf.jpg"><script type="application/ld+json">{"@context":"https://schema.org","@type":["CafeOrCoffeeShop","Restaurant"],"name":"Alberto Tabacchi Bar con Cucina","url":"https://albertotabacchi.com/","telephone":"+39022896720","email":"info@albertotabacchi.com","address":{"@type":"PostalAddress","streetAddress":"Via Valtorta 44","addressLocality":"Milano","postalCountry":"IT","postalCode":"20127","addressRegion":"MI"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"opens":"06:00","closes":"19:00"}],"hasMenu":"https://albertotabacchi.com/pranzo.html#menu","acceptsReservations":true,"@id":"https://albertotabacchi.com/#alberto","description":"Bar con cucina a Turro, Milano, in Via Valtorta 44. Colazione, caffetteria, menu del giorno, pausa pranzo e catering per aziende.","hasMap":"https://www.google.com/maps/place/?q=place_id:ChIJf_-DhCPHhkcRW-PCcGNpVAQ"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","@id":"https://albertotabacchi.com/#website","url":"https://albertotabacchi.com/","name":"Alberto","alternateName":"Alberto Bar con Cucina","inLanguage":"it-IT"}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"><style id="welcome-popup-css">
+.welcome-pop{position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+.welcome-pop[hidden]{display:none}
+.welcome-card{position:relative;width:min(560px,100%);max-height:calc(100dvh - 32px);overflow-y:auto;box-sizing:border-box;background:#fff;border-radius:24px;padding:40px 34px 30px;box-shadow:0 25px 80px rgba(0,0,0,.28)}
+.welcome-close{position:absolute;right:16px;top:12px;border:0;background:transparent;font-size:28px;cursor:pointer;color:#555}
+.welcome-kicker{color:#df1d22;font-size:12px;font-weight:800;letter-spacing:.18em}
+.welcome-card h2{font-size:40px;line-height:1.03;margin:12px 0 16px;letter-spacing:-.04em}
+.welcome-card p{font-size:15px;line-height:1.55;color:#555;margin:0 0 22px}
+.welcome-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.welcome-book,.welcome-preorder{display:flex;align-items:center;justify-content:center;min-height:48px;box-sizing:border-box;border-radius:999px;padding:12px 10px;font-size:12px;font-weight:800;text-decoration:none;text-align:center}
+.welcome-preorder{background:#df1d22;color:#fff}
+.welcome-book{background:#fff;color:#111;border:1px solid #ccc}
+.welcome-enter{display:block;margin:10px auto 0;border:0;background:transparent;font-weight:800;cursor:pointer;padding:10px;color:#111}
+@media(max-width:560px){.welcome-card{padding:34px 22px 22px}.welcome-card h2{font-size:clamp(27px,8vw,34px)}.welcome-card p{font-size:14px;margin-bottom:16px}.welcome-actions{grid-template-columns:1fr}.welcome-book,.welcome-preorder{min-height:44px;font-size:12px}}
+</style><link rel="icon" type="image/png" href="https://primary.jwwb.nl/public/k/m/t/temp-uuviykehkzslooegqmdl/image-high-zhh1za.png?enable=upscale&enable-io=true&height=70"><style id="nav-uppercase">header nav a{text-transform:uppercase}</style><style id="ios-hamburger-fix">header .toggle,header .navtoggle{-webkit-appearance:none!important;appearance:none!important;color:#111!important;-webkit-text-fill-color:#111!important}header .toggle *,header .navtoggle *{color:#111!important}</style><style id="site-topbar-style">
+.site-topbar{height:42px;background:#b5101b;color:#fff;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;padding:0 5%;font-size:14px;font-weight:700}
+.site-topbar span:nth-child(1){text-align:left}.site-topbar span:nth-child(2){text-align:center}.site-topbar span:nth-child(3){text-align:right}
+@media(max-width:650px){.site-topbar{height:34px;padding:0 4%;font-size:10px;gap:8px}.site-topbar span{white-space:nowrap}}
+</style><style id="topbar-phone-fix">.site-topbar,.site-topbar a{color:#fff!important;-webkit-text-fill-color:#fff!important;text-decoration:none!important}.site-topbar a[href^="tel:"]{color:#fff!important;-webkit-text-fill-color:#fff!important}</style><style id="brazil-event-theme">
+body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
+body.brazil-event .site-topbar{background:linear-gradient(90deg,var(--br-green),var(--br-yellow),var(--br-blue))!important;color:#fff!important}
+body.brazil-event header{border-bottom:3px solid var(--br-yellow)!important}
+body.brazil-event header nav a.active,
+body.brazil-event header nav a:hover{color:var(--br-green)!important}
+body.brazil-event header .pill,
+body.brazil-event .btn:not(.ghost):not(.dark),
+body.brazil-event .welcome-preorder{background:var(--br-green)!important;color:#fff!important}
+body.brazil-event .redlabel,
+body.brazil-event .eyebrow.red{color:var(--br-green)!important}
+body.brazil-event .hero .eyebrow{color:#fff!important}
+body.brazil-event .marketing{background:linear-gradient(135deg,#fff 0%,#fff9cf 100%)!important}
+body.brazil-event .service-strip{border-top:5px solid var(--br-yellow)!important}
+body.brazil-event .service-strip article span{color:var(--br-green)!important}
+body.brazil-event .three .n{color:var(--br-blue)!important}
+body.brazil-event footer{border-top:5px solid var(--br-green)!important}
+.brazil-event-banner{display:none}
+body.brazil-event .brazil-event-banner{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 18px;background:linear-gradient(90deg,#0b7a3b,#f2c500,#1146a6);color:#fff;font:800 13px/1.2 Manrope,Arial,sans-serif;letter-spacing:.08em;text-align:center}
+body.brazil-event .brazil-event-banner b{font-size:14px}
+@media(max-width:650px){body.brazil-event .brazil-event-banner{font-size:10px;padding:10px 12px;letter-spacing:.05em}}
+</style>
+<script id="brazil-event-theme-js">
+(function(){
+  var until=Date.parse("2026-10-04T18:00:00+02:00");
+  if(Date.now()>=until)return;
+  document.documentElement.classList.add("brazil-event-html");
+  function activate(){
+    document.body.classList.add("brazil-event");
+    if(!document.querySelector(".brazil-event-banner")){
+      var b=document.createElement("div");
+      b.className="brazil-event-banner";
+      b.innerHTML="🇧🇷 <b>DOMENICA 4 OTTOBRE</b> • GIORNATA BRASILE • FOTOCOPIE, STAMPE E SERVIZI DISPONIBILI 🇧🇷";
+      var top=document.querySelector(".site-topbar");
+      if(top && top.parentNode){ top.parentNode.insertBefore(b,top.nextSibling); }
+      else if(document.body.firstChild){ document.body.insertBefore(b,document.body.firstChild); }
+      else document.body.appendChild(b);
+    }
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",activate);else activate();
+})();
+</script></head><body><div class="site-topbar"><span>Via Valtorta 44, Milano</span><span><a href="tel:+39022896720" style="color:inherit!important;text-decoration:none!important;-webkit-text-fill-color:currentColor">02 289 6720</a></span><span>Lun–Sab 6:00–19:00</span></div><div class="welcome-pop" id="welcomePop" hidden><div class="welcome-card" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle"><button class="welcome-close" type="button" aria-label="Chiudi" onclick="closeWelcome()">×</button><div class="welcome-kicker">ALBERTO SI RINNOVA</div><h2 id="welcomeTitle">NUOVO LOOK.<br>NUOVO SITO.<br>PIÙ SERVIZI.</h2><p>Scopri il <b>menu del giorno</b> e prenota il tuo tavolo online.<br><b>Hai già deciso cosa mangiare?</b> Preordina in pochi click, ritira e paga in cassa.</p><div class="welcome-actions"><a class="welcome-preorder" href="preordina/">PRE ORDINA ORA</a><a class="welcome-book" href="pranzo.html#prenota">PRENOTA IL TUO TAVOLO</a></div><button class="welcome-enter" type="button" onclick="closeWelcome()">Continua sul sito →</button></div></div><script id="welcome-popup-js">(function(){var p=document.getElementById('welcomePop');if(!p)return;var end=new Date('2026-09-27T23:59:59+02:00');if(new Date()>end){p.remove();return;}try{if(!sessionStorage.getItem('albertoWelcomeSeen'))p.hidden=false}catch(e){p.hidden=false}})();function closeWelcome(){var p=document.getElementById('welcomePop');if(p)p.hidden=true;try{sessionStorage.setItem('albertoWelcomeSeen','1')}catch(e){}}document.getElementById('welcomePop')?.addEventListener('click',function(e){if(e.target===this)closeWelcome()});</script>
+
+<header><a class="brand" href="#home"><img src="https://primary.jwwb.nl/public/k/m/t/temp-uuviykehkzslooegqmdl/image-high-zhh1za.png?enable=upscale&enable-io=true&height=70" alt="Alberto"><span><b>ALBERTO</b><small>TABACCHI BAR CON CUCINA</small></span></a><button class="toggle" type="button" aria-label="Apri menu" aria-expanded="false" onclick="var n=document.querySelector('header nav');var o=n.classList.toggle('open');this.setAttribute('aria-expanded',o?'true':'false')"><span aria-hidden="true" style="display:flex;flex-direction:column;justify-content:center;gap:5px;width:25px;height:25px"><span style="display:block;width:25px;height:3px;background:currentColor;border-radius:2px"></span><span style="display:block;width:25px;height:3px;background:currentColor;border-radius:2px"></span><span style="display:block;width:25px;height:3px;background:currentColor;border-radius:2px"></span></span></button><nav><a class="active" href="#home">Home</a><a href="colazione.html">Colazione</a><a href="pranzo.html#menu">Menu del giorno</a><a href="preordina/">PRE ORDINA</a><a href="tabaccheria.html">Tabaccheria</a><a href="catering.html">Catering</a><a href="areaclienti.html">AREA CLIENTI</a><a href="contatti.html">Contatti</a></nav><a class="pill" href="pranzo.html#prenota">Prenota un tavolo</a></header>
+<main id="home"><section class="hero"><img src="https://primary.jwwb.nl/public/k/m/t/temp-uuviykehkzslooegqmdl/20250309_133343-standard-j9kqtf.jpg" alt="Interno Alberto Tabacchi Bar"><div class="shade"></div><div class="hero-copy"><div class="eyebrow">BAR A TURRO, MILANO • COLAZIONE E PRANZO</div><h1>La tua pausa,<br>fatta bene.</h1><p>Dalla colazione delle 6 alla pausa pranzo: menu del giorno, preordini e tavoli prenotabili.<br>Ci trovi nel quartiere Turro, in Via Valtorta 44 a Milano. <a class="hero-directions" href="https://www.google.com/maps/dir/?api=1&amp;destination=Alberto%20Bar%20con%20Cucina%2C%20Via%20Valtorta%2044%2C%20Milano&amp;destination_place_id=ChIJf_-DhCPHhkcRW-PCcGNpVAQ" target="_blank" rel="noopener noreferrer" aria-label="Indicazioni per raggiungere Alberto su Google Maps">COME ARRIVARE →</a></p><div class="actions"><a class="btn" href="preordina/">PRE ORDINA →</a><a class="btn ghost" href="pranzo.html#prenota">Prenota un tavolo</a></div></div></section>
+<section class="service-strip" id="bar" aria-label="Esplora i servizi Alberto">
+  <article><a href="colazione.html" aria-label="Scopri la colazione da Alberto"><span aria-hidden="true">☕</span><div><b>Colazione</b><small>Un buon inizio di giornata</small></div></a></article>
+  <article><a href="pranzo.html" aria-label="Scopri il menu del pranzo"><span aria-hidden="true">♨</span><div><b>Pranzo</b><small>Piatti freschi e genuini</small></div></a></article>
+  <article><a href="contatti.html" aria-label="Contattaci per l'aperitivo"><span aria-hidden="true">♢</span><div><b>Aperitivo</b><small>Un momento da condividere</small></div></a></article>
+  <article id="servizi"><a href="tabaccheria.html" aria-label="Scopri i servizi della tabaccheria"><span aria-hidden="true">▣</span><div><b>Tabaccheria</b><small>Tabacchi, ricariche e servizi</small></div></a></article>
+  <article id="catering"><a href="catering.html" aria-label="Scopri il catering aziendale"><span aria-hidden="true">⌂</span><div><b>Catering</b><small>Soluzioni per i tuoi eventi</small></div></a></article>
+</section>
+<section class="marketing"><div><div class="redlabel">OGNI GIORNO</div><h2>Pranzo buono.<br>Senza perdere tempo.</h2><p>Cerchi una pausa pranzo a Turro? Scopri il menu del giorno prima di arrivare, preordina online e ritira pagando in cassa. Più gusto, meno attesa.</p><a class="btn" href="pranzo.html#menu">Scopri il menu di oggi →</a></div><aside><b>Hai già deciso?</b><p>Prenota il tavolo e organizza la tua pausa pranzo in pochi secondi.</p><a href="pranzo.html#prenota">Prenota ora →</a></aside></section>
+<section class="three"><article><div class="n">01</div><h3><a href="pranzo.html" style="color:inherit;text-decoration:none">Bar & Cucina</a></h3><p>Dalla <a href="colazione.html" style="color:inherit;text-decoration:underline">colazione</a> all’aperitivo, con la pausa pranzo al centro della giornata.</p></article><article><div class="n">02</div><h3><a href="tabaccheria.html" style="color:inherit;text-decoration:none">Tabaccheria & Servizi</a></h3><p>Quello che ti serve ogni giorno, nello stesso posto della tua pausa.</p></article><article><div class="n">03</div><h3><a href="catering.html">Catering</a></h3><p>Coffee break, light lunch, buffet e aperitivi per aziende, meeting ed eventi a Milano.</p><a href="catering.html" style="color:#df1d22;font-weight:800;font-size:12px">SCOPRI IL CATERING →</a></article></section>
+<section class="local-seo" aria-labelledby="local-seo-title">
+  <div class="local-seo-head">
+    <div class="redlabel">ALBERTO • QUARTIERE TURRO</div>
+    <h2 id="local-seo-title">IL TUO BAR CON CUCINA<br>A TURRO, MILANO.</h2>
+    <p>In Via Valtorta 44 trovi Alberto: dalla colazione alla pausa pranzo, con tabaccheria e servizi nello stesso locale. Per il tuo ufficio organizziamo anche coffee break e catering aziendali a Milano.</p>
+  </div>
+  <div class="local-seo-grid">
+    <article>
+      <h3>COLAZIONE A TURRO</h3>
+      <p>Caffè, cappuccino, brioche e pasticceria per iniziare la giornata. Scopri le proposte del nostro bar a Milano.</p>
+      <a class="local-seo-link" href="colazione.html">SCOPRI LA COLAZIONE →</a>
+    </article>
+    <article>
+      <h3>PAUSA PRANZO A MILANO</h3>
+      <p>Consulta il menu del giorno, prenota un tavolo oppure preordina il pranzo online per il ritiro in Via Valtorta.</p>
+      <a class="local-seo-link" href="pranzo.html">VEDI IL MENU E PRENOTA →</a>
+    </article>
+    <article>
+      <h3>CATERING PER AZIENDE</h3>
+      <p>Coffee break, lunch box, light lunch e buffet per riunioni, corsi, uffici ed eventi aziendali a Milano.</p>
+      <a class="local-seo-link" href="catering.html">RICHIEDI UN PREVENTIVO →</a>
+    </article>
+  </div>
+  <div class="local-seo-location">
+    <p><strong>IL TUO BAR A TURRO, VIA VALTORTA 44, MILANO.</strong> Aperto dal lunedì al sabato dalle 6:00 alle 19:00. Domenica chiuso.</p>
+    <a href="https://www.google.com/maps/dir/?api=1&amp;destination=Alberto%20Bar%20con%20Cucina%2C%20Via%20Valtorta%2044%2C%20Milano&amp;destination_place_id=ChIJf_-DhCPHhkcRW-PCcGNpVAQ" target="_blank" rel="noopener noreferrer">COME RAGGIUNGERCI →</a>
+  </div>
+</section>
+<section class="contact" id="contatti"><div><div class="redlabel">ALBERTO • MILANO</div><h2>Passa a trovarci.</h2><p>Via Valtorta 44, Milano · Lun–Sab 6:00–19:00</p></div><div class="contact-actions"><a class="btn" href="tel:022896720">Chiama 02 289 6720</a><a class="btn dark" href="https://maps.google.com/?q=Via+Valtorta+44+Milano">Indicazioni →</a></div></section></main>
+<footer><b>ALBERTO</b><span>Tabacchi Bar con Cucina · Via Valtorta 44, Milano</span><span>JM SRL · P.IVA 04248601207</span></footer><script src="script.js"></script><!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"98527ef75d5d446eb2aa6833dab0169e"}'></script><!-- End Cloudflare Web Analytics --><script id="alberto-visibility-control">
+(function(){
+  var until=Date.parse("2026-10-04T18:00:00+02:00");
+  if(Date.now()>=until)return;
+
+  var path=location.pathname.toLowerCase().replace(/\/+$/,"");
+  if(path.endsWith("/colazione.html") || path.endsWith("/preordina") || path.endsWith("/preordina/index.html")){
+    location.replace("/");
+    return;
+  }
+
+  function applyHidden(){
+    document.querySelectorAll("a[href]").forEach(function(a){
+      var raw=(a.getAttribute("href")||"").trim().toLowerCase();
+      var hide =
+        raw.indexOf("colazione.html")!==-1 ||
+        raw.indexOf("preordina/")!==-1 ||
+        raw.indexOf("pranzo.html#menu")!==-1 ||
+        raw==="#menu";
+      if(hide) a.style.display="none";
+    });
+
+    document.querySelectorAll("[onclick]").forEach(function(el){
+      var v=(el.getAttribute("onclick")||"").toLowerCase();
+      if(v.indexOf("colazione.html")!==-1 || v.indexOf("preordina")!==-1){
+        el.style.display="none";
+      }
+    });
+
+    var menu=document.getElementById("menu");
+    if(menu) menu.style.display="none";
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",applyHidden);
+  }else{
+    applyHidden();
+  }
+})();
+</script><script id="menu-4ott-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".menu-4ott-link").forEach(function(a){a.remove()})}})();</script><script id="listino-temp-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".listino-temp-link").forEach(function(a){a.remove()})}})();</script><style id="alberto-demo-popup-style">#albertoDemoVeil{position:fixed;inset:0;background:#170d0dbb;z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;font-family:Arial,sans-serif}#albertoDemoVeil[hidden]{display:none!important}#albertoDemoBox{width:min(440px,100%);background:#fffaf5;color:#211b18;border-radius:20px;padding:29px 25px;box-shadow:0 25px 80px #0005;text-align:center;position:relative}#albertoDemoBox h2{font-size:29px;line-height:1.12;margin:10px 0;color:#201719}#albertoDemoBox p{font-size:15px;line-height:1.55;color:#5e5450}#albertoDemoBox button:not(.albertoDemoClose){width:100%;padding:13px;border-radius:9px;border:0;background:#b5101b;color:white;font-weight:800;margin-top:10px;cursor:pointer}#albertoDemoBox button.albertoDemoOutline{background:white;color:#b5101b;border:1px solid #b5101b}#albertoDemoBox .albertoDemoClose{position:absolute;right:11px;top:8px;background:none;border:0;font-size:28px;cursor:pointer;color:#555}#albertoDemoBox a{display:block;padding:13px;background:#b5101b;color:white!important;text-decoration:none;border-radius:9px;margin-top:12px;font-weight:800}#albertoDemoBox .albertoDemoDismiss{background:transparent!important;color:#6b5d55!important;text-decoration:underline;margin-top:11px}#albertoDemoChoice[hidden]{display:none!important}#albertoDemoRibbon{position:fixed;bottom:12px;right:12px;z-index:999998;background:#211b18;color:#fff;padding:9px 13px;border-radius:9px;font:12px Arial,sans-serif}</style><div id="albertoDemoVeil" role="dialog" aria-modal="true" aria-labelledby="albertoDemoTitle"><div id="albertoDemoBox"><button class="albertoDemoClose" aria-label="Chiudi" onclick="albertoDemoClose()">×</button><div style="font-size:12px;letter-spacing:2px;font-weight:900;color:#b5101b">ALBERTO FIDELITY</div><h2 id="albertoDemoTitle">Il tuo Alberto, sempre con te.</h2><p>Prenota il tuo tavolo, preordina il pranzo e raccogli punti Fidelity. Tutto in un unico posto, gratis.</p><button onclick="albertoDemoShow()">REGISTRATI GRATIS</button><button class="albertoDemoOutline" onclick="albertoDemoShow()">HO GIÀ UN ACCOUNT</button><div id="albertoDemoChoice" hidden><p>Accedi all'Area Clienti già esistente.</p><a href="/fidelity-preview/">APRI ALBERTO FIDELITY</a></div><button class="albertoDemoDismiss" onclick="albertoDemoClose()">Continua a visitare il sito</button></div></div><div id="albertoDemoRibbon">DEMO · SITO REALE, SENZA MODIFICHE ONLINE</div><script id="alberto-demo-popup-script">function albertoDemoClose(){document.getElementById('albertoDemoVeil').hidden=true}function albertoDemoShow(){document.getElementById('albertoDemoChoice').hidden=false}document.addEventListener('keydown',e=>{if(e.key==='Escape')albertoDemoClose()});document.getElementById('albertoDemoVeil').addEventListener('click',e=>{if(e.target.id==='albertoDemoVeil')albertoDemoClose()});</script></body></html>
