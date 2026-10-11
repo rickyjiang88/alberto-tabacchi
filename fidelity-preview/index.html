@@ -548,6 +548,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
     <section id="view-notifications" class="view">
       <span class="eyebrow">AGGIORNAMENTI</span><h1>Notifiche</h1><p class="lead">Conferme di ordini e prenotazioni.</p>
       <div class="card" id="pushSetupCard"><b>Notifiche sul telefono</b><p style="margin:8px 0 12px;color:var(--muted)">Ricevi aggiornamenti di Alberto Fidelity anche quando l’app è chiusa.</p><button type="button" id="enablePushBtn" class="btn">ATTIVA NOTIFICHE</button><p id="pushStatus" role="status" aria-live="polite" style="margin:10px 0 0;font-size:13px;color:#786e67">Premi il pulsante per verificare l’attivazione.</p></div>
+      <div class="card" style="margin-top:14px"><b>Menù del giorno e offerte</b><p style="margin:8px 0 12px;color:var(--muted)">Scelta facoltativa: ricevi notifiche promozionali di Alberto, come il menù del pranzo. Puoi disattivarle quando vuoi. Le notifiche per ordini e prenotazioni restano attive.</p><label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer"><input id="lunchPromoConsent" type="checkbox" style="width:22px;height:22px;flex-shrink:0"><span>Voglio ricevere notifiche sul menù del giorno e sulle offerte di Alberto.</span></label><p id="lunchPromoStatus" role="status" style="font-size:13px;color:var(--muted);margin:10px 0 0">Preferenza non ancora espressa.</p></div>
       <div id="notificationsList" class="list"><div class="empty">Caricamento…</div></div>
     </section>
   </main>
@@ -619,6 +620,30 @@ async function requestPushForUser(){
  }catch(e){console.warn('Push:',e);pushStatus('Registrazione non riuscita: '+String(e.message||e).slice(0,120))}
  finally{if(btn)btn.disabled=false}
 }
+async function loadLunchPromoConsent(user){
+ const box=document.getElementById('lunchPromoConsent'),status=document.getElementById('lunchPromoStatus');
+ if(!box||!user)return;
+ box.disabled=true;
+ try{
+  const snap=await getDoc(doc(db,'fidelityPushTokens',user.uid));
+  box.checked=snap.exists()&&snap.data()?.marketingConsent===true;
+  status.textContent=box.checked?'Notifiche promozionali autorizzate.':'Notifiche promozionali disattivate.';
+ }catch(e){status.textContent='Impossibile leggere la preferenza. Riprova.'}
+ finally{box.disabled=false}
+}
+document.getElementById('lunchPromoConsent')?.addEventListener('change',async e=>{
+ const box=e.target,user=auth.currentUser,status=document.getElementById('lunchPromoStatus');
+ if(!user){box.checked=false;status.textContent='Accedi per modificare la preferenza.';return}
+ const enabled=box.checked;box.disabled=true;status.textContent='Salvataggio in corso…';
+ try{
+  await setDoc(doc(db,'fidelityPushTokens',user.uid),{
+   uid:user.uid,marketingConsent:enabled,marketingConsentUpdatedAt:serverTimestamp(),
+   marketingConsentSource:'fidelity-preview/notifications'
+  },{merge:true});
+  status.textContent=enabled?'Preferenza salvata. Riceverai le promozioni solo sui dispositivi con notifiche attive.':'Preferenza salvata. Non riceverai promozioni.';
+ }catch(error){box.checked=!enabled;status.textContent='Salvataggio non riuscito. Riprova.'}
+ finally{box.disabled=false}
+});
 let profile={},orders=[],bookings=[],unsubs=[],bookingMode='personal',bookingGroupMembers=[],bookingGroupUnsub=null,groupMetas=[],bookingSelectedGroupCode='';
 
 const $=id=>document.getElementById(id);
@@ -833,6 +858,7 @@ onAuthStateChanged(auth,async user=>{
     if(!profile.officeGroupCode){patch.officeGroupCode=group;patch.groupCode=group;patch.officeGroupName=gd.name||'Gruppo Alberto';patch.officeGroupOwnerName=gd.ownerName||''}
     await setDoc(doc(db,'fidelityCustomers',code),patch,{merge:true});profile={...profile,...patch};
   }catch(e){console.warn(e)}}
+  await loadLunchPromoConsent(user);
   await loadGroupMemberships();render();watchUser(user.uid);if(bookingMode==='group')loadBookingGroupMembers();
 });
 
