@@ -572,7 +572,14 @@ async function enablePushForUser(user){
  messaging=messaging||getMessaging(fb);
  const token=await getToken(messaging,{vapidKey:VAPID_KEY,serviceWorkerRegistration:reg});
  if(!token)return false;
- await setDoc(doc(db,'fidelityPushTokens',user.uid),{uid:user.uid,customerCode:'ALB'+user.uid.slice(0,10).toUpperCase(),token,platform:navigator.userAgent,updatedAt:serverTimestamp()},{merge:true});
+ const bytes=new TextEncoder().encode(token);
+ const hash=await crypto.subtle.digest('SHA-256',bytes);
+ const deviceId='d'+Array.from(new Uint8Array(hash)).slice(0,16).map(b=>b.toString(16).padStart(2,'0')).join('');
+ await setDoc(doc(db,'fidelityPushTokens',user.uid),{
+  uid:user.uid,customerCode:'ALB'+user.uid.slice(0,10).toUpperCase(),
+  token,platform:navigator.userAgent,updatedAt:serverTimestamp(),
+  devices:{[deviceId]:{token,platform:navigator.userAgent,updatedAt:serverTimestamp()}}
+ },{merge:true});
  return true;
 }
 function setPushEnabledUI(){const btn=document.getElementById('enablePushBtn');if(btn)btn.textContent='NOTIFICHE ATTIVATE ✓';pushStatus('✓ Notifiche attivate su questo dispositivo.',true)}
