@@ -77,6 +77,20 @@ def deliver(order_ref):
     print(f"{order_ref.id}: {kind}: sent={sent}, failures={len(failures)}")
 
 def main():
+    test_uid = os.environ.get('TEST_PUSH_UID', '').strip()
+    if test_uid:
+        token_doc = db.collection('fidelityPushTokens').document(test_uid).get()
+        token = (token_doc.to_dict() or {}).get('token') if token_doc.exists else None
+        if not token:
+            raise SystemExit('Test not sent: no registered push token for this UID')
+        message_id = messaging.send(messaging.Message(
+            token=token,
+            notification=messaging.Notification(title='Alberto Fidelity', body='Notifica di prova: tutto funziona!'),
+            webpush=messaging.WebpushConfig(fcm_options=messaging.WebpushFCMOptions(link='https://albertotabacchi.com/fidelity-preview/')),
+            data={'url': '/fidelity-preview/', 'kind': 'test'},
+        ))
+        print('Test push accepted by Firebase:', message_id)
+        return
     docs = db.collection("orders").where(
         filter=FieldFilter("pushEvent.status", "==", "pending")
     ).limit(100).stream()
