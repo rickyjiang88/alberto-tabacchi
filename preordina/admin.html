@@ -280,7 +280,7 @@ window.renderBookings=()=>{
   const badgeClass=status==="IN ATTESA"?"booking-waiting":status==="ANNULLATA"?"booking-cancelled":"booking-confirmed";
   const phone=String(b.phone||"").replace(/[^0-9+]/g,"");
   const statusActions=status==="ANNULLATA"?'<button onclick="window.setBookingStatus(\''+id+'\',\'IN ATTESA\')">RIPRISTINA</button>':
-   finalized?'<button disabled class="primary">PUNTI GIÀ ASSEGNATI ✓</button>':
+   finalized?(b.bookingPointsFinalized&&!(Array.isArray(b.arrivalPointsCustomerCodes)&&b.arrivalPointsCustomerCodes.length)?'<button disabled class="primary" style="background:#fff1d8;color:#784600">CHIUSO · NESSUN PUNTO ACCREDITATO</button>':'<button disabled class="primary">PUNTI GIÀ ASSEGNATI ✓</button>'):
    status==="IN ATTESA"?'<button class="primary" onclick="window.setBookingStatus(\''+id+'\',\'CONFERMATA\')">CONFERMA PRENOTAZIONE</button><button onclick="window.setBookingStatus(\''+id+'\',\'ANNULLATA\')">ANNULLA</button>':
    '<button class="primary" style="background:#b5101b;color:white;font-weight:900" onclick="window.closeBookingAndCredit(\''+id+'\')">CHIUDI TAVOLO + ACCREDITA PUNTI</button>';
   const attendees=[],seen=new Set();
@@ -316,7 +316,7 @@ window.renderBookings=()=>{
     '<input id="actual-covers-'+id+'" type="number" inputmode="numeric" min="0" max="200" step="1" placeholder="Inserisci il numero effettivo, es. 5" style="margin-top:6px" aria-label="Numero effettivo di persone arrivate">'+
     '<small style="display:block;color:#666;margin-top:7px">Solo a chiusura: 1 punto per persona Fidelity presente se i coperti effettivi sono meno di 6; 2 punti a persona da 6 in su. Chi non è presente riceve 0.</small></div>':"";
   const finalMessage=b.bookingPointsFinalized?
-    'TAVOLO CHIUSO · '+Number(b.bookingFinalActualCovers||0)+' persone effettive · '+Number(b.bookingFinalPointsEach||0)+' pt per cliente presente · '+credited.size+' clienti accreditati.':
+    'TAVOLO CHIUSO · '+Number(b.bookingFinalActualCovers||0)+' persone effettive · '+Number(b.bookingFinalPointsEach||0)+' pt per cliente presente · '+credited.size+' clienti accreditati.'+(credited.size===0?' ATTENZIONE: nessun punto Fidelity assegnato; verificare collegamento cliente e presenze.':''):
     legacyPaid?'Punti già attribuiti con il vecchio sistema. Non riassegnarli.':
     status==="IN ATTESA"?"Prenotazione da confermare.":
     status==="ANNULLATA"?"Prenotazione annullata.":
