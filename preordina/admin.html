@@ -280,7 +280,7 @@ window.renderBookings=()=>{
   const badgeClass=status==="IN ATTESA"?"booking-waiting":status==="ANNULLATA"?"booking-cancelled":"booking-confirmed";
   const phone=String(b.phone||"").replace(/[^0-9+]/g,"");
   const statusActions=status==="ANNULLATA"?'<button onclick="window.setBookingStatus(\''+id+'\',\'IN ATTESA\')">RIPRISTINA</button>':
-   finalized?(b.bookingPointsFinalized&&!(Array.isArray(b.arrivalPointsCustomerCodes)&&b.arrivalPointsCustomerCodes.length)?'<button disabled class="primary" style="background:#fff1d8;color:#784600">CHIUSO · NESSUN PUNTO ACCREDITATO</button>':'<button disabled class="primary">PUNTI GIÀ ASSEGNATI ✓</button>'):
+   finalized?(b.bookingPointsFinalized&&!(Array.isArray(b.arrivalPointsCustomerCodes)&&b.arrivalPointsCustomerCodes.length)?'<button class="primary" style="background:#fff1d8;color:#784600" onclick="window.recoverBookingPoints(\''+id+'\')">RECUPERA PUNTI PRENOTANTE</button>':'<button disabled class="primary">PUNTI GIÀ ASSEGNATI ✓</button>'):
    status==="IN ATTESA"?'<button class="primary" onclick="window.setBookingStatus(\''+id+'\',\'CONFERMATA\')">CONFERMA PRENOTAZIONE</button><button onclick="window.setBookingStatus(\''+id+'\',\'ANNULLATA\')">ANNULLA</button>':
    '<button class="primary" style="background:#b5101b;color:white;font-weight:900" onclick="window.closeBookingAndCredit(\''+id+'\')">CHIUDI TAVOLO + ACCREDITA PUNTI</button>';
   const attendees=[],seen=new Set();
@@ -357,6 +357,33 @@ window.markBookingPerson=async(id,code,action)=>{
    });
  }catch(err){console.error(err);alert("Non è stato possibile registrare la presenza: "+String(err?.message||"Riprova."));}
  finally{buttons.forEach(el=>el.disabled=false);}
+};
+window.recoverBookingPoints=async id=>{
+ if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)return;
+ const booking=allBookings.find(b=>b.id===id);
+ if(!booking||!booking.bookingPointsFinalized||Number(booking.arrivalPointsCount||0)>0||!booking.customerCode)return alert("Recupero non disponibile: controlla manualmente la prenotazione.");
+ const points=Number(booking.bookingFinalActualCovers||0)>=6?2:1;
+ if(!confirm("Confermi che il prenotante "+booking.name+" era realmente PRESENTE? Recuperare "+points+" punto/i Fidelity per questa prenotazione chiusa?"))return;
+ try{
+  await runTransaction(db,async tx=>{
+   const bookingRef=doc(db,"orders",id),bs=await tx.get(bookingRef);
+   if(!bs.exists())throw new Error("Prenotazione non trovata");
+   const b=bs.data();
+   if(!b.bookingPointsFinalized||!b.customerCode||Number(b.arrivalPointsCount||0)>0||(Array.isArray(b.arrivalPointsCustomerCodes)&&b.arrivalPointsCustomerCodes.length))throw new Error("Prenotazione già accreditata o non recuperabile");
+   const code=String(b.customerCode).trim().toUpperCase();
+   const customerRef=doc(db,"fidelityCustomers",code),cs=await tx.get(customerRef);
+   if(!cs.exists())throw new Error("Account Fidelity non trovato");
+   const customer=cs.data();
+   const digits=x=>String(x||"").replace(/\\D/g,"");
+   if(!digits(b.phone)||digits(b.phone)!==digits(customer.phone))throw new Error("Telefono prenotazione e Fidelity diversi: verifica manuale necessaria");
+   const bonus=Number(b.bookingFinalActualCovers||0)>=6?2:1;
+   const before=Number(customer.points||0);
+   tx.update(customerRef,{points:before+bonus,updatedAt:serverTimestamp(),lastVisitAt:serverTimestamp()});
+   tx.set(doc(collection(db,"fidelityTransactions")),{customerCode:code,points:bonus,type:"booking_arrival_recovery",bookingId:id,balanceBefore:before,balanceAfter:before+bonus,createdAt:serverTimestamp(),createdBy:auth.currentUser.uid});
+   tx.update(bookingRef,{arrivalPointsAwarded:true,arrivalPointsCustomerCodes:[code],arrivalPointsCount:1,arrivalPointsValue:bonus,bookingPointsRecoveredAt:serverTimestamp()});
+  });
+  alert("Punti recuperati. Controlla lo storico Fidelity del cliente.");
+ }catch(e){console.error(e);alert("Recupero non riuscito: "+String(e.message||e));}
 };
 window.closeBookingAndCredit=async id=>{
  if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)return;
