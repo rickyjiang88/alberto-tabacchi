@@ -398,6 +398,7 @@ window.closeBookingAndCredit=async id=>{
      if(codes.some(x=>!allowed.has(x)||notHere.has(x)))throw new Error("Presenze incoerenti, ricontrolla");
      if([...allowed].some(x=>!codes.includes(x)&&!notHere.has(x)))throw new Error("Ci sono clienti ancora da confermare. Aggiorna prima di chiudere.");
      if(actual<codes.length)throw new Error("I coperti reali sono inferiori ai clienti presenti.");
+     if(actual>0&&allowed.size===0)throw new Error("Nessun account Fidelity collegato: impossibile chiudere senza verificare il prenotante.");
      const refs=codes.map(code=>({code,ref:doc(db,"fidelityCustomers",code)}));
      const customers=await Promise.all(refs.map(x=>tx.get(x.ref)));
      if(customers.some(x=>!x.exists()))throw new Error("Un cliente registrato non e' disponibile");
