@@ -361,28 +361,35 @@ window.markBookingPerson=async(id,code,action)=>{
 window.recoverBookingPoints=async id=>{
  if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)return;
  const booking=allBookings.find(b=>b.id===id);
- if(!booking||!booking.bookingPointsFinalized||Number(booking.arrivalPointsCount||0)>0||!booking.customerCode)return alert("Recupero non disponibile: controlla manualmente la prenotazione.");
- const points=Number(booking.bookingFinalActualCovers||0)>=6?2:1;
- if(!confirm("Confermi che il prenotante "+booking.name+" era realmente PRESENTE? Recuperare "+points+" punto/i Fidelity per questa prenotazione chiusa?"))return;
+ if(!booking||!booking.bookingPointsFinalized||Number(booking.arrivalPointsCount||0)>0)return alert("Questa prenotazione non è recuperabile o ha già ricevuto punti.");
+ const digits=x=>String(x||"").replace(/\\D/g,"");
+ const phone=digits(booking.phone);
+ if(!phone)return alert("Numero di telefono mancante: impossibile identificare il cliente.");
+ let code=String(booking.customerCode||"").trim().toUpperCase();
  try{
+  if(!code){
+   const found=await getDocs(collection(db,"fidelityCustomers"));
+   const matches=found.docs.filter(d=>digits(d.data().phone)===phone);
+   if(matches.length!==1)throw new Error(matches.length?"Più account con lo stesso telefono: verifica manualmente.":"Nessun account Fidelity associato al telefono della prenotazione.");
+   code=matches[0].id;
+  }
+  const points=Number(booking.bookingFinalActualCovers||0)>=6?2:1;
+  if(!confirm("Confermi che "+booking.name+" era PRESENTE? Accreditare "+points+" punto/i al cliente Fidelity con telefono corrispondente?"))return;
   await runTransaction(db,async tx=>{
    const bookingRef=doc(db,"orders",id),bs=await tx.get(bookingRef);
    if(!bs.exists())throw new Error("Prenotazione non trovata");
    const b=bs.data();
-   if(!b.bookingPointsFinalized||!b.customerCode||Number(b.arrivalPointsCount||0)>0||(Array.isArray(b.arrivalPointsCustomerCodes)&&b.arrivalPointsCustomerCodes.length))throw new Error("Prenotazione già accreditata o non recuperabile");
-   const code=String(b.customerCode).trim().toUpperCase();
+   if(!b.bookingPointsFinalized||Number(b.arrivalPointsCount||0)>0||(Array.isArray(b.arrivalPointsCustomerCodes)&&b.arrivalPointsCustomerCodes.length))throw new Error("Punti già accreditati o prenotazione non recuperabile");
+   if(b.customerCode&&String(b.customerCode).trim().toUpperCase()!==code)throw new Error("Account prenotante diverso: verifica necessaria");
    const customerRef=doc(db,"fidelityCustomers",code),cs=await tx.get(customerRef);
-   if(!cs.exists())throw new Error("Account Fidelity non trovato");
-   const customer=cs.data();
-   const digits=x=>String(x||"").replace(/\\D/g,"");
-   if(!digits(b.phone)||digits(b.phone)!==digits(customer.phone))throw new Error("Telefono prenotazione e Fidelity diversi: verifica manuale necessaria");
+   if(!cs.exists()||digits(cs.data().phone)!==digits(b.phone))throw new Error("Identità del cliente non verificata tramite telefono");
    const bonus=Number(b.bookingFinalActualCovers||0)>=6?2:1;
-   const before=Number(customer.points||0);
+   const before=Number(cs.data().points||0);
    tx.update(customerRef,{points:before+bonus,updatedAt:serverTimestamp(),lastVisitAt:serverTimestamp()});
    tx.set(doc(collection(db,"fidelityTransactions")),{customerCode:code,points:bonus,type:"booking_arrival_recovery",bookingId:id,balanceBefore:before,balanceAfter:before+bonus,createdAt:serverTimestamp(),createdBy:auth.currentUser.uid});
-   tx.update(bookingRef,{arrivalPointsAwarded:true,arrivalPointsCustomerCodes:[code],arrivalPointsCount:1,arrivalPointsValue:bonus,bookingPointsRecoveredAt:serverTimestamp()});
+   tx.update(bookingRef,{customerCode:code,arrivalPointsAwarded:true,arrivalPointsCustomerCodes:[code],arrivalPointsCount:1,arrivalPointsValue:bonus,bookingPointsRecoveredAt:serverTimestamp()});
   });
-  alert("Punti recuperati. Controlla lo storico Fidelity del cliente.");
+  alert("Punti recuperati correttamente. Verifica il saldo Fidelity.");
  }catch(e){console.error(e);alert("Recupero non riuscito: "+String(e.message||e));}
 };
 window.closeBookingAndCredit=async id=>{
