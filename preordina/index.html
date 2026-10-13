@@ -32,7 +32,8 @@ window.saveAlbertoOrder=async(order)=>{
    window.parent.postMessage({type:'alberto-fidelity-request-uid'},location.origin);
    await new Promise(resolve=>setTimeout(resolve,120));
  }
- const customerUid=window.fidelityCustomerUid||auth.currentUser?.uid||"";
+ const customerUid=auth.currentUser?.uid||"";
+ if(!customerUid)throw new Error("Accedi ad Alberto Fidelity prima di inviare un preordine.");
  const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
  const counterRef=doc(db,"counters",day),orderRef=doc(collection(db,"orders"));
  const number=await runTransaction(db,async(tx)=>{
@@ -47,6 +48,10 @@ window.saveAlbertoOrder=async(order)=>{
  return number;
 };
 window.dispatchEvent(new Event("firebase-ready"));
+(async()=>{try{
+ if(typeof auth.authStateReady==="function")await auth.authStateReady();
+ if(!auth.currentUser)location.replace("../areaclienti.html?next=preordina");
+}catch(e){console.warn("Controllo accesso Fidelity",e);location.replace("../areaclienti.html?next=preordina");}})();
 </script><style id="nav-uppercase">header nav a{text-transform:uppercase}</style><style id="ordina-brand-fix">
 .brandhome{display:flex;align-items:center;gap:10px;text-decoration:none;color:#111}
 .brandtext{display:flex;flex-direction:column;line-height:1}
