@@ -560,7 +560,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
 <script src="/area-clienti/qrcode.min.js"></script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import {getFirestore,doc,getDoc,setDoc,serverTimestamp,collection,query,where,onSnapshot,addDoc} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import {getFirestore,doc,getDoc,setDoc,serverTimestamp,collection,query,where,onSnapshot,addDoc,updateDoc} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail,signOut,onAuthStateChanged,updateProfile} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {getMessaging,getToken,onMessage,isSupported} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-messaging.js";
 
@@ -703,13 +703,58 @@ function rowOrder(x){
   const items=Array.isArray(x.items)?x.items.map(i=>i.name+(i.qty>1?' × '+i.qty:'')).join(' · '):'';
   return '<div class="row"><div><b>'+esc(num+' · '+lab)+'</b><small>'+esc((x.pickup?'Ritiro '+x.pickup:'')+(items?' · '+items:''))+'</small></div><span class="'+cl+'">'+esc(lab)+'</span></div>';
 }
+function bookingEditable(x){
+  if(!auth.currentUser||!x?.id||x.customerUid!==auth.currentUser.uid)return false;
+  const status=String(x.bookingStatus||x.status||'').toUpperCase();
+  if(/ANNULL|ARRIV|COMPLET|CHIUS/.test(status))return false;
+  const isGroup=String(x.bookingType||'').toLowerCase()==='group'||!!x.groupCode;
+  if(isGroup){
+    const meta=groupMetas.find(g=>g.code===x.groupCode);
+    if(!meta||meta.ownerUid!==auth.currentUser.uid)return false;
+  }
+  const date=String(x.date||''),time=String(x.time||'');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^\d{2}:\d{2}$/.test(time))return false;
+  const now=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
+  return date+' '+time>=now;
+}
 function rowBooking(x){
   const [lab,cl]=bookingStatus(x);
   const isGroup=String(x.bookingType||'').toLowerCase()==='group'||!!x.groupCode;
   const meta=[Number(x.covers||x.guests||0)+' coperti',isGroup?'GRUPPO'+(x.groupName?' · '+x.groupName:''):'PERSONALE'].filter(Boolean).join(' · ');
   const people=Array.isArray(x.groupMembers)?x.groupMembers.map(m=>m&&m.name).filter(Boolean):[];
-  return '<div class="row"><div><b>'+esc(fmtDate(x.date)+' · ore '+String(x.time||''))+'</b><small>'+esc(meta)+'</small>'+(people.length?'<small style="margin-top:5px">'+people.map(n=>'• '+esc(n)).join('<br>')+'</small>':'')+'</div><span class="'+cl+'">'+esc(lab)+'</span></div>';
+  const actions=bookingEditable(x)?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="btn" data-booking-action="edit" data-booking-id="'+esc(x.id)+'">MODIFICA</button><button type="button" class="btn" data-booking-action="cancel" data-booking-id="'+esc(x.id)+'">DISDICI</button></div>':'';
+  return '<div class="row"><div><b>'+esc(fmtDate(x.date)+' · ore '+String(x.time||''))+'</b><small>'+esc(meta)+'</small>'+(people.length?'<small style="margin-top:5px">'+people.map(n=>'• '+esc(n)).join('<br>')+'</small>':'')+actions+'</div><span class="'+cl+'">'+esc(lab)+'</span></div>';
 }
+document.addEventListener('click',async e=>{
+  const btn=e.target.closest('[data-booking-action]');if(!btn)return;
+  const x=bookings.find(b=>b.id===btn.dataset.bookingId);
+  if(!x||!bookingEditable(x)){toast('Prenotazione non più modificabile.');return}
+  const action=btn.dataset.bookingAction;
+  let patch;
+  if(action==='cancel'){
+    if(!confirm('Vuoi davvero disdire questa prenotazione?'))return;
+    patch={bookingStatus:'ANNULLATA',status:'ANNULLATA'};
+  }else if(action==='edit'){
+    const date=prompt('Nuova data (AAAA-MM-GG)',x.date);if(date===null)return;
+    const time=prompt('Nuovo orario (HH:MM, dalle 12:00 alle 14:00 ogni 15 minuti)',x.time);if(time===null)return;
+    const coversText=prompt('Numero di persone',String(x.covers||x.guests||1));if(coversText===null)return;
+    const covers=Number(coversText),mins=/^\d{2}:\d{2}$/.test(time)?Number(time.slice(0,2))*60+Number(time.slice(3)):NaN;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(mins)||mins<720||mins>840||mins%15!==0||!Number.isInteger(covers)||covers<1||covers>100){toast('Data, orario o coperti non validi.');return}
+    const now=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
+    if(date+' '+time<now){toast('Orario già trascorso.');return}
+    if(date===x.date&&time===x.time&&covers===Number(x.covers||x.guests||1))return;
+    if(!confirm('Inviare la modifica? La prenotazione tornerà in attesa di conferma.'))return;
+    patch={date,time,covers,guests:covers,bookingStatus:'IN ATTESA',status:'IN ATTESA'};
+  }else return;
+  btn.disabled=true;
+  try{
+    const latest=await getDoc(doc(db,'orders',x.id));
+    if(!latest.exists()||!bookingEditable({id:x.id,...latest.data()}))throw Error('Prenotazione non più modificabile');
+    await updateDoc(doc(db,'orders',x.id),patch);
+    toast(action==='cancel'?'Prenotazione disdetta.':'Modifica inviata. In attesa di conferma.');
+  }catch(err){console.warn('Modifica prenotazione:',err);toast('Operazione non riuscita. Verificare i permessi o contattare Alberto.')}
+  finally{btn.disabled=false}
+});
 
 function setBookingMode(mode){
   bookingMode=mode==='group'?'group':'personal';
