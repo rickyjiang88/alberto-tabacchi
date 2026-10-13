@@ -1199,6 +1199,7 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   window.addEventListener('message',event=>{
     if(event.origin!==location.origin||event.source!==frame?.contentWindow)return;
     if(event.data?.type==='alberto-fidelity-request-uid')window.sendFidelityUidToMenu();
+    if(event.data?.type==='alberto-fidelity-open-home')document.querySelector('[data-app-tab="home"]')?.click();
   });
   const links=document.querySelectorAll('.fidelity-app-services a');
   links.forEach(link=>{
@@ -1236,6 +1237,29 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   }
   select(tab);
  }));
+})();
+</script>
+<script id="fidelity-app-home-internal">
+(function(){
+  // In the installed app, HOME and the header logo are internal dashboard actions.
+  // The public website still keeps its original links and navigation unchanged.
+  if(!document.body.classList.contains('fidelity-app'))return;
+  const homeButton=document.querySelector('.fidelity-bottom-nav [data-app-tab="home"]');
+  if(!homeButton)return;
+  const goHome=(event)=>{
+    if(event){event.preventDefault();event.stopPropagation();}
+    homeButton.click();
+  };
+  document.querySelectorAll('.topbar .site-brand, .main-site-nav a[href="/index.html"]').forEach(link=>{
+    link.removeAttribute('href');
+    link.setAttribute('role','button');
+    link.setAttribute('tabindex','0');
+    link.setAttribute('aria-label','Home Alberto Fidelity');
+    link.addEventListener('click',goHome);
+    link.addEventListener('keydown',event=>{
+      if(event.key==='Enter'||event.key===' '){event.preventDefault();goHome(event);}
+    });
+  });
 })();
 </script>
 
