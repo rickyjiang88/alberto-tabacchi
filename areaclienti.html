@@ -543,7 +543,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-sele
 
 function startWalletHistory(){
  const el=$('walletHistoryList');if(!el||!auth.currentUser)return;
- const q=query(collection(db,'fidelityTransactions'),where('customerCode','==',customerCode()));
+ const q=query(collection(db,'fidelityTransactions'),where('uid','==',auth.currentUser.uid));
  const stop=onSnapshot(q,snap=>{
  const data=snap.docs.map(d=>d.data()).filter(x=>['WALLET_TOPUP','WALLET_PURCHASE'].includes(x.type)).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
  const euro=n=>Number(n||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'});
