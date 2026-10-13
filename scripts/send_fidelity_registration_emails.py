@@ -43,6 +43,9 @@ def send_email(api_key: str, customer_id: str, name: str, surname: str, created_
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Accept-Language": "it-IT,it;q=0.9",
+            "User-Agent": "Mozilla/5.0 (compatible; AlbertoFidelity/1.0; +https://albertotabacchi.com)",
             "Idempotency-Key": f"alberto-fidelity-registration-{customer_id}",
         },
         method="POST",
