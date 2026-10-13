@@ -48,6 +48,8 @@ jobs:
           req = Request('https://api.resend.com/emails',
               data=json.dumps(payload).encode('utf-8'),
               headers={'Authorization':'Bearer '+key, 'Content-Type':'application/json',
+                  'Accept':'application/json','Accept-Language':'it-IT,it;q=0.9',
+                  'User-Agent':'Mozilla/5.0 (compatible; AlbertoFidelity/1.0; +https://albertotabacchi.com)',
                   'Idempotency-Key':'alberto-fidelity-email-setup-check-20261013'},
               method='POST')
           from urllib.error import HTTPError
