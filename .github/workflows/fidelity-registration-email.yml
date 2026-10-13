@@ -50,8 +50,14 @@ jobs:
               headers={'Authorization':'Bearer '+key, 'Content-Type':'application/json',
                   'Idempotency-Key':'alberto-fidelity-email-setup-check-20261013'},
               method='POST')
-          with urlopen(req, timeout=25) as response:
-              data = json.loads(response.read().decode('utf-8'))
+          from urllib.error import HTTPError
+          try:
+              with urlopen(req, timeout=25) as response:
+                  data = json.loads(response.read().decode('utf-8'))
+          except HTTPError as exc:
+              # Provider's short reason is safe to log; the API key never appears.
+              reason = exc.read().decode('utf-8', 'replace')[:500]
+              raise SystemExit(f'Resend rejected test: HTTP {exc.code}: {reason}') from None
           if not data.get('id'):
               raise SystemExit('Resend did not return an email ID')
           print('Verification message accepted by Resend')
