@@ -2,9 +2,6 @@ name: Alberto Fidelity - nuove registrazioni email
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/fidelity-registration-email.yml'
   schedule:
     - cron: '*/10 * * * *'
 
@@ -28,42 +25,6 @@ jobs:
         run: python -m py_compile scripts/send_fidelity_registration_emails.py
       - name: Install Firebase Admin
         run: python -m pip install 'firebase-admin>=6.5,<8'
-      - name: Verify Resend email sending with a single test
-        if: github.event_name == 'push'
-        env:
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-        run: |
-          python - <<'PY'
-          import json, os
-          from urllib.request import Request, urlopen
-          key = os.environ.get('RESEND_API_KEY','').strip()
-          if not key:
-              raise SystemExit('RESEND_API_KEY secret missing: check the exact name in GitHub settings')
-          payload = {
-              'from':'Alberto Fidelity <info@albertotabacchi.com>',
-              'to':['info@albertotabacchi.com'],
-              'subject':'TEST - Alberto Fidelity: email registrazioni attivata',
-              'text':'Questa è una sola email di verifica tecnica, non una registrazione reale. Il sistema avviserà automaticamente alla registrazione di nuovi clienti.'
-          }
-          req = Request('https://api.resend.com/emails',
-              data=json.dumps(payload).encode('utf-8'),
-              headers={'Authorization':'Bearer '+key, 'Content-Type':'application/json',
-                  'Accept':'application/json','Accept-Language':'it-IT,it;q=0.9',
-                  'User-Agent':'Mozilla/5.0 (compatible; AlbertoFidelity/1.0; +https://albertotabacchi.com)',
-                  'Idempotency-Key':'alberto-fidelity-email-setup-check-20261013'},
-              method='POST')
-          from urllib.error import HTTPError
-          try:
-              with urlopen(req, timeout=25) as response:
-                  data = json.loads(response.read().decode('utf-8'))
-          except HTTPError as exc:
-              # Provider's short reason is safe to log; the API key never appears.
-              reason = exc.read().decode('utf-8', 'replace')[:500]
-              raise SystemExit(f'Resend rejected test: HTTP {exc.code}: {reason}') from None
-          if not data.get('id'):
-              raise SystemExit('Resend did not return an email ID')
-          print('Verification message accepted by Resend')
-          PY
       - name: Send one owner email per new registration
         env:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
