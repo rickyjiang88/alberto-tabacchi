@@ -184,6 +184,12 @@ body.fidelity-app .sidebar .navbtn{min-height:44px}
  body.fidelity-app .content{min-height:0!important;height:100%!important;overflow-y:auto!important;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
  body.fidelity-app .fidelity-bottom-nav{position:fixed!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;transform:none!important;z-index:110!important;background:#fff!important}
 }
+/* Keep the last wallet card fully scrollable above the installed app navigation. */
+@media(max-width:850px){
+ body.fidelity-app .content{padding-bottom:calc(220px + env(safe-area-inset-bottom,0px))!important;scroll-padding-bottom:calc(220px + env(safe-area-inset-bottom,0px))!important}
+ body.fidelity-app #view-wallet{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+ body.fidelity-app #view-wallet .wallet-offer:last-of-type{margin-bottom:24px}
+}
 /* Browser mobile keeps site navigation; installed app retains its existing tabs and appearance. */
 @media(max-width:850px){body:not(.fidelity-app) .fidelity-bottom-nav{display:none!important}body:not(.fidelity-app) .fidelity-client-links{display:none!important}}
 /* Compact customer-area navigation on mobile */
@@ -518,25 +524,13 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
 
       <div class="card wallet-offer"><h2>Storico movimenti portafoglio</h2><div id="walletHistoryList" class="list"><div class="empty">Caricamento…</div></div></div>
       <div class="card wallet-offer">
-        <div style="margin-bottom:22px;padding-bottom:20px;border-bottom:1px solid #eee1d8"><span class="eyebrow">IL VANTAGGIO ALBERTO</span><h2 style="margin:10px 0 8px;font-size:clamp(25px,5vw,38px);line-height:1.13">Da Alberto, il tuo denaro vale di più.</h2><p style="margin:0;color:#746d68;font-size:16px;line-height:1.5">Più credito per i tuoi acquisti, con il 10% extra sulle ricariche da €80.</p></div>
         <span class="eyebrow">BONUS RICARICA 10%</span>
-        <h2>Ricarica da €80 in su e ricevi il 10% di credito extra.</h2>
-        <p class="lead">Una sola formula, semplice: per ogni ricarica di almeno €80 aggiungiamo subito il 10% di bonus al tuo credito.</p>
-
+        <h2>Da Alberto, il tuo denaro vale di più.</h2>
+        <p class="lead">Ricarichi almeno €80? Ricevi subito il 10% di credito extra.</p>
         <div class="wallet-tiers" style="grid-template-columns:minmax(0,520px);justify-content:start">
-          <div class="wallet-tier featured">
-            <small>BONUS RICARICA</small>
-            <strong>+10%</strong>
-            <b>Ricarichi €80 → hai €88 di credito</b>
-            <div class="metric-sub">Ricarichi €100 → hai €110 di credito</div>
-          </div>
+          <div class="wallet-tier featured"><small>BONUS RICARICA</small><strong>+10%</strong><b>€80 → €88 di credito</b><div class="metric-sub">€100 → €110 di credito</div></div>
         </div>
-
-        <div class="wallet-benefits">
-          <div class="wallet-benefit"><i>✓</i><span>Il bonus viene aggiunto subito al credito per ricariche da €80 in su.</span></div>
-          <div class="wallet-benefit"><i>✓</i><span>Quando spendi il credito continui ad accumulare Punti Alberto secondo il regolamento.</span></div>
-          <div class="wallet-benefit"><i>✓</i><span>Il bonus ricarica non è convertibile in denaro e può essere utilizzato solo come credito da Alberto.</span></div>
-        </div>
+        <p style="margin:14px 0 0;color:var(--muted);font-size:13px">Il bonus è utilizzabile solo da Alberto e non è convertibile in denaro. Pagando con il portafoglio continui ad accumulare punti secondo il regolamento.</p>
       </div>
 
       
