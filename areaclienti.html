@@ -415,6 +415,8 @@ import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPa
 
 const fb=initializeApp({apiKey:"AIzaSyDSZzzgpqudJFgri4INDm1XQNs4ilR8-SU",authDomain:"alberto-tabacchi.firebaseapp.com",projectId:"alberto-tabacchi",storageBucket:"alberto-tabacchi.firebasestorage.app",messagingSenderId:"619128191346",appId:"1:619128191346:web:192da35141c3f5e30f85eb"});
 const db=getFirestore(fb),auth=getAuth(fb);
+const albertoAccessTarget=new URLSearchParams(location.search).get('next');
+let albertoAccessHandled=false;
 let profile={},orders=[],bookings=[],unsubs=[],bookingMode='personal',bookingGroupMembers=[],bookingGroupUnsub=null,groupMetas=[],bookingSelectedGroupCode='';
 
 const $=id=>document.getElementById(id);
@@ -672,7 +674,8 @@ onAuthStateChanged(auth,async user=>{
   $('loginWrap').classList.add('hidden');
   const code='ALB'+user.uid.slice(0,10).toUpperCase();
   profile={uid:user.uid,code,email:user.email||'',name:(user.displayName||'Cliente').split(' ')[0]||'Cliente',surname:(user.displayName||'').split(' ').slice(1).join(' ')};
-  try{const s=await getDoc(doc(db,'fidelityCustomers',code));if(s.exists())profile={...profile,...s.data(),uid:user.uid,code}}catch(e){console.warn(e)}
+  let hasFidelityProfile=false;
+  try{const s=await getDoc(doc(db,'fidelityCustomers',code));if(s.exists()){hasFidelityProfile=true;profile={...profile,...s.data(),uid:user.uid,code}}}catch(e){console.warn(e)}
   const params=new URLSearchParams(location.search),group=params.get('group'),ref=params.get('ref');
   if(ref&&!profile.referredBy&&!profile.lastPurchaseAt){profile.referredBy=ref;try{await setDoc(doc(db,'fidelityCustomers',code),{referredBy:ref,referralStatus:'pending_first_purchase'},{merge:true})}catch(e){}}
   if(group&&!groupCodes().includes(group)){try{
@@ -683,6 +686,8 @@ onAuthStateChanged(auth,async user=>{
     await setDoc(doc(db,'fidelityCustomers',code),patch,{merge:true});profile={...profile,...patch};
   }catch(e){console.warn(e)}}
   await loadGroupMemberships();render();watchUser(user.uid);startWalletHistory();if(bookingMode==='group')loadBookingGroupMembers();
+  if(!albertoAccessHandled&&albertoAccessTarget==='bookings'){albertoAccessHandled=true;go('bookings')}
+  if(!albertoAccessHandled&&albertoAccessTarget==='preordina'&&hasFidelityProfile){albertoAccessHandled=true;location.replace('preordina/')}
 });
 
 const WALLET_PASS_ENDPOINT='https://us-central1-alberto-tabacchi.cloudfunctions.net/walletPass';
@@ -739,6 +744,7 @@ $('groupCreateBtn').addEventListener('click',async()=>{
 });
 
 $('openRegisterBtn').addEventListener('click',()=>{$('loginPane').classList.add('hidden');$('registerPane').classList.remove('hidden')});
+if(new URLSearchParams(location.search).get('register')==='1')$('openRegisterBtn').click();
 $('backLoginBtn').addEventListener('click',()=>{$('registerPane').classList.add('hidden');$('loginPane').classList.remove('hidden')});
 $('registerBtn').addEventListener('click',async()=>{
   const name=$('regName').value.trim(),surname=$('regSurname').value.trim(),email=$('regEmail').value.trim(),phone=$('regPhone').value.trim(),birthDate=$('regBirth').value,password=$('regPassword').value;
@@ -749,6 +755,8 @@ $('registerBtn').addEventListener('click',async()=>{
     await setDoc(doc(db,'fidelityCustomers',code),{uid:cred.user.uid,code,name,surname,email,phone,birthDate,points:0,walletBalance:0,walletActive:true,officeGroupCodes:[],createdAt:serverTimestamp()},{merge:true});
     await setDoc(doc(db,'fidelityUsers',cred.user.uid),{customerCode:code},{merge:true});
     toast('Account creato.');
+    if(albertoAccessTarget==='bookings'){albertoAccessHandled=true;go('bookings')}
+    else if(albertoAccessTarget==='preordina'){albertoAccessHandled=true;location.replace('preordina/')}
   }catch(e){console.warn(e);toast(String(e.code||'Registrazione non riuscita').replace('auth/',''))}
 });
 $('saveProfileBtn').addEventListener('click',async()=>{
