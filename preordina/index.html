@@ -127,7 +127,7 @@ const PRODUCT_IMAGES={"Classica":"../Green%20and%20White%20Minimalist%20Vegan%20
 "Prosciutto cotto, fontina":"../toast.jpg",
 "Il Crudissimo":"../ilgemello.jpg",
 "50 Gradi al Cuore":"../50gradialcuore.jpg"}
-function card(p,i,tag){const img=PRODUCT_IMAGES[p[1]],blocked=disabledProduct(p);return `<article class="card">${img?'<div class="foodimg"><img src="'+img+'" alt="'+p[1]+'"></div>':""}${tag?'<span class="daytag">'+tag+'</span>':""}<h3>${p[1]}</h3><div class="desc">${p[2]}</div><div class="bottom"><span class="price">${euro(p[3])}</span><button class="add" data-product-key="${encodeURIComponent(shopKey(p))}" onclick="add(${i})" ${blocked?"disabled":""}>${blocked?"ESAURITO":"+ AGGIUNGI"}</button></div></article>`}
+function card(p,i,tag){const img=PRODUCT_IMAGES[p[1]],blocked=disabledProduct(p);return `<article class="card">${img?'<div class="foodimg"><img src="'+img+'" alt="'+p[1]+'" loading="lazy" decoding="async"></div>':""}${tag?'<span class="daytag">'+tag+'</span>':""}<h3>${p[1]}</h3><div class="desc">${p[2]}</div><div class="bottom"><span class="price">${euro(p[3])}</span><button class="add" data-product-key="${encodeURIComponent(shopKey(p))}" onclick="add(${i})" ${blocked?"disabled":""}>${blocked?"ESAURITO":"+ AGGIUNGI"}</button></div></article>`}
 let meal={primo:null,secondo:null,contorno:null};
 function mealPrice(){const p=meal.primo!==null,s=meal.secondo!==null,c=meal.contorno!==null;if(p&&s)return 13;if(s)return 10;if(p&&c)return 10;if(p)return 8;if(c)return 4;return 0}
 function chooseMeal(type,i){meal[type]=meal[type]===i?null:i;drawComposer()}
