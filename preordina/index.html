@@ -279,5 +279,17 @@ function update(){const qty=cart.reduce((s,p)=>s+(p[4]||1),0);if(qty>previousCar
   }).catch(()=>{});
  });
 })();
+</script><script id="alberto-menu-app-home-internal">
+(function(){
+  // The menu is embedded in Alberto Fidelity: HOME must go to the app dashboard.
+  // Leave links unchanged when the public website is opened normally.
+  if(new URLSearchParams(location.search).get('app')!=='1'||window.parent===window)return;
+  document.addEventListener('click',event=>{
+    const link=event.target.closest('a.brandhome, .mainnav a[href="../"]');
+    if(!link)return;
+    event.preventDefault();
+    window.parent.postMessage({type:'alberto-fidelity-open-home'},location.origin);
+  });
+})();
 </script></body></html>
 <!-- deploy lunchbox multi 2026-09-20 -->
