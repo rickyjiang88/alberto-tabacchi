@@ -380,6 +380,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
         <div class="card"><small>SALDO</small><div id="walletBalance" class="metric">0,00 €</div><div class="metric-sub">Saldo sincronizzato con la cassa. Ricariche e pagamenti vengono registrati tramite il tuo QR.</div></div>
       </div>
 
+      <div class="card wallet-offer"><h2>Storico movimenti portafoglio</h2><div id="walletHistoryList" class="list"><div class="empty">Caricamento…</div></div></div>
       <div class="card wallet-offer">
         <span class="eyebrow">BONUS RICARICA 10%</span>
         <h2>Ricarica da €80 in su e ricevi il 10% di credito extra.</h2>
@@ -540,6 +541,16 @@ $('bookGroupBtn')?.addEventListener('click',()=>setBookingMode('group'));
 $('bookingGroupSelect')?.addEventListener('change',e=>{bookingSelectedGroupCode=e.target.value;loadBookingGroupMembers()});
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-select-group]');if(!b)return;const code=b.dataset.selectGroup,meta=groupMetas.find(g=>g.code===code)||{};bookingSelectedGroupCode=code;profile.officeGroupCode=code;profile.groupCode=code;profile.officeGroupName=meta.name||profile.officeGroupName||'Gruppo Alberto';profile.officeGroupOwnerName=meta.ownerName||'';try{await setDoc(doc(db,'fidelityCustomers',customerCode()),{officeGroupCode:code,groupCode:code,officeGroupName:profile.officeGroupName,officeGroupOwnerName:profile.officeGroupOwnerName,officeGroupCodes:groupCodes()},{merge:true})}catch(err){console.warn(err)}render();await loadGroupMemberships();toast('Gruppo selezionato.')});
 
+function startWalletHistory(){
+ const el=$('walletHistoryList');if(!el||!auth.currentUser)return;
+ const q=query(collection(db,'fidelityTransactions'),where('customerCode','==',customerCode()));
+ const stop=onSnapshot(q,snap=>{
+ const data=snap.docs.map(d=>d.data()).filter(x=>['WALLET_TOPUP','WALLET_PURCHASE'].includes(x.type)).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+ const euro=n=>Number(n||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'});
+ el.innerHTML=data.length?data.map(x=>{const add=x.type==='WALLET_TOPUP',amount=add?Number(x.walletCredit??(Number(x.amount||0)+Number(x.bonus||0))):Number(x.walletDebit??x.amount??0),when=x.createdAt?.toDate?.()?.toLocaleString('it-IT',{dateStyle:'medium',timeStyle:'short'})||'Data non disponibile';
+ return '<div class="row"><div><b>'+(add?'Ricarica':'Pagamento')+'</b><small>'+when+(add&&Number(x.bonus||0)>0?' · Bonus '+euro(x.bonus):'')+'</small></div><b style="white-space:nowrap;color:'+(add?'var(--ok)':'var(--ink)')+'">'+(add?'+ ':'− ')+euro(amount)+'</b></div>'}).join(''):'<div class="empty">Nessun movimento del portafoglio registrato.</div>';
+ },e=>{console.warn(e);el.innerHTML='<div class="empty">Storico non disponibile. Riprova più tardi.</div>'});unsubs.push(stop);
+}
 function renderWallet(){const raw=Number(profile.walletBalance||0),bal=Number.isFinite(raw)?raw:0;if($('walletStatus'))$('walletStatus').textContent='ATTIVO';if($('walletBalance'))$('walletBalance').textContent=bal.toFixed(2).replace('.',',')+' €'}
 function render(){
   const full=[profile.name,profile.surname].filter(Boolean).join(' ')||auth.currentUser?.displayName||'Cliente Alberto';
@@ -637,7 +648,7 @@ onAuthStateChanged(auth,async user=>{
     if(!profile.officeGroupCode){patch.officeGroupCode=group;patch.groupCode=group;patch.officeGroupName=gd.name||'Gruppo Alberto';patch.officeGroupOwnerName=gd.ownerName||''}
     await setDoc(doc(db,'fidelityCustomers',code),patch,{merge:true});profile={...profile,...patch};
   }catch(e){console.warn(e)}}
-  await loadGroupMemberships();render();watchUser(user.uid);if(bookingMode==='group')loadBookingGroupMembers();
+  await loadGroupMemberships();render();watchUser(user.uid);startWalletHistory();if(bookingMode==='group')loadBookingGroupMembers();
 });
 
 const WALLET_PASS_ENDPOINT='https://us-central1-alberto-tabacchi.cloudfunctions.net/walletPass';
