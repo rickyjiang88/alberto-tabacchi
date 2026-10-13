@@ -67,8 +67,8 @@ def send_email(api_key: str, customer_id: str, name: str, surname: str, created_
 def main() -> int:
     api_key = os.environ.get("RESEND_API_KEY", "").strip()
     if not api_key:
-        print("Registration emails NOT ACTIVE: configure the RESEND_API_KEY GitHub Actions secret.")
-        return 0
+        print("ERROR: RESEND_API_KEY missing. Automatic registration emails cannot run.", file=sys.stderr)
+        return 1
 
     service_account = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON", "").strip()
     if not service_account:
