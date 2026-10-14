@@ -109,6 +109,17 @@ body.fidelity-app .sidebar .navbtn{min-height:44px}
  body.fidelity-app .content{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;padding-bottom:calc(140px + env(safe-area-inset-bottom))!important}
 }
 </style>
+
+<style id="ios-pwa-scroll-v3">
+@media(max-width:850px){
+ body.fidelity-app .topbar{position:relative!important;top:auto!important}
+ body.fidelity-app .sidebar{position:relative!important;top:auto!important}
+ body.fidelity-app .login-wrap{display:block!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;max-height:none!important}
+ body.fidelity-app .login-card{display:block!important;min-height:0!important}
+ body.fidelity-app .login-form{display:block!important;min-height:0!important;padding-bottom:calc(160px + env(safe-area-inset-bottom))!important}
+ body.fidelity-app .content{display:block;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;max-height:none!important;padding-bottom:calc(160px + env(safe-area-inset-bottom))!important}
+}
+</style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
 body.brazil-event .site-topbar{background:linear-gradient(90deg,var(--br-green),var(--br-yellow),var(--br-blue))!important;color:#fff!important}
