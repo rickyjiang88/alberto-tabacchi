@@ -50,8 +50,20 @@ window.saveAlbertoOrder=async(order)=>{
 window.dispatchEvent(new Event("firebase-ready"));
 (async()=>{try{
  if(typeof auth.authStateReady==="function")await auth.authStateReady();
- if(!auth.currentUser)location.replace("../areaclienti.html?next=preordina");
-}catch(e){console.warn("Controllo accesso Fidelity",e);location.replace("../areaclienti.html?next=preordina");}})();
+ if(!auth.currentUser){
+   const embedded=new URLSearchParams(location.search).get('app')==='1'&&window.parent!==window;
+   if(embedded){
+     window.parent.postMessage({type:'alberto-fidelity-auth-required'},location.origin);
+     return;
+   }
+   location.replace("../areaclienti.html?next=preordina");
+ }
+}catch(e){
+ console.warn("Controllo accesso Fidelity",e);
+ const embedded=new URLSearchParams(location.search).get('app')==='1'&&window.parent!==window;
+ if(embedded){window.parent.postMessage({type:'alberto-fidelity-auth-required'},location.origin);return;}
+ location.replace("../areaclienti.html?next=preordina");
+}})();
 </script><style id="nav-uppercase">header nav a{text-transform:uppercase}</style><style id="ordina-brand-fix">
 .brandhome{display:flex;align-items:center;gap:10px;text-decoration:none;color:#111}
 .brandtext{display:flex;flex-direction:column;line-height:1}
