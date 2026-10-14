@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="fidelity-app-build-marker" content="2026-10-14-ios-login-scroll-final">
+<meta name="fidelity-app-build-marker" content="2026-10-14-menu-bar-fix-1">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#b5101b">
 <title>Alberto Fidelity | Prova iPhone</title>
@@ -1245,6 +1245,11 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
     if(event.origin!==location.origin||event.source!==frame?.contentWindow)return;
     if(event.data?.type==='alberto-fidelity-request-uid')window.sendFidelityUidToMenu();
     if(event.data?.type==='alberto-fidelity-open-home')document.querySelector('[data-app-tab="home"]')?.click();
+    if(event.data?.type==='alberto-fidelity-auth-required'){
+      if(overlay&&!overlay.hidden)overlay.hidden=true;
+      document.body.style.overflow='';
+      document.querySelector('[data-app-tab="home"]')?.click();
+    }
   });
   const links=document.querySelectorAll('.fidelity-app-services a');
   links.forEach(link=>{
