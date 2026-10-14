@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="fidelity-app-build-marker" content="2026-10-14-ios-login-scroll-1">
+<meta name="fidelity-app-build-marker" content="2026-10-14-ios-login-scroll-final">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#b5101b">
 <title>Alberto Fidelity | Prova iPhone</title>
@@ -263,7 +263,49 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",activate);else activate();
 })();
-</script></head>
+</script><style id="ios-login-scroll-final">
+@media(max-width:850px){
+ html:has(body.fidelity-app #loginWrap:not(.hidden)),
+ html:has(body.fidelity-app #loginWrap:not(.hidden)) body{
+   height:auto!important;
+   min-height:100%!important;
+   overflow-x:hidden!important;
+   overflow-y:auto!important;
+   overscroll-behavior-y:auto!important;
+   -webkit-overflow-scrolling:touch!important;
+ }
+ body.fidelity-app:has(#loginWrap:not(.hidden)) .shell{
+   display:block!important;
+   height:auto!important;
+   min-height:100dvh!important;
+   max-height:none!important;
+   overflow:visible!important;
+ }
+ body.fidelity-app:has(#loginWrap:not(.hidden)) #loginWrap{
+   position:relative!important;
+   inset:auto!important;
+   top:auto!important;
+   left:auto!important;
+   right:auto!important;
+   bottom:auto!important;
+   display:block!important;
+   width:100%!important;
+   height:auto!important;
+   min-height:calc(100dvh - 76px)!important;
+   max-height:none!important;
+   overflow:visible!important;
+   padding:16px 16px calc(150px + env(safe-area-inset-bottom,0px))!important;
+ }
+ body.fidelity-app:has(#loginWrap:not(.hidden)) #loginWrap .login-card,
+ body.fidelity-app:has(#loginWrap:not(.hidden)) #loginWrap .login-form{
+   height:auto!important;
+   min-height:0!important;
+   max-height:none!important;
+   overflow:visible!important;
+ }
+}
+</style>
+</head>
 <body>
 <div class="site-strip"><span>Via Valtorta 44, Milano</span><span><a href="tel:+39022896720" style="color:inherit!important;text-decoration:none!important;-webkit-text-fill-color:currentColor">02 289 6720</a></span><span>Lun–Sab 6:00–19:00</span></div>
 
