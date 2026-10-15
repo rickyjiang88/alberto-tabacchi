@@ -895,6 +895,9 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 })();
 </script><script id="menu-4ott-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".menu-4ott-link").forEach(function(a){a.remove()})}})();</script>
 <style id="alberto-fixed-mobile-tabs">
+/* Hide duplicate bottom navigation on mobile web; keep standalone app unchanged. */
+@media(max-width:850px) and (display-mode:browser){#alberto-fixed-tabs{display:none!important}body{padding-bottom:0!important}}
+
 @media(max-width:850px){body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}#alberto-fixed-tabs{position:fixed;display:flex;left:0;right:0;bottom:0;z-index:99999;background:white;border-top:1px solid #e8d9d4;min-height:76px;padding:9px 10px calc(10px + env(safe-area-inset-bottom,0px));justify-content:space-around;align-items:center}#alberto-fixed-tabs a,#alberto-fixed-tabs button{border:0;background:none;color:#685753;text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:800;min-width:80px}#alberto-fixed-tabs svg{height:25px;width:25px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}#alberto-fixed-tabs .active{color:#b5101b}}
 @media(min-width:851px){#alberto-fixed-tabs{display:none}}
 </style>
