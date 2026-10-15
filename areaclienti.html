@@ -282,6 +282,12 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
         <div class="card soft"><small>PROSSIMO PREMIO</small><div style="font-size:22px;font-weight:900;margin:10px 0">300 punti = €10 di buono</div><div class="progress"><i id="pointsBar" style="width:0%"></i></div><div id="pointsToReward" class="metric-sub">—</div></div>
       </div>
 
+      <div class="card" style="margin-top:20px">
+        <h2 style="margin:0 0 12px">Movimenti punti</h2>
+        <p style="color:var(--muted);margin:0 0 12px">Prenotazioni, acquisti in cassa, bonus e premi utilizzati.</p>
+        <div id="pointsMovementList" class="list"><div class="empty">Caricamento movimenti…</div></div>
+      </div>
+
       <div class="card points-rules">
         <span class="eyebrow">REGOLAMENTO</span>
         <h2>Come funzionano i Punti Alberto</h2>
@@ -580,6 +586,33 @@ $('bookGroupBtn')?.addEventListener('click',()=>setBookingMode('group'));
 $('bookingGroupSelect')?.addEventListener('change',e=>{bookingSelectedGroupCode=e.target.value;loadBookingGroupMembers()});
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-select-group]');if(!b)return;const code=b.dataset.selectGroup,meta=groupMetas.find(g=>g.code===code)||{};bookingSelectedGroupCode=code;profile.officeGroupCode=code;profile.groupCode=code;profile.officeGroupName=meta.name||profile.officeGroupName||'Gruppo Alberto';profile.officeGroupOwnerName=meta.ownerName||'';try{await setDoc(doc(db,'fidelityCustomers',customerCode()),{officeGroupCode:code,groupCode:code,officeGroupName:profile.officeGroupName,officeGroupOwnerName:profile.officeGroupOwnerName,officeGroupCodes:groupCodes()},{merge:true})}catch(err){console.warn(err)}render();await loadGroupMemberships();toast('Gruppo selezionato.')});
 
+
+function pointsMovementLabel(x){
+ const type=String(x.type||'').toLowerCase(),pts=Number(x.points||0);
+ if(type==='booking_arrival')return pts===2?'Prenotazione tavolo da 6 o più coperti':'Prenotazione tavolo';
+ if(type==='referral_first_purchase')return 'Porta un amico – bonus invito';
+ if(type==='receipt')return 'Acquisto in cassa';
+ if(type==='wallet_purchase')return 'Pagamento con portafoglio';
+ if(type==='wallet_topup')return 'Ricarica portafoglio';
+ if(type==='reward_10_euro')return 'Buono premio da 10 €';
+ if(type==='manual_adjustment')return 'Correzione manuale'+(x.reason?' – '+x.reason:'');
+ return x.reason||'Movimento punti';
+}
+function startPointsMovementHistory(){
+ const el=$('pointsMovementList');if(!el||!auth.currentUser)return;
+ const code=customerCode();
+ const q=query(collection(db,'fidelityTransactions'),where('customerCode','==',code));
+ const stop=onSnapshot(q,snap=>{
+  const data=snap.docs.map(d=>d.data()).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  el.innerHTML=data.length?data.slice(0,100).map(x=>{
+   const pts=Number(x.points||0),when=x.createdAt?.toDate?.()?.toLocaleString('it-IT',{dateStyle:'short',timeStyle:'short'})||'Data non disponibile';
+   const amount=Number(x.amount||0)>0?' · '+Number(x.amount).toLocaleString('it-IT',{style:'currency',currency:'EUR'}):'';
+   return '<div class="row"><div><b>'+esc(pointsMovementLabel(x))+'</b><small>'+esc(when+amount)+'</small></div><b style="white-space:nowrap">'+(pts>0?'+':'')+pts+' pt</b></div>';
+  }).join(''):'<div class="empty">Nessun movimento registrato.</div>';
+ },err=>{console.warn('Storico punti',err);el.innerHTML='<div class="empty">Movimenti non disponibili. Riprova più tardi.</div>'});
+ unsubs.push(stop);
+}
+
 function startWalletHistory(){
  const el=$('walletHistoryList');if(!el||!auth.currentUser)return;
  const q=query(collection(db,'fidelityTransactions'),where('uid','==',auth.currentUser.uid));
@@ -688,7 +721,8 @@ onAuthStateChanged(auth,async user=>{
     if(!profile.officeGroupCode){patch.officeGroupCode=group;patch.groupCode=group;patch.officeGroupName=gd.name||'Gruppo Alberto';patch.officeGroupOwnerName=gd.ownerName||''}
     await setDoc(doc(db,'fidelityCustomers',code),patch,{merge:true});profile={...profile,...patch};
   }catch(e){console.warn(e)}}
-  await loadGroupMemberships();render();watchUser(user.uid);startWalletHistory();if(bookingMode==='group')loadBookingGroupMembers();
+  await loadGroupMemberships();render();watchUser(user.uid);startPointsMovementHistory();
+  startWalletHistory();if(bookingMode==='group')loadBookingGroupMembers();
   if(!albertoAccessHandled&&albertoAccessTarget==='bookings'){albertoAccessHandled=true;go('bookings')}
   if(!albertoAccessHandled&&albertoAccessTarget==='preordina'&&hasFidelityProfile){albertoAccessHandled=true;location.replace('preordina/')}
 });
