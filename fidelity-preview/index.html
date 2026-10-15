@@ -864,7 +864,7 @@ function startPointsMovementHistory(){
  const el=$('pointsMovementList');if(!el||!auth.currentUser)return;
  const q=query(collection(db,'fidelityTransactions'),where('customerCode','==',customerCode()));
  const stop=onSnapshot(q,snap=>{
- const data=snap.docs.map(d=>d.data()).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+ const data=snap.docs.map(d=>d.data()).filter(x=>Number(x.points||0)!==0).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
  el.innerHTML=data.length?data.slice(0,100).map(x=>{
  const pts=Number(x.points||0),when=x.createdAt?.toDate?.()?.toLocaleString('it-IT',{dateStyle:'short',timeStyle:'short'})||'Data non disponibile';
  const amount=Number(x.amount||0)>0?' · '+Number(x.amount).toLocaleString('it-IT',{style:'currency',currency:'EUR'}):'';
