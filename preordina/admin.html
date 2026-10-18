@@ -633,7 +633,7 @@ window.saveDdt=async()=>{
   const ref=doc(collection(db,"ddtDeliveries")),counterRef=doc(db,"settings","ddtCounter");
   let saved;
   await runTransaction(db,async tx=>{
-   const snap=await tx.get(counterRef),data=snap.exists()?snap.data():{},last=(Number(data.year)===year?Number(data.lastNumber||0):0),num=last+1;
+   const snap=await tx.get(counterRef),data=snap.exists()?snap.data():{},last=(Number(data.year)===year?Number(data.lastNumber||0):0),historicalMax=ddtHistoryRows.reduce((max,row)=>Number(row.year||String(row.date||"").slice(0,4))===year?Math.max(max,Number(row.ddtNumber||0)):max,0),num=Math.max(last,historicalMax)+1;
    saved={ddtNumber:num,ddtLabel:String(num).padStart(4,"0")+"/"+year,year,date,clientId,client:{...client},seller:{...DDT_SELLER},items,total,totalColli,notes,invoiced:false,createdAt:serverTimestamp()};
    tx.set(counterRef,{year,lastNumber:num,updatedAt:serverTimestamp()},{merge:true});tx.set(ref,saved);
   });
