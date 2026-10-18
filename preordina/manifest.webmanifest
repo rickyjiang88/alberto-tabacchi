@@ -1,0 +1,19 @@
+{
+  "name": "Alberto Shop Manager",
+  "short_name": "Alberto Shop",
+  "description": "Pannello di gestione Alberto",
+  "id": "/preordina/admin.html",
+  "start_url": "/preordina/admin.html",
+  "scope": "/preordina/",
+  "display": "standalone",
+  "background_color": "#f7f4ef",
+  "theme_color": "#b5101b",
+  "icons": [
+    {
+      "src": "/preordina/shop-manager-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
