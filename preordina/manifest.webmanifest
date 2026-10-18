@@ -2,13 +2,19 @@
   "name": "Alberto Shop Manager",
   "short_name": "Alberto Shop",
   "description": "Pannello di gestione Alberto",
-  "id": "/preordina/admin.html",
-  "start_url": "/preordina/admin.html",
+  "id": "https://albertotabacchi.com/preordina/admin.html?app=shop-manager",
+  "start_url": "/preordina/admin.html?app=shop-manager",
   "scope": "/preordina/",
   "display": "standalone",
   "background_color": "#f7f4ef",
   "theme_color": "#b5101b",
   "icons": [
+    {
+      "src": "/preordina/shop-manager-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "/preordina/shop-manager-icon.png",
       "sizes": "180x180",
