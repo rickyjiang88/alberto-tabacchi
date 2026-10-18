@@ -638,7 +638,7 @@ window.saveDdt=async()=>{
   status.textContent="DDT "+saved.ddtLabel+" salvato.";
   window.printDdt({...saved,id:ref.id});
   window.resetDdtDraft();
- }catch(e){console.error("Save DDT",e);status.textContent="ERRORE: DDT non salvato.";alert("Non sono riuscito a salvare il DDT. Controlla la connessione o i permessi Firestore.");}
+ }catch(e){console.error("Save DDT",e);const code=String(e?.code||"").replace(/^firestore\//,"");const reasons={"permission-denied":"Permessi Firestore insufficienti per ddtDeliveries o settings/ddtCounter.","unauthenticated":"Sessione Firebase scaduta: esci e accedi nuovamente.","unavailable":"Firebase non raggiungibile. Controlla la connessione.","failed-precondition":"Configurazione Firestore non valida per il salvataggio DDT.","invalid-argument":"Dati DDT non validi."};const detail=reasons[code]||("Errore Firebase: "+(code||String(e?.message||"sconosciuto")));status.textContent="DDT NON SALVATO — "+detail;alert("DDT non salvato. "+detail+" I dati inseriti restano nella schermata.");}
  finally{saveBtn.disabled=false;}
 };
 window.setDdtInvoiced=async(id,value)=>{if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)return;try{await updateDoc(doc(db,"ddtDeliveries",id),{invoiced:!!value,invoicedAt:value?serverTimestamp():null});}catch(e){console.error(e);alert("Non sono riuscito ad aggiornare lo stato.");}};
