@@ -391,7 +391,7 @@ function pdfDailyOnePage(snapshot){
   return [String(r.name||"PIATTO SENZA NOME"),String(r.ingredients||"DA COMPLETARE"),allergens];
  });
  const firstRowTop=714,footMin=42,usable=firstRowTop-footMin;
- let font=9.2,plan=[],height=0;
+ let font=10.2,plan=[],height=0;
  for(;font>=6.8;font-=0.2){
   const lh=font+2.5;
   plan=printable.map(cols=>{
