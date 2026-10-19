@@ -1,0 +1,74 @@
+
+/* ALBERTO SHOP MANAGER 3.0: SOLO PRESENTAZIONE / NAVIGAZIONE MOBILE */
+@media(max-width:760px){
+:root{--am-red:#b5101b;--am-ink:#292020;--am-cream:#faf7f5}
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{background:var(--am-cream)!important;color:var(--am-ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif!important;padding-bottom:calc(87px + env(safe-area-inset-bottom));}
+header{background:linear-gradient(125deg,#970818,#d32432)!important;color:#fff!important;border-radius:0 0 24px 24px;padding:17px 17px 23px!important;min-height:104px;align-items:flex-start!important}
+header h1{font-size:20px!important;line-height:1.22;letter-spacing:-.03em;max-width:calc(100% - 94px);font-weight:900}
+#logoutBtn{background:#ffffff20!important;color:white!important;border:1px solid #ffffff66!important;padding:9px 11px!important;border-radius:13px!important;font-size:11px}
+main{padding:18px 15px 30px!important;max-width:100%!important}
+.panel,.page-intro,.card,.stat-kpi,.dash-tile{min-width:0}
+.page-intro{gap:9px!important;margin:1px 0 17px!important;flex-direction:column;align-items:stretch}
+.page-intro small{font-size:10px;letter-spacing:.12em}
+.page-intro h2,.panel>h2{font-size:23px!important;letter-spacing:-.035em;line-height:1.13;margin:6px 0 7px!important}
+.page-intro p,.status-note{font-size:12px!important;line-height:1.5}
+.page-intro .red{width:100%;text-align:center}
+.card,.dash-tile,.stat-kpi,.stock-group,.office-group{background:#fff!important;border:1px solid #eee5e2!important;box-shadow:0 5px 18px rgba(52,21,23,.045)!important;border-radius:17px!important}
+.card{margin:11px 0!important;padding:15px!important}
+.card.order-card{padding:0!important}
+.card h3{font-size:16px;letter-spacing:-.02em}
+.dash-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+.dash-tile{padding:15px 12px!important;min-height:94px!important}
+.dash-tile strong{font-size:25px!important;line-height:1.1;margin:9px 0 4px!important}
+.dash-tile small{font-size:11px!important;color:#766d6d!important}
+.dash-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:15px 0}
+.dash-links button,.manage-grid button{font-size:12px;border-radius:14px!important;padding:14px 12px!important;min-height:63px;text-align:left;background:#fff!important;color:#991220!important;border:1px solid #f0d9db!important;box-shadow:0 4px 12px #4b1e1e08}
+.manage-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px}
+.manage-grid span{font-size:11px!important}
+button.red,.red{border-radius:12px!important;min-height:42px}
+button,select,input,textarea{max-width:100%}
+input,select,textarea{font-size:16px!important;min-height:42px;border-radius:10px}
+input[type=checkbox],input[type=radio]{min-height:0}
+#ol{grid-template-columns:1fr!important;gap:12px!important}
+#ol .order-card>.order-head{border-radius:0;padding:14px!important}
+#ol .order-card>button{padding:10px!important}
+.booking-filter{padding:12px;gap:10px}.booking-filter input{max-width:100%!important;flex:1}
+.booking-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+.booking-card button{min-height:42px}
+.office-columns,.ddt-grid{grid-template-columns:1fr!important}
+.ddt-form-grid,.ddt-history-filter{grid-template-columns:1fr 1fr!important}
+.ddt-menu-row{grid-template-columns:minmax(0,1fr) 52px 52px 73px!important;gap:4px!important}
+.ddt-menu-row b{font-size:12px!important}
+.ddt-custom-grid{grid-template-columns:1fr 1fr!important}
+.ddt-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.stats-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+.stat-kpi{padding:14px!important}
+.stat-kpi b{font-size:25px!important}
+.stat-row{border-radius:12px;margin-bottom:6px;font-size:12px;flex-wrap:wrap}
+.row{grid-template-columns:1fr!important}
+.fid-camera{height:min(72vw,365px);margin:11px 0}
+#fidelityCustomerCard .dash-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#fidelityPanel .card{overflow-wrap:anywhere}
+#fidelityPanel button{max-width:100%}
+#fidelityCustomerCard input[type=number]{width:100%;max-width:100%!important}
+#fidelityCustomerCard [style*="display:flex"]{flex-wrap:wrap}
+#fidelityCustomerCard [style*="display:flex"] button{flex-grow:1}
+#promoPanel input,#pushPanel input,#pushPanel textarea{max-width:100%}
+#soundBtn{bottom:calc(89px + env(safe-area-inset-bottom))!important;right:10px!important;font-size:11px!important;padding:10px 12px!important;border-radius:14px!important;z-index:49!important}
+.tabs{display:none!important;position:fixed!important;inset:auto 10px calc(84px + env(safe-area-inset-bottom)) 10px!important;top:auto!important;bottom:calc(84px + env(safe-area-inset-bottom))!important;left:10px!important;right:10px!important;max-height:65dvh;overflow-y:auto!important;flex-direction:column;gap:2px!important;padding:13px!important;background:#fff!important;border:1px solid #eadbdd;border-radius:20px!important;box-shadow:0 9px 40px #42272c38!important;z-index:75!important}
+.tabs.am-menu-open{display:flex!important}
+.tabs>button:not(#soundBtn){white-space:normal!important;text-align:left!important;padding:13px 15px!important;border-radius:11px!important;background:#f9f6f5!important;color:#392b2b!important;min-height:42px}
+.tabs>button.on:not(#soundBtn){background:#b5101b!important;color:#fff!important}
+.am-mobile-nav{position:fixed;bottom:0;left:0;right:0;z-index:70;display:grid;grid-template-columns:repeat(5,1fr);padding:9px 6px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #eadfe0;box-shadow:0 -5px 18px #00000008;max-width:760px;margin:auto}
+.am-mobile-nav button{border:0;background:transparent;color:#8a8080;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;min-height:48px;padding:3px 1px;font-size:10px;font-weight:800}
+.am-mobile-nav button .am-icon{font-size:21px;height:25px;line-height:25px}
+.am-mobile-nav button.am-active{color:#b5101b}
+.am-dim{position:fixed;inset:0;background:#1b101166;z-index:69;display:none}
+.am-dim.am-visible{display:block}
+.am-title{margin:12px 0 5px;font-weight:900;color:#b5101b;font-size:10px;letter-spacing:.09em}
+body.am-demo header{position:relative}
+body.am-demo header:after{content:"ANTEPRIMA · DATI DI ESEMPIO";display:block;position:absolute;left:17px;bottom:7px;color:#ffe4e6;font-size:9px;font-weight:850;letter-spacing:.05em}
+body.am-demo button:disabled{opacity:.75}
+}
+@media(min-width:761px){.am-mobile-nav,.am-dim{display:none!important}}
