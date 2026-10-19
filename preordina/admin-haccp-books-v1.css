@@ -35,6 +35,13 @@
 .al-books-fill{display:block;width:100%;border:0;border-radius:10px;background:#286349;color:#fff;padding:10px 12px;font-size:11px;font-weight:900;margin:12px 0 2px}
 #al-books-new-recipes{display:grid;gap:9px;margin-top:12px}
 #al-books-new-recipes h4{font-size:14px;color:#813245;margin:10px 0 0}
+.al-books-pending-group{display:grid;gap:9px}
+.al-books-pending-group>h4{margin:8px 0 0!important}
+.al-books-registered-group{margin-top:12px;border:1px solid #bfdbca;background:#f1f8f2;border-radius:14px;padding:11px;min-width:0}
+.al-books-registered-group>summary{font-size:14px;font-weight:900;color:#285a42;padding:8px 3px;cursor:pointer;line-height:1.35}
+.al-books-registered-group[open]>summary{margin-bottom:10px}
+.al-books-registered-group>.al-books-dish{margin:9px 0;background:#fff}
+.al-books-registered-group>p{margin:8px 3px}
 .al-books-download{display:block;overflow-wrap:anywhere;background:#eef8ef;border:1px solid #a2d7b6;border-radius:9px;margin:12px 0;padding:12px;color:#19643e;font-weight:800;font-size:12px}
 .al-books-manual{background:#fff;border:1px dashed #d9b9af;border-radius:12px;margin:15px 0;padding:9px}
 .al-books-manual summary{font-size:12px;font-weight:800;cursor:pointer;color:#823444;padding:7px}
