@@ -167,7 +167,7 @@ function popupAtClick(){try{const p=window.open("about:blank","_blank");if(p){p.
 document.getElementById("al-books-open-full").addEventListener("click",async()=>{
  const popup=popupAtClick();
  showText("al-books-full-message","Preparazione libro completo…",false);
- try{const c=await loadCatalog();const pdf=pdfLines(c.sourceText.split("\n"),"Libro completo ingredienti e allergeni");openPdf(pdf,"Alberto_Libro_Allergeni_Completo_Consultazione.pdf",popup,fullBox);
+ try{const c=await loadCatalog();const printable=c.sourceText.split("\n").filter(line=>!/^<PARSED TEXT FOR PAGE:/i.test(line.trim()));const pdf=pdfLines(printable,"Libro completo ingredienti e allergeni");openPdf(pdf,"Alberto_Libro_Allergeni_Completo_Consultazione.pdf",popup,fullBox);
  showText("al-books-full-message","Libro aperto. Mantieni le verifiche pendenti: questa copia non certifica etichette e ricette.",false)}
  catch(e){if(popup&&!popup.closed)popup.close();showText("al-books-full-message","Errore apertura PDF: "+(e.message||e),true)}
 });
