@@ -139,8 +139,9 @@ function recipeSuggestions(item){
  return catalog.recipes.filter(r=>recipeGroup(r.category)===group&&group).map(r=>{
   const w=tokenize(r.name),shared=[...words].filter(x=>w.has(x)).length;
   const score=shared/(Math.max(1,Math.max(words.size,w.size)))+((name.includes(norm(r.name))||norm(r.name).includes(name))?.18:0);
-  return {recipe:r,score};
- }).sort((a,b)=>b.score-a.score||a.recipe.name.localeCompare(b.recipe.name,"it"))
+  return {recipe:r,score,shared};
+ }).filter(x=>x.shared>=2&&x.score>=0.4)
+ .sort((a,b)=>b.score-a.score||a.recipe.name.localeCompare(b.recipe.name,"it"))
  .map(x=>x.recipe);
 }
 function quickReuseSuggestion(item){
@@ -173,7 +174,7 @@ function renderNewDishCard(r,registered){
    options.map(x=>'<option value="'+esc(norm(x.name))+'">'+esc(x.name)+'</option>').join("")+'</select>'+
    '<div class="al-books-alias-preview" data-al-alias-preview="'+esc(key)+'"></div>'+
    '<button type="button" class="al-books-fill" data-al-alias-link="'+esc(key)+'">Conferma collegamento</button></details>':
-   (!registered?'<p class="al-books-info">Non ci sono ricette della stessa categoria già registrate.</p>':"");
+   (!registered?'<p class="al-books-info">Nessuna ricetta simile trovata: completa solo se è un piatto nuovo.</p>':"");
  const description=isRecipeEntered(r)?'<p>Ingredienti: '+esc(r.ingredients)+'</p>'+
    '<p>Allergeni inseriti: '+esc(r.allergenNumbers.join(", ")||"Nessuno dei 14")+'</p>'+
    '<p class="al-books-info">Ingredienti registrati, ma etichette e allergeni restano da verificare.</p>':
