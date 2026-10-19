@@ -208,7 +208,17 @@ window.saveDailyConfig=async(rows)=>{
  try{window.dispatchEvent(new CustomEvent("alberto-haccp-menu-saved",{detail:{items}}))}catch(e){}
  return verify.data().items||items;
 };
-window.haccpReadDailyMenu=async()=>{const snap=await getDoc(doc(db,"settings","dailyMenu"));if(!snap.exists())throw new Error("Menù non ancora salvato su Firebase");const data=snap.data();return {items:Array.isArray(data.items)?data.items:[],updatedAt:data.updatedAt&&typeof data.updatedAt.toDate==="function"?data.updatedAt.toDate().toISOString():null,recipeDrafts:data.haccpRecipeDrafts&&typeof data.haccpRecipeDrafts==="object"?data.haccpRecipeDrafts:{}};};
+window.haccpReadDailyMenu=async()=>{const snap=await getDoc(doc(db,"settings","dailyMenu"));if(!snap.exists())throw new Error("Menù non ancora salvato su Firebase");const data=snap.data();return {items:Array.isArray(data.items)?data.items:[],updatedAt:data.updatedAt&&typeof data.updatedAt.toDate==="function"?data.updatedAt.toDate().toISOString():null,recipeDrafts:data.haccpRecipeDrafts&&typeof data.haccpRecipeDrafts==="object"?data.haccpRecipeDrafts:{},recipeAliases:data.haccpRecipeAliases&&typeof data.haccpRecipeAliases==="object"?data.haccpRecipeAliases:{}};};
+/* Collega un nuovo nome ad una ricetta esistente SOLO dopo conferma esplicita. */
+window.haccpSaveRecipeAlias=async(newName,existingName)=>{
+ const source=String(newName||"").trim(),target=String(existingName||"").trim(),id=haccpRecipeKey(source);
+ if(!id||!target||id===haccpRecipeKey(target))throw new Error("Scegli due nomi diversi");
+ const location=doc(db,"settings","dailyMenu");
+ await setDoc(location,{haccpRecipeAliases:{["r"+id]:target.slice(0,180)}},{merge:true});
+ const snap=await getDoc(location);
+ if(snap.data()?.haccpRecipeAliases?.["r"+id]!==target.slice(0,180))throw new Error("Collegamento non confermato dal server");
+ return {from:source,to:target};
+};
 /* Salva una ricetta compilata nel libro condiviso senza toccare il menù. */
 window.haccpSaveRecipeDetails=async data=>{
  const name=String(data&&data.piatto||"").trim(),ingredients=String(data&&data.ingredienti||"").trim(),id=haccpRecipeKey(name);
