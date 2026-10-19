@@ -198,10 +198,14 @@ window.saveDailyConfig=async(rows)=>{
   if(!id||["nuovopiatto","nuovoprodotto","piatto","prodotto"].includes(id))continue;
   haccpRecipeDrafts["r"+id]={name,category:String(item.category||"")};
  }
- const values={items,updatedAt:fidelityApi.serverTimestamp()};
- if(Object.keys(haccpRecipeDrafts).length)values.haccpRecipeDrafts=haccpRecipeDrafts;
- await setDoc(doc(db,"settings","dailyMenu"),values,{merge:true});
- const verify=await getDoc(doc(db,"settings","dailyMenu"));if(!verify.exists())throw new Error("Salvataggio non verificato");
+ const location=doc(db,"settings","dailyMenu");
+ // Il menu principale viene sempre salvato PRIMA, con la scrittura originale invariata.
+ await setDoc(location,{items,updatedAt:fidelityApi.serverTimestamp()},{merge:true});
+ const verify=await getDoc(location);if(!verify.exists())throw new Error("Salvataggio non verificato");
+ // Se le regole Firebase non consentono i nuovi campi HACCP, non compromettere il menù.
+ if(Object.keys(haccpRecipeDrafts).length)try{await setDoc(location,{haccpRecipeDrafts},{merge:true})}
+ catch(err){console.warn("HACCP: bozze non sincronizzate su Firebase",err)}
+ try{window.dispatchEvent(new CustomEvent("alberto-haccp-menu-saved",{detail:{items}}))}catch(e){}
  return verify.data().items||items;
 };
 window.haccpReadDailyMenu=async()=>{const snap=await getDoc(doc(db,"settings","dailyMenu"));if(!snap.exists())throw new Error("Menù non ancora salvato su Firebase");const data=snap.data();return {items:Array.isArray(data.items)?data.items:[],updatedAt:data.updatedAt&&typeof data.updatedAt.toDate==="function"?data.updatedAt.toDate().toISOString():null,recipeDrafts:data.haccpRecipeDrafts&&typeof data.haccpRecipeDrafts==="object"?data.haccpRecipeDrafts:{}};};
