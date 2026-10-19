@@ -67,10 +67,8 @@ function approve(r,yes){
 function getMatch(name){
  if(!catalog)return null;
  const n=norm(name),exact=catalog.recipes.filter(r=>norm(r.name)===n);
- if(exact.length===1)return exact[0];
- // Abbreviazioni soltanto se c'è UNA corrispondenza, altrimenti richiedi verifica manuale.
- const fuzzy=n.length>=11?catalog.recipes.filter(r=>norm(r.name).startsWith(n)||n.startsWith(norm(r.name))):[];
- return fuzzy.length===1?fuzzy[0]:null;
+ // Nessuna corrispondenza parziale: piatti con ingredienti diversi possono avere nomi simili.
+ return exact.length===1?exact[0]:null;
 }
 function classify(items){
  return items.filter(x=>x&&x.available!==false).map(x=>{
@@ -153,12 +151,13 @@ function pdfLines(lines,title){
  buffer+="trailer\n<< /Size "+objects.length+" /Root 1 0 R >>\nstartxref\n"+xref+"\n%%EOF";
  return new Blob([buffer],{type:"application/pdf"});
 }
-function openPdf(blob,filename,popup){
+function openPdf(blob,filename,popup,dest){
  const url=URL.createObjectURL(blob);
- const box=document.getElementById("al-books-download");
+ const container=dest||dailyBox;
+ const box=container.querySelector(".al-books-download");
  if(box)box.remove();
- const a=document.createElement("a");a.id="al-books-download";a.className="al-books-download";a.href=url;a.download=filename;a.textContent="Scarica "+filename;
- (popup?fullBox:dailyBox).append(a);
+ const a=document.createElement("a");a.className="al-books-download";a.href=url;a.download=filename;a.textContent="Scarica "+filename;
+ container.append(a);
  if(popup&&!popup.closed){try{popup.location.replace(url)}catch(e){/* link manuale */}}
  else a.click();
  // Mantieni disponibile il link del PDF anche nei browser che bloccano i popup.
@@ -168,7 +167,7 @@ function popupAtClick(){try{const p=window.open("about:blank","_blank");if(p){p.
 document.getElementById("al-books-open-full").addEventListener("click",async()=>{
  const popup=popupAtClick();
  showText("al-books-full-message","Preparazione libro completo…",false);
- try{const c=await loadCatalog();const pdf=pdfLines(c.sourceText.split("\n"),"Libro completo ingredienti e allergeni");openPdf(pdf,"Alberto_Libro_Allergeni_Completo_Consultazione.pdf",popup);
+ try{const c=await loadCatalog();const pdf=pdfLines(c.sourceText.split("\n"),"Libro completo ingredienti e allergeni");openPdf(pdf,"Alberto_Libro_Allergeni_Completo_Consultazione.pdf",popup,fullBox);
  showText("al-books-full-message","Libro aperto. Mantieni le verifiche pendenti: questa copia non certifica etichette e ricette.",false)}
  catch(e){if(popup&&!popup.closed)popup.close();showText("al-books-full-message","Errore apertura PDF: "+(e.message||e),true)}
 });
