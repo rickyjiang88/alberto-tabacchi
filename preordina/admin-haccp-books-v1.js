@@ -237,7 +237,10 @@ function popupAtClick(){try{const p=window.open("about:blank","_blank");if(p){p.
 document.getElementById("al-books-open-full").addEventListener("click",async()=>{
  const popup=popupAtClick();
  showText("al-books-full-message","Preparazione libro completo…",false);
- try{const c=await loadCatalog();await readShared();const printable=c.sourceText.split("\n").filter(line=>!/^<PARSED TEXT FOR PAGE:/i.test(line.trim()));
+ try{const c=await loadCatalog();let syncError="";
+ try{await readShared()}catch(err){syncError="Nuove ricette condivise non disponibili: "+(err.message||err)}
+ const printable=c.sourceText.split("\n").filter(line=>!/^<PARSED TEXT FOR PAGE:/i.test(line.trim()));
+ if(syncError)printable.push("","ATTENZIONE: "+syncError+". Libro storico e bozze locali soltanto.");
  const known=new Set(c.recipes.map(x=>norm(x.name))),extras=allNewRecipes().filter(x=>!known.has(norm(x.name)));
  if(extras.length){
   printable.push("","","APPENDICE - RICETTE REGISTRATE AUTOMATICAMENTE DAL MENU");
