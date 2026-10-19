@@ -2,6 +2,7 @@
  * la logica Firebase, i punti, wallet, registrazioni, DDT, ordini e gli elementi esistenti. */
 (function(){
 "use strict";
+if(!window.matchMedia("(max-width:760px)").matches)return;
 const icons={
 home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
 bag:'<path d="M4 8h16l-1 13H5L4 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/>',
@@ -44,7 +45,8 @@ bottom.innerHTML=[["dashboard","Home","home"],["orders","Ordini","bag"],["qr","Q
 const shade=document.createElement("div");shade.className="al-v5-shade";shade.id="al-v5-shade";shade.setAttribute("aria-hidden","true");
 shade.innerHTML='<div class="al-v5-drawer" role="dialog" aria-modal="true" aria-label="Tutte le sezioni"><div class="al-v5-handle"></div><div class="al-v5-drawer-title"><strong>Tutte le sezioni</strong><button type="button" class="al-v5-close" data-al-close aria-label="Chiudi">×</button></div><div class="al-v5-drawer-grid">'+routes.map(([id,name,ic])=>'<button type="button" data-al-go="'+id+'">'+ico(ic)+'<span>'+name+'</span></button>').join("")+'</div><div class="al-v5-extra-controls" id="al-v5-controls"></div></div>';
 document.body.append(shade,bottom);
-const sound=document.getElementById("soundBtn");if(sound)shade.querySelector("#al-v5-controls").append(sound); // sposta il vero pulsante, mantenendone gli eventi
+// Il pulsante suono ORIGINALE rimane dov’è: stessa funzionalità, nessun elemento rimosso.
+const soundAction=document.createElement("button");soundAction.type="button";soundAction.id="al-v5-audio";soundAction.textContent="🔔 Attiva suono ordini";shade.querySelector("#al-v5-controls").append(soundAction);
 let isOpen=false;
 function toggleMenu(shouldOpen){isOpen=shouldOpen;shade.classList.toggle("open",isOpen);shade.setAttribute("aria-hidden",isOpen?"false":"true");}
 function refreshSelected(id){bottom.querySelectorAll("button").forEach(b=>b.classList.toggle("selected",b.dataset.alGo===id||b.dataset.alGo==="more"&&!["dashboard","orders","fidelityPanel","qr"].includes(id)))}
@@ -58,6 +60,7 @@ function navigate(id){
 }
 document.addEventListener("click",e=>{
  const close=e.target.closest("[data-al-close]");if(close){toggleMenu(false);return}
+ if(e.target.closest("#al-v5-audio")){if(typeof window.enableOrderSound==="function"){window.enableOrderSound();soundAction.textContent="🔔 Suono attivo"}toggleMenu(false);return}
  const go=e.target.closest("button[data-al-go]");if(go){navigate(go.dataset.alGo);return}
  // Aggiorna soltanto la selezione quando i link ORIGINALI cambiano scheda.
  const original=e.target.closest('button[onclick*="tab("]');if(original){setTimeout(()=>{const current=document.querySelector("main .panel.on");if(current)refreshSelected(current.id)},0)}
