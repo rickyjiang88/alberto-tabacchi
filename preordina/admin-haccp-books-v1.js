@@ -354,18 +354,99 @@ function showHistory(){
  const box=document.getElementById("al-books-history"),history=historyList();
  box.innerHTML=history.length?history.slice(0,40).map((x,i)=>'<button type="button" data-al-history="'+i+'">'+esc(shortDate(x.date))+' · '+esc(x.title||"Documento")+' · '+(x.draft?"Bozza":"Verificato")+'</button>').join(""):'<p class="al-books-info">Nessuna copia salvata su questo dispositivo.</p>';
 }
-function pdfForSnapshot(x){
- const lines=["Data: "+shortDate(x.date), "Creato: "+(x.createdAt||""), x.draft?"BOZZA - VERIFICHE INCOMPLETE - NON USARE COME INFORMATIVA DEFINITIVA":"Verifiche registrate sul dispositivo corrente", "","ELENCO DEI PIATTI DEL GIORNO", ""];
- for(const row of x.rows){lines.push(String(row.category||"")+" - "+row.name);
-  lines.push("Ingredienti: "+(row.ingredients||"DA VERIFICARE"));
-  lines.push("Allergeni: "+(row.matched?(row.allergenNumbers.length?row.allergenNumbers.join(", "):"Nessuno dei 14 dichiarati nella ricetta"):"DA VERIFICARE"));
-  lines.push(row.approved?"Ricetta verificata sul dispositivo.":"ATTENZIONE: RICETTA NON VERIFICATA");
-  if(row.checks)lines.push("Note: "+row.checks);
-  lines.push("");
+/* A4 giornaliero in una pagina: SOLO piatto, ingredienti, allergeni.
+ * Condivide la stessa funzione con PDF del giorno e ristampa dello storico.
+ * Le note delle ricette e le conferme sul dispositivo non vengono stampate. */
+function pdfDailyOnePage(snapshot){
+ const pageW=595,pageH=842,margin=26,tableW=543;
+ const colWidths=[170,292,81],xPos=[margin,margin+170,margin+462],pad=7;
+ const weights={};
+ const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+ const capitals=[667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611];
+ const small=[556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500];
+ for(let i=0;i<26;i++){weights[chars[i]]=capitals[i];weights[chars[i+26]]=small[i]}
+ Object.assign(weights,{" ":278,".":278,",":278,":":278,";":278,"-":333,"'":191,"(":333,")":333,"/":278,"*":389,"&":667,"!":278,"?":556,"@":1015,"+":584,"=":584});
+ const normalizedChar=c=>String(c).normalize("NFKD").replace(/[\u0300-\u036f]/g,"").charAt(0)||c;
+ const widthText=(s,pt,bold)=>{let w=0;for(const ch of String(s)){const normChar=normalizedChar(ch);w+=(weights[normChar]||556)}return w*pt*(bold?1.035:1)/1000};
+ function linesOf(value,maxW,pt,bold){
+  const words=String(value??"").replace(/\s+/g," ").trim().split(" ").filter(Boolean);
+  if(!words.length)return [""];
+  const out=[];let line="";
+  for(const word of words){
+   const trial=line?line+" "+word:word;
+   if(widthText(trial,pt,bold)<=maxW){line=trial;continue}
+   if(line){out.push(line);line=""}
+   if(widthText(word,pt,bold)<=maxW){line=word;continue}
+   let part="";
+   for(const ch of word){if(part&&widthText(part+ch,pt,bold)>maxW){out.push(part);part=""}part+=ch}
+   line=part;
+  }
+  if(line)out.push(line);
+  return out.length?out:[""];
  }
- lines.push("Le etichette e le preparazioni effettive prevalgono sui dati importati.");
- return pdfLines(lines,"Allergeni del giorno "+shortDate(x.date));
+ const rows=Array.isArray(snapshot.rows)?snapshot.rows:[];
+ const printable=rows.map(r=>{
+  const allergens=r.matched===false?"DA VERIFICARE":
+   (Array.isArray(r.allergenNumbers)?(r.allergenNumbers.length?r.allergenNumbers.join(", "):"Nessuno dei 14"):"DA VERIFICARE");
+  return [String(r.name||"PIATTO SENZA NOME"),String(r.ingredients||"DA COMPLETARE"),allergens];
+ });
+ const firstRowTop=714,footMin=42,usable=firstRowTop-footMin;
+ let font=9.2,plan=[],height=0;
+ for(;font>=6.8;font-=0.2){
+  const lh=font+2.5;
+  plan=printable.map(cols=>{
+   const lns=cols.map((t,i)=>linesOf(t,colWidths[i]-pad*2,i===0?font+0.3:font,i===0));
+   return {cols,lines:lns,height:Math.max(29,Math.max(...lns.map(x=>x.length))*lh+13)};
+  });
+  height=plan.reduce((a,r)=>a+r.height,0);
+  if(height<=usable)break;
+ }
+ if(height>usable)throw Error("Menù troppo lungo per una pagina A4 leggibile. Riduci il testo o verifica il numero di piatti.");
+ const textOps=[];
+ function txt(x,y,str,pt=9,bold=false,color="0.15 0.13 0.13"){
+  textOps.push(color+" rg BT /"+(bold?"F2":"F1")+" "+pt.toFixed(2)+" Tf 1 0 0 1 "+x.toFixed(2)+" "+y.toFixed(2)+" Tm ("+safePdf(str)+") Tj ET\n");
+ }
+ textOps.push("0.71 0.05 0.12 rg "+margin+" 817 "+tableW+" 4 re f\n");
+ txt(margin,792,"ALBERTO  |  LIBRO ALLERGENI DEL GIORNO",14,true,"0.57 0.07 0.12");
+ txt(margin,770,"Data: "+shortDate(snapshot.date)+"  -  "+printable.length+" piatti",10,true);
+ if(snapshot.draft)txt(margin,751,"BOZZA - VERIFICHE ALLERGENI DA COMPLETARE",9,true,"0.63 0.17 0.12");
+ else txt(margin,751,"Ingredienti e allergeni dei piatti del giorno",9,false);
+ // Testata della tabella: righe e colonne sempre sulla stessa pagina.
+ textOps.push("0.94 0.89 0.88 rg "+margin+" 714 "+tableW+" 22 re f\n");
+ txt(xPos[0]+pad,721,"PIATTO",9,true,"0.46 0.10 0.16");
+ txt(xPos[1]+pad,721,"INGREDIENTI",9,true,"0.46 0.10 0.16");
+ txt(xPos[2]+pad,721,"ALLERGENI",8.5,true,"0.46 0.10 0.16");
+ let y=firstRowTop,idx=0;
+ for(const row of plan){
+  const lower=y-row.height;
+  if(idx%2===0)textOps.push("0.985 0.981 0.974 rg "+margin+" "+lower.toFixed(2)+" "+tableW+" "+row.height.toFixed(2)+" re f\n");
+  textOps.push("0.85 0.83 0.82 RG 0.45 w "+margin+" "+lower.toFixed(2)+" m "+(margin+tableW)+" "+lower.toFixed(2)+" l S\n");
+  const lh=font+2.5;
+  for(let c=0;c<3;c++){
+   row.lines[c].forEach((t,n)=>txt(xPos[c]+pad,y-11.5-n*lh,t,c===0?font+0.3:font,c===0,c===0?"0.17 0.11 0.11":"0.17 0.17 0.17"));
+  }
+  y=lower;idx++;
+ }
+ textOps.push("0.84 0.81 0.80 RG 0.6 w "+margin+" 714 m "+margin+" "+(714-height).toFixed(2)+" l S\n");
+ textOps.push("0.84 0.81 0.80 RG 0.6 w "+(margin+tableW)+" 714 m "+(margin+tableW)+" "+(714-height).toFixed(2)+" l S\n");
+ txt(margin,24,"ALBERTO | Menù del "+shortDate(snapshot.date)+" | "+printable.length+" piatti",8,false,"0.42 0.39 0.39");
+ const stream=textOps.join("");
+ const obj=[];
+ obj[1]="<< /Type /Catalog /Pages 2 0 R >>";
+ obj[2]="<< /Type /Pages /Count 1 /Kids [5 0 R] >>";
+ obj[3]="<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>";
+ obj[4]="<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>";
+ obj[5]="<< /Type /Page /Parent 2 0 R /MediaBox [0 0 "+pageW+" "+pageH+"] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>";
+ obj[6]="<< /Length "+stream.length+" >>\nstream\n"+stream+"endstream";
+ let buffer="%PDF-1.4\n",offset=[0];
+ for(let i=1;i<obj.length;i++){offset[i]=buffer.length;buffer+=i+" 0 obj\n"+obj[i]+"\nendobj\n"}
+ const xref=buffer.length;
+ buffer+="xref\n0 "+obj.length+"\n0000000000 65535 f \n";
+ for(let i=1;i<obj.length;i++)buffer+=String(offset[i]).padStart(10,"0")+" 00000 n \n";
+ buffer+="trailer\n<< /Size "+obj.length+" /Root 1 0 R >>\nstartxref\n"+xref+"\n%%EOF";
+ return new Blob([buffer],{type:"application/pdf"});
 }
+function pdfForSnapshot(x){return pdfDailyOnePage(x)}
 document.getElementById("al-books-open-daily").addEventListener("click",()=>{
  if(!preview.length||!latest)return;
  const pop=popupAtClick(),date=dateIT(),draft=preview.some(x=>!x.approved);
