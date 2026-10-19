@@ -143,30 +143,48 @@ function recipeSuggestions(item){
  }).sort((a,b)=>b.score-a.score||a.recipe.name.localeCompare(b.recipe.name,"it"))
  .map(x=>x.recipe);
 }
-function paintNewRecipes(){
- const box=document.getElementById("al-books-new-recipes");if(!box||!catalog)return;
- const known=new Set(catalog.recipes.map(r=>norm(r.name)));
- const newItems=allNewRecipes().filter(r=>!known.has(norm(r.name))&&!readAlias(r.name));
- if(!newItems.length){box.innerHTML='<p class="al-books-info">Nessun piatto nuovo da completare. I nomi associati alle ricette esistenti vengono riutilizzati.</p>';return}
- const incomplete=newItems.filter(x=>!String(x.ingredients||"").trim()).length;
- box.innerHTML='<h4>Ricette da controllare ('+newItems.length+')</h4>'+
- '<p class="al-books-info"><b>NON devi riscrivere tutte le ricette.</b> Per i piatti già preparati scegli «Usa ricetta già presente». Collega solo se gli ingredienti e la preparazione sono gli stessi. '+incomplete+' schede senza ingredienti.</p>'+
- newItems.slice(-180).map(r=>{
-  const key=norm(r.name),options=recipeSuggestions(r);
-  const select=options.length?'<details class="al-books-linker"><summary>Usa ricetta già presente</summary>'+
+function isRecipeEntered(r){
+ // Ingrediente e allergeni devono essere esplicitamente compilati;
+ // un campo allergeni vuoto non significa mai "nessuno".
+ return Boolean(String(r.ingredients||"").trim()&&String(r.allergensSource||"").trim()&&Array.isArray(r.allergenNumbers));
+}
+function renderNewDishCard(r,registered){
+ const key=norm(r.name),options=registered?[]:recipeSuggestions(r);
+ const select=!registered&&options.length?'<details class="al-books-linker"><summary>Usa ricetta già presente</summary>'+
    '<p>Confronta ingredienti e allergeni: collega solo se è la stessa ricetta.</p>'+
    '<select data-al-alias-select="'+esc(key)+'"><option value="">Scegli la ricetta da riutilizzare…</option>'+
    options.map(x=>'<option value="'+esc(norm(x.name))+'">'+esc(x.name)+'</option>').join("")+'</select>'+
    '<div class="al-books-alias-preview" data-al-alias-preview="'+esc(key)+'"></div>'+
    '<button type="button" class="al-books-fill" data-al-alias-link="'+esc(key)+'">Conferma collegamento</button></details>':
-   '<p class="al-books-info">Non ci sono ricette della stessa categoria già registrate.</p>';
-  return '<article class="al-books-dish">'+
- '<div class="al-books-dish-top"><b>'+esc(r.name)+'</b><span class="'+(r.ingredients?'al-books-ok':'al-books-pending')+'">'+(r.ingredients?'Ingredienti registrati':'Da completare')+'</span></div>'+
- (r.ingredients?'<p>'+esc(r.ingredients)+'</p><p>Allergeni inseriti: '+esc(Array.isArray(r.allergenNumbers)?(r.allergenNumbers.join(", ")||"Nessuno dei 14"):"Da verificare")+'</p>':
- '<p class="al-books-missing">Nome salvato. Ingredienti e allergeni ancora da completare.</p>')+
- select+
- '<button type="button" class="al-books-fill al-books-fill-secondary" data-al-complete="'+esc(key)+'">'+(r.ingredients?'Aggiorna nuova ricetta':'È un piatto nuovo: completa ingredienti e allergeni')+'</button></article>';
- }).join("");
+   (!registered?'<p class="al-books-info">Non ci sono ricette della stessa categoria già registrate.</p>':"");
+ const description=isRecipeEntered(r)?'<p>Ingredienti: '+esc(r.ingredients)+'</p>'+
+   '<p>Allergeni inseriti: '+esc(r.allergenNumbers.join(", ")||"Nessuno dei 14")+'</p>'+
+   '<p class="al-books-info">Ingredienti registrati, ma etichette e allergeni restano da verificare.</p>':
+   (r.ingredients?'<p>Ingredienti inseriti: '+esc(r.ingredients)+'</p>'+
+    '<p class="al-books-missing">Allergeni ancora da inserire o confermare.</p>':
+    '<p class="al-books-missing">Nome salvato. Ingredienti e allergeni ancora da completare.</p>');
+ return '<article class="al-books-dish">'+
+ '<div class="al-books-dish-top"><b>'+esc(r.name)+'</b><span class="'+(registered?'al-books-ok':'al-books-pending')+'">'+(registered?'Dati inseriti':'Da completare')+'</span></div>'+
+ description+select+
+ '<button type="button" class="al-books-fill al-books-fill-secondary" data-al-complete="'+esc(key)+'">'+(registered?'Modifica ingredienti e allergeni':r.ingredients?'Completa o correggi allergeni':'Completa ingredienti e allergeni')+'</button></article>';
+}
+function paintNewRecipes(){
+ const box=document.getElementById("al-books-new-recipes");if(!box||!catalog)return;
+ const wasOpen=Boolean(box.querySelector("#al-books-registered-group")?.open);
+ const known=new Set(catalog.recipes.map(r=>norm(r.name)));
+ const newItems=allNewRecipes().filter(r=>!known.has(norm(r.name))&&!readAlias(r.name));
+ const pending=newItems.filter(r=>!isRecipeEntered(r));
+ const registered=newItems.filter(isRecipeEntered);
+ const pendingHtml='<section class="al-books-pending-group"><h4>Da completare ('+pending.length+')</h4>'+
+ '<p class="al-books-info">Le ricette già preparate si possono collegare con «Usa ricetta già presente». Inserisci ingredienti e allergeni soltanto per quelle davvero nuove.</p>'+
+ (pending.length?pending.map(r=>renderNewDishCard(r,false)).join(""):'<p class="al-books-info">Nessuna nuova ricetta da completare.</p>')+
+ '</section>';
+ const registeredHtml='<details id="al-books-registered-group" class="al-books-registered-group"'+(wasOpen?' open':'')+'>'+
+ '<summary>Ricette registrate ('+registered.length+')</summary>'+
+ '<p class="al-books-info">Ingredienti e allergeni sono stati inseriti. Non significa che siano già verificati: controlla le etichette effettive prima della stampa definitiva.</p>'+
+ (registered.length?registered.map(r=>renderNewDishCard(r,true)).join(""):'<p class="al-books-info">Qui compariranno le ricette dopo che avrai inserito ingredienti e allergeni.</p>')+
+ '</details>';
+ box.innerHTML=pendingHtml+registeredHtml;
 }
 async function readShared(){
  if(typeof window.haccpReadDailyMenu!=="function")throw Error("Firebase non ancora disponibile");
