@@ -7,7 +7,7 @@ if(!window.matchMedia("(max-width:760px)").matches)return;
 const full=document.getElementById("haccpAllergeniTotale");
 const daily=document.getElementById("haccpAllergeniGiornaliero");
 if(!full||!daily||document.getElementById("al-books-full"))return;
-const DATA="/preordina/haccp-allergeni-data-v1.json?v=20261019a";
+const DATA="/preordina/haccp-allergeni-data-v1.json?v=20261019b";
 const APPROVALS="alberto-haccp-conferme-ricette-locali-v1";
 const HISTORY="alberto-haccp-giornalieri-locali-v1";
 let catalog=null,latest=null,preview=[];
