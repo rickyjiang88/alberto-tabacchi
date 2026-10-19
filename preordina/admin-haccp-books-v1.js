@@ -125,10 +125,11 @@ function getMatch(name){
 }
 function recipeGroup(cat){
  const c=norm(cat);
- if(c.includes("prim"))return "primi";
- if(c.includes("second"))return "secondi";
- if(c.includes("contorn"))return "contorni";
- if(c.includes("unico"))return "unico";
+ // Evita che MATERIE PRIME sia interpretato come PRIMI.
+ if(c.startsWith("prim"))return "primi";
+ if(c.startsWith("second"))return "secondi";
+ if(c.startsWith("contorn"))return "contorni";
+ if(c==="piattounico"||c==="unicopiatto")return "unico";
  return "";
 }
 function recipeSuggestions(item){
