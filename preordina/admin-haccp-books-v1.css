@@ -1,0 +1,34 @@
+/* Alberto HACCP Books, only on small screens. Isolated: no production styles changed. */
+@media(max-width:760px){
+.al-books-area{margin:13px 0 18px}
+.al-books-card{background:#fff9f3;border:1px solid #e9cdc7;border-radius:17px;padding:14px;margin:12px 0;box-shadow:0 4px 14px #43201709}
+.al-books-card>h3{margin:0 0 8px;font-size:16px;font-weight:900;line-height:1.3;color:#791b2c}
+.al-books-card>p{margin:7px 0;font-size:12px;color:#654e50;line-height:1.5}
+.al-books-actions{display:flex;align-items:stretch;flex-wrap:wrap;gap:9px;margin:15px 0 10px}
+.al-books-actions button{padding:12px 14px;font-size:12px;font-weight:900;border:0;border-radius:12px;background:#a31224;color:white;min-height:45px;flex:1 1 180px}
+.al-books-actions button:first-child{background:#285c47;color:white}
+.al-books-actions button:disabled{background:#e2d0cb;color:#857575}
+.al-books-info{font-size:11px!important;line-height:1.5;color:#77666a!important;overflow-wrap:anywhere}
+.al-books-info[data-error="1"]{color:#ae1830!important;font-weight:800}
+.al-books-dishes{display:grid;gap:8px}
+.al-books-summary{font-size:12px;color:#47383a;padding:8px;background:#f5ede4;border-radius:11px}
+.al-books-summary strong{color:#ab2031}
+.al-books-dish{background:#fff;border:1px solid #e9d6cb;border-radius:13px;padding:12px}
+.al-books-dish-top{display:flex;align-items:flex-start;justify-content:space-between;gap:7px}
+.al-books-dish-top>b{font-size:13px;color:#3a2729}
+.al-books-dish-top span{font-size:9px;font-weight:900;line-height:1.2;border-radius:99px;padding:5px 7px;white-space:nowrap}
+.al-books-ok{background:#e5f2e7;color:#26744e}
+.al-books-pending{background:#fde9da;color:#ab4f23}
+.al-books-dish>p{font-size:11px;line-height:1.6;color:#5b4d50;margin:8px 0 3px;overflow-wrap:anywhere}
+.al-books-dish .al-books-note{font-size:10px;color:#9b562e}
+.al-books-missing{color:#ae2132!important;background:#fff1e9;padding:9px;border-radius:8px;font-size:11px;line-height:1.5}
+.al-books-confirm{display:flex;gap:8px;align-items:flex-start;font-size:11px;line-height:1.4;color:#365447;margin-top:11px;padding:9px;background:#eff8f0;border-radius:10px}
+.al-books-confirm input{flex:none;margin:0;width:19px;height:19px;accent-color:#27784d}
+.al-books-history{display:grid;gap:7px;margin-top:12px}
+.al-books-history button{display:block;width:100%;text-align:left;border:1px solid #e4cfc5;border-radius:11px;background:#fff;color:#713243;padding:11px;font-size:12px;font-weight:700}
+.al-books-download{display:block;overflow-wrap:anywhere;background:#eef8ef;border:1px solid #a2d7b6;border-radius:9px;margin:12px 0;padding:12px;color:#19643e;font-weight:800;font-size:12px}
+.al-books-manual{background:#fff;border:1px dashed #d9b9af;border-radius:12px;margin:15px 0;padding:9px}
+.al-books-manual summary{font-size:12px;font-weight:800;cursor:pointer;color:#823444;padding:7px}
+.al-books-manual .al-haccp-form{margin:12px 0 0}
+.al-books-manual .al-haccp-records{margin:12px 0 0}
+}
