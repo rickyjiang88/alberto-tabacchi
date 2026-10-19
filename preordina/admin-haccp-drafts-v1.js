@@ -139,6 +139,9 @@ function build(t){
    const who=data.operatore,site=data.sede;form.reset();date.value=NOW();sede.value=site;
    form.elements.namedItem("operatore").value=who;
    showRecords(t,sec);
+   if(t.id==="haccpAllergeniTotale"){
+    try{window.dispatchEvent(new CustomEvent("alberto-haccp-recipe-details-saved",{detail:{...data,sourcePanel:t.id}}))}catch(e){}
+   }
   }catch(err){msg.textContent="Impossibile salvare la bozza sul dispositivo. Esporta o stampa i dati; verifica lo spazio disponibile.";msg.dataset.error="1"}
  });
  sec.querySelector(".al-haccp-export").addEventListener("click",()=>download(t));
