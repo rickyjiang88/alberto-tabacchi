@@ -24,13 +24,14 @@ file:'<path d="M6 3h9l5 5v13H6zM15 3v6h5M9 14h8M9 18h6"/>',
 spark:'<path d="m12 2 1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9L12 2Z"/>'
 };
 const ico=(name,cls="")=>'<svg class="al-v5-icon '+cls+'" aria-hidden="true" viewBox="0 0 24 24">'+(icons[name]||icons.box)+'</svg>';
-const routes=[["orders","Ordini","bag"],["bookingPanel","Prenotazioni","calendar"],["menuHub","Gestione menù","food"],["fidelityPanel","Clienti / Fidelity","users"],["ddtPanel","Consegne / DDT","truck"],["statsPanel","Statistiche","chart"],["officePanel","Tavoli e gruppi","users"],["stockPanel","Disponibilità prodotti","box"],["servicePanel","Orari di ritiro","clock"],["pushPanel","Notifiche push","bell"],["promoPanel","Promozioni","gift"],["products","Prodotti","bag"],["daily","Piatti del giorno","food"],["ups","Upselling","spark"],["archivePanel","Archivio ordini","file"]];
+const routes=[["orders","Ordini","bag"],["bookingPanel","Prenotazioni","calendar"],["menuHub","Gestione menù","food"],["fidelityPanel","Clienti / Fidelity","users"],["ddtPanel","Consegne / DDT","truck"],["statsPanel","Statistiche","chart"],["officePanel","Tavoli e gruppi","users"],["stockPanel","Disponibilità prodotti","box"],["servicePanel","Orari di ritiro","clock"],["pushPanel","Notifiche push","bell"],["promoPanel","Promozioni","gift"],["products","Prodotti","bag"],["daily","Piatti del giorno","food"],["ups","Upselling","spark"],["archivePanel","Archivio ordini","file"],["haccpScadenze","Scadenze prodotti","clock"],["haccpAllergeniTotale","Libro allergeni completo","file"],["haccpAllergeniGiornaliero","Libro allergeni giornaliero","food"],["haccpPulizia","Pulizia e sanificazione","spark"],["haccpFrigoriferi","Controllo frigoriferi","box"]];
 /* Gruppi soltanto per la presentazione: le destinazioni rimangono quelle originali. */
 const routeGroups=[
  {title:"Operatività",subtitle:"Da gestire durante il servizio",tone:"live",ids:["orders","bookingPanel","officePanel","servicePanel"]},
  {title:"Clienti e comunicazioni",subtitle:"Fidelity, avvisi e promozioni",tone:"clients",ids:["fidelityPanel","pushPanel","promoPanel"]},
  {title:"Gestione interna",subtitle:"Menù, prodotti e disponibilità",tone:"internal",ids:["menuHub","products","daily","stockPanel","ups"]},
- {title:"Controllo e documenti",subtitle:"Consegne, report e storico",tone:"control",ids:["ddtPanel","statsPanel","archivePanel"]}
+ {title:"Controllo e documenti",subtitle:"Consegne, report e storico",tone:"control",ids:["ddtPanel","statsPanel","archivePanel"]},
+ {title:"HACCP",subtitle:"Igiene alimentare · Schede da compilare",tone:"haccp",ids:["haccpScadenze","haccpAllergeniTotale","haccpAllergeniGiornaliero","haccpPulizia","haccpFrigoriferi"]}
 ];
 function renderDrawerGroups(){
  const names=Object.fromEntries(routes.map(r=>[r[0],r]));
