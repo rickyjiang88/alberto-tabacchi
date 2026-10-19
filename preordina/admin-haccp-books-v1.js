@@ -10,7 +10,8 @@ if(!full||!daily||document.getElementById("al-books-full"))return;
 const DATA="/preordina/haccp-allergeni-data-v1.json?v=20261019b";
 const APPROVALS="alberto-haccp-conferme-ricette-locali-v1";
 const HISTORY="alberto-haccp-giornalieri-locali-v1";
-let catalog=null,latest=null,preview=[];
+const AUTO="alberto-haccp-nuove-ricette-auto-locali-v1";
+let catalog=null,latest=null,preview=[],sharedDrafts={};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const norm=s=>String(s||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
 const dateIT=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()).replace(/(\d{2})\/(\d{2})\/(\d{4})/,"$3-$1-$2");
@@ -43,7 +44,8 @@ const fullBox=addBookPanel(full,"al-books-full",
  '<div class="al-books-card"><h3>Libro completo · ricettario permanente</h3>'+
  '<p>Consultazione del libro ingredienti e allergeni già raccolto. Le ricette con verifiche aperte non sono approvate automaticamente.</p>'+
  '<div class="al-books-actions"><button type="button" id="al-books-open-full">Apri il libro in PDF</button></div>'+
- '<p class="al-books-info" id="al-books-full-message">Il file è generato dal materiale del libro integrato del 19 ottobre. È una copia di consultazione, non una nuova convalida degli allergeni.</p></div>');
+ '<p class="al-books-info" id="al-books-full-message">Il libro contiene le ricette storiche e le nuove ricette registrate automaticamente come bozze. Ingredienti e allergeni vanno verificati.</p>'+
+ '<div id="al-books-new-recipes"></div></div>');
 const dailyBox=addBookPanel(daily,"al-books-daily",
  '<div class="al-books-card"><h3>Libro giornaliero · dal menù del giorno</h3>'+
  '<p>I piatti arrivano dal menù che hai già salvato in Shop Manager. Nessun inserimento doppio.</p>'+
@@ -80,14 +82,63 @@ function localRecipes(){
  }
  return [...unique.values()];
 }
+function candidatesFromMenu(items){
+ if(!Array.isArray(items))return;
+ const copy=loadLocal(AUTO);
+ for(const row of items){
+  const name=String(row&&row.name||"").trim().slice(0,180),key=norm(name);
+  if(!key||["nuovopiatto","nuovoprodotto","piatto","prodotto"].includes(key)||!name)continue;
+  if(!copy[key])copy[key]={name,category:String(row.category||""),description:String(row.description||"").slice(0,800)};
+ }
+ writeLocal(AUTO,copy);
+}
+function sharedRecipes(){
+ return Object.values(sharedDrafts).filter(r=>r&&typeof r==="object"&&typeof r.name==="string");
+}
+function allNewRecipes(){
+ const map=new Map();
+ for(const row of Object.values(loadLocal(AUTO))){
+  if(row&&row.name)map.set(norm(row.name),{name:row.name,category:row.category||"",description:row.description||""});
+ }
+ for(const row of sharedRecipes())map.set(norm(row.name),{...map.get(norm(row.name)),...row});
+ for(const row of localRecipes())map.set(norm(row.name),{...map.get(norm(row.name)),...row});
+ return [...map.values()].filter(r=>r.name);
+}
 function getMatch(name){
  if(!catalog)return null;
  const n=norm(name);
  const manual=localRecipes().filter(r=>norm(r.name)===n);
  if(manual.length===1)return manual[0];
+ const server=sharedRecipes().filter(r=>norm(r.name)===n&&String(r.ingredients||"").trim()&&Array.isArray(r.allergenNumbers));
+ if(server.length===1)return server[0];
  const exact=catalog.recipes.filter(r=>norm(r.name)===n);
- // Nessuna corrispondenza parziale: piatti con ingredienti diversi possono avere nomi simili.
+ // Nessuna corrispondenza parziale o allergene inventato: serve il nome identico.
  return exact.length===1?exact[0]:null;
+}
+function paintNewRecipes(){
+ const box=document.getElementById("al-books-new-recipes");if(!box||!catalog)return;
+ const known=new Set(catalog.recipes.map(r=>norm(r.name)));
+ const newItems=allNewRecipes().filter(r=>!known.has(norm(r.name)));
+ if(!newItems.length){box.innerHTML='<p class="al-books-info">Non ci sono nuovi piatti da completare.</p>';return}
+ const incomplete=newItems.filter(x=>!String(x.ingredients||"").trim()).length;
+ box.innerHTML='<h4>Ricette aggiunte automaticamente ('+newItems.length+')</h4>'+
+ '<p class="al-books-info">'+incomplete+' nuove schede da completare. Rimangono nel libro anche quando cambi il menù.</p>'+
+ newItems.slice(-180).map(r=>'<article class="al-books-dish">'+
+ '<div class="al-books-dish-top"><b>'+esc(r.name)+'</b><span class="'+(r.ingredients?'al-books-ok':'al-books-pending')+'">'+(r.ingredients?'Ingredienti registrati':'Da completare')+'</span></div>'+
+ (r.ingredients?'<p>'+esc(r.ingredients)+'</p><p>Allergeni inseriti: '+esc(Array.isArray(r.allergenNumbers)?(r.allergenNumbers.join(", ")||"Nessuno dei 14"):"Da verificare")+'</p>':'<p class="al-books-missing">Nome salvato. Mancano ingredienti e allergeni verificati.</p>')+
+ '<button type="button" class="al-books-fill" data-al-complete="'+esc(norm(r.name))+'">'+(r.ingredients?'Aggiorna ricetta':'Completa ingredienti e allergeni')+'</button></article>').join("");
+}
+async function readShared(){
+ if(typeof window.haccpReadDailyMenu!=="function")throw Error("Firebase non ancora disponibile");
+ const live=await window.haccpReadDailyMenu();
+ sharedDrafts=live.recipeDrafts||{};
+ candidatesFromMenu(live.items);
+ paintNewRecipes();
+ return live;
+}
+async function refreshComplete(){
+ try{await loadCatalog();await readShared();showText("al-books-full-message","Ricettario aggiornato. Le nuove ricette rimangono in bozza finché non sono complete e verificate.",false)}
+ catch(e){showText("al-books-full-message","Libro storico disponibile. Impossibile sincronizzare le nuove ricette: "+(e.message||e),true);paintNewRecipes()}
 }
 function classify(items){
  return items.filter(x=>x&&x.available!==false).map(x=>{
@@ -111,7 +162,7 @@ function paintDishes(){
  (r.matched?'<p>Ingredienti: '+esc(r.ingredients)+'</p><p><b>Allergeni indicati nel ricettario:</b> '+esc(r.allergenNumbers.join(", ")||"Nessuno dei 14")+'</p>'+
  (r.checks?'<p class="al-books-note">Note: '+esc(r.checks)+'</p>':'')+
  '<label class="al-books-confirm"><input type="checkbox" data-al-book-confirm="'+i+'" '+(r.approved?'checked':'')+'> Ho verificato ingredienti, etichette e allergeni effettivi di questa ricetta.</label>':
- '<p class="al-books-missing">Ricetta non riconosciuta nel libro. Prima di produrre il documento definitivo, registrare e verificare ingredienti e allergeni.</p>')+'</article>').join("");
+ '<p class="al-books-missing">Il piatto è registrato come bozza nel libro completo. Completa ingredienti e allergeni prima della versione definitiva.</p>')+'</article>').join("");
  const pdfBtn=document.getElementById("al-books-open-daily");if(pdfBtn){pdfBtn.disabled=!preview.length;pdfBtn.textContent=pend?"Apri PDF BOZZA ("+pend+" da verificare)":"Apri PDF verificato del giorno"}
 }
 async function refresh(){
@@ -119,7 +170,7 @@ async function refresh(){
  try{
   await loadCatalog();
   if(typeof window.haccpReadDailyMenu!=="function")throw Error("Collegamento al menù Firebase non ancora disponibile. Riapri il pannello.");
-  const live=await window.haccpReadDailyMenu();
+  const live=await readShared();
   if(!live||!Array.isArray(live.items))throw Error("Menù giornaliero non valido.");
   latest=live;preview=classify(live.items);
   const stamp=live.updatedAt?new Date(live.updatedAt).toLocaleString("it-IT",{timeZone:"Europe/Rome",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}):"Data salvataggio non disponibile";
@@ -186,15 +237,15 @@ function popupAtClick(){try{const p=window.open("about:blank","_blank");if(p){p.
 document.getElementById("al-books-open-full").addEventListener("click",async()=>{
  const popup=popupAtClick();
  showText("al-books-full-message","Preparazione libro completo…",false);
- try{const c=await loadCatalog();const printable=c.sourceText.split("\n").filter(line=>!/^<PARSED TEXT FOR PAGE:/i.test(line.trim()));
- const extras=localRecipes();
+ try{const c=await loadCatalog();await readShared();const printable=c.sourceText.split("\n").filter(line=>!/^<PARSED TEXT FOR PAGE:/i.test(line.trim()));
+ const known=new Set(c.recipes.map(x=>norm(x.name))),extras=allNewRecipes().filter(x=>!known.has(norm(x.name)));
  if(extras.length){
-  printable.push("","","APPENDICE - NUOVE RICETTE SALVATE SU QUESTO DISPOSITIVO");
-  printable.push("ATTENZIONE: BOZZE LOCALI DA VERIFICARE, NON CONDIVISE CON ALTRI DISPOSITIVI","");
+  printable.push("","","APPENDICE - RICETTE REGISTRATE AUTOMATICAMENTE DAL MENU");
+  printable.push("ATTENZIONE: BOZZE DA VERIFICARE, NON SONO RICETTE APPROVATE","");
   for(const row of extras){
-   printable.push(row.category+" - "+row.name);
-   printable.push("Ingredienti: "+row.ingredients);
-   printable.push("Allergeni inseriti: "+(row.allergenNumbers.join(", ")||"Nessuno dei 14"));
+   printable.push((row.category||"PIATTO")+" - "+row.name);
+   printable.push("Ingredienti: "+(row.ingredients||"DA COMPLETARE"));
+   printable.push("Allergeni: "+(Array.isArray(row.allergenNumbers)?(row.allergenNumbers.join(", ")||"Nessuno dei 14 registrato"):"DA VERIFICARE"));
    if(row.checks)printable.push("Note: "+row.checks);
    printable.push("");
   }
@@ -237,8 +288,42 @@ dailyBox.addEventListener("click",e=>{
  const record=historyList()[Number(btn.dataset.alHistory)];if(!record)return;
  const pop=popupAtClick();openPdf(pdfForSnapshot(record),"Alberto_Allergeni_Archivio_"+record.date+".pdf",pop);
 });
+fullBox.addEventListener("click",e=>{
+ const btn=e.target.closest("[data-al-complete]");if(!btn)return;
+ const item=allNewRecipes().find(r=>norm(r.name)===btn.dataset.alComplete);if(!item)return;
+ const detail=full.querySelector(".al-books-manual"),form=detail&&detail.querySelector("form");
+ if(!form)return;
+ detail.open=true;
+ const name=form.elements.namedItem("piatto");if(name)name.value=item.name;
+ const cat=form.elements.namedItem("categoria");
+ if(cat){
+  const c=norm(item.category);
+  const v=c.includes("prim")?"Primo":c.includes("second")?"Secondo":c.includes("contorn")?"Contorno":c.includes("unico")?"Piatto unico":"Altro";
+  cat.value=v;
+ }
+ const ingredients=form.elements.namedItem("ingredienti");if(ingredients)ingredients.value=item.ingredients||"";
+ const notes=form.elements.namedItem("note");if(notes)notes.value=item.checks||"";
+ form.querySelectorAll('input[name="allergeni"]').forEach(x=>x.checked=Array.isArray(item.allergenNumbers)&&item.allergenNumbers.includes(Number(x.value)));
+ const none=form.querySelector('input[name="allergenNone"]');if(none)none.checked=Array.isArray(item.allergenNumbers)&&!item.allergenNumbers.length&&Boolean(item.ingredients);
+ detail.scrollIntoView({behavior:"smooth",block:"start"});
+});
+window.addEventListener("alberto-haccp-menu-saved",e=>{
+ try{candidatesFromMenu(e.detail?.items);paintNewRecipes()}catch(e){}
+});
+window.addEventListener("alberto-haccp-recipe-details-saved",async e=>{
+ const data=e.detail||{};
+ try{
+  if(typeof window.haccpSaveRecipeDetails!=="function")throw Error("Firebase non disponibile");
+  const entry=await window.haccpSaveRecipeDetails(data);
+  sharedDrafts["r"+norm(entry.name)]={...entry};
+  paintNewRecipes();
+  if(latest){preview=classify(latest.items);paintDishes()}
+  showText("al-books-full-message","Ricetta «"+entry.name+"» salvata anche nel libro condiviso. Verifica prima della stampa definitiva.",false);
+ }catch(err){paintNewRecipes();showText("al-books-full-message","La scheda rimane su questo dispositivo; sincronizzazione non riuscita: "+(err.message||err),true)}
+});
 document.addEventListener("click",e=>{
  if(e.target.closest('[data-al-go="haccpAllergeniGiornaliero"]'))setTimeout(refresh,50);
+ if(e.target.closest('[data-al-go="haccpAllergeniTotale"]'))setTimeout(refreshComplete,50);
 });
 showHistory();
 })();
