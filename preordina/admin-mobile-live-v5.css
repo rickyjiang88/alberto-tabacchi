@@ -126,3 +126,177 @@ main input[type=checkbox],main input[type=radio]{width:19px;height:19px;accent-c
 @media(max-width:390px){.al-v5-hero h2{font-size:28px!important}.al-v5-quick-grid{gap:7px}.al-v5-quick{padding:10px 4px!important}.al-v5-quick-name{font-size:10px}}
 }
 @media(min-width:761px){.al-v5-bottom,.al-v5-shade,.al-v5-hero,.al-v5-section-head,.al-v5-quick-grid,.al-brand-icon,.al-brand-caption{display:none!important}}
+
+
+/* 19-10-2026 · ALBERTO — PALETTE CALDA V6
+   SOVRASCRITTURA PURAMENTE VISIVA; nessun selettore cambia dati o funzioni. */
+@media(max-width:760px){
+:root{
+ --al-bg:#f4eae3;
+ --al-stroke:#e9d4ce;
+ --al-red:#b71224;
+}
+body{
+ background:linear-gradient(165deg,#fff2e7 0%,#f9eae2 42%,#f7eee7 100%) fixed!important;
+}
+header.al-v5-header{
+ background:linear-gradient(115deg,#fffaf5,#ffe9e8)!important;
+ border-bottom:2px solid #edccc8;
+}
+main{background:transparent!important}
+.al-v5-hero{
+ background:linear-gradient(120deg,#8e0a1b 0%,#b90f26 58%,#d52c38 100%)!important;
+ box-shadow:0 14px 26px #a81c3236!important;
+}
+.al-v5-section-head h3,.panel>h2,.page-intro h2{color:#611b2a!important}
+.al-v5-section-head span{color:#9a6c6b!important}
+
+/* Home: sette statistiche con tinte diverse, mantenendo esattamente i valori veri */
+#dashboard .dash-kpis .dash-tile{
+ border-width:1.5px!important;
+ box-shadow:0 7px 16px #9b5d4a14!important;
+}
+#dashboard .dash-kpis .dash-tile:nth-child(7n + 1){
+ background:linear-gradient(145deg,#ffe2e0,#fff0eb)!important;
+ border-color:#eebbb7!important;
+}
+#dashboard .dash-kpis .dash-tile:nth-child(7n + 2){
+ background:linear-gradient(145deg,#fff0cf,#fff6e2)!important;
+ border-color:#e6d0a0!important;
+}
+#dashboard .dash-kpis .dash-tile:nth-child(7n + 3){
+ background:linear-gradient(145deg,#e1f3e6,#f3faee)!important;
+ border-color:#b9ddc6!important;
+}
+#dashboard .dash-kpis .dash-tile:nth-child(7n + 4){
+ background:linear-gradient(145deg,#fde3dd,#fff1e8)!important;
+ border-color:#edc2b7!important;
+}
+#dashboard .dash-kpis .dash-tile:nth-child(7n + 5){
+ background:linear-gradient(145deg,#efe2fc,#faf1fc)!important;
+ border-color:#dbc4e9!important;
+}
+#dashboard .dash-kpis .dash-tile:nth-child(7n + 6){
+ background:linear-gradient(145deg,#dfeafc,#f1f5ff)!important;
+ border-color:#c4d6f1!important;
+}
+#dashboard .dash-kpis .dash-tile:nth-child(7n + 7){
+ background:linear-gradient(145deg,#fce9ce,#fff6e7)!important;
+ border-color:#e8d2b3!important;
+}
+#dashboard .dash-kpis .dash-tile strong{color:#381b23!important}
+#dashboard .dash-kpis .dash-tile small{color:#70474e!important}
+#dashboard .dash-kpis .dash-tile em{color:#846d71!important}
+#dashboard .dash-kpis .dash-tile:before{background:#ae1225!important}
+#dashboard .dash-kpis .dash-tile:nth-child(7n + 2):before{background:#c18b32!important}
+#dashboard .dash-kpis .dash-tile:nth-child(7n + 3):before{background:#258963!important}
+#dashboard .dash-kpis .dash-tile:nth-child(7n + 5):before{background:#8153ad!important}
+#dashboard .dash-kpis .dash-tile:nth-child(7n + 6):before{background:#4a7fbd!important}
+
+.al-v5-quick{
+ border-color:#e8d1ca!important;
+ background:linear-gradient(160deg,#fffbf6,#fff1e9)!important;
+ box-shadow:0 5px 12px #a2635915!important;
+}
+.al-v5-quick:nth-child(1){background:linear-gradient(150deg,#ffe2e3,#fff1e9)!important}
+.al-v5-quick:nth-child(2){background:linear-gradient(150deg,#e3f2e6,#f6faf1)!important}
+.al-v5-quick:nth-child(3){background:linear-gradient(150deg,#e4edfd,#f5f8ff)!important}
+.al-v5-quick:nth-child(4){background:linear-gradient(150deg,#fff0d1,#fff7e9)!important}
+.al-v5-quick:nth-child(5){background:linear-gradient(150deg,#eee4fa,#f9f3ff)!important}
+.al-v5-quick:nth-child(6){background:linear-gradient(150deg,#fbe4de,#fff1ea)!important}
+.al-v5-quick-name{color:#572d36!important}
+
+/* Anagrafica Fidelity: creme/oro/verde, lista clienti con blocchi leggibili */
+#fidelityPanel>.page-intro{
+ padding:15px 14px 17px!important;
+ border-radius:20px;
+ border:1px solid #f0c8c4;
+ background:linear-gradient(130deg,#ffe6e4,#fff2e7)!important;
+}
+#fidelityPanel>.page-intro h2{color:#9e1529!important}
+#fidelityPanel>.card:not(#fidelityCameraCard):not(#fidelityCustomerCard),
+#referralAuditCard{
+ background:linear-gradient(145deg,#fff8ee,#ffece5)!important;
+ border-color:#edcfc4!important;
+}
+#fidelityPanel .dash-kpis .dash-tile{
+ box-shadow:none!important;
+ border:1.5px solid #e9cabf!important;
+}
+#fidelityPanel .dash-kpis .dash-tile:nth-child(4n+1){background:linear-gradient(140deg,#ffe0dd,#ffede4)!important;border-color:#edbdb7!important}
+#fidelityPanel .dash-kpis .dash-tile:nth-child(4n+2){background:linear-gradient(140deg,#fff0c8,#fff9e5)!important;border-color:#ebd5a4!important}
+#fidelityPanel .dash-kpis .dash-tile:nth-child(4n+3){background:linear-gradient(140deg,#def0e5,#eff8e8)!important;border-color:#badbc7!important}
+#fidelityPanel .dash-kpis .dash-tile:nth-child(4n){background:linear-gradient(140deg,#e5edfc,#f3f6ff)!important;border-color:#c9d7ef!important}
+#fidelityPanel .dash-kpis .dash-tile small{color:#684953!important}
+#fidelityPanel .dash-kpis .dash-tile strong{color:#421b27!important}
+#fidelityCustomerList>button{
+ border:1px solid #ecd1ca!important;
+ border-radius:15px!important;
+ margin:9px 0!important;
+ padding:13px 12px!important;
+ background:#fff4ed!important;
+ box-shadow:0 3px 8px #7f373b0b;
+}
+#fidelityCustomerList>button:nth-child(2n){background:#ffede9!important}
+#fidelityCustomerList>button:active{background:#ffddda!important}
+#fidelityCustomerList>button>span{min-width:0;overflow-wrap:anywhere}
+#fidelityCustomerList>button>span>b{color:#40202a!important;font-size:14px}
+#fidelityCustomerList>button>span>small{color:#80656b!important;font-size:11px}
+#fidelityCustomerList>button>span>small:last-child{
+ color:#236447!important;
+ background:#e0f2e5!important;
+ width:fit-content;
+ border:1px solid #bfddc6;
+ border-radius:7px;
+ padding:4px 7px;
+}
+#fidelityCustomerList>button>strong{
+ color:#87540f!important;
+ background:#fff0c9!important;
+ border:1px solid #edd59f;
+ border-radius:9px;
+ padding:7px 9px;
+ font-size:15px!important;
+ white-space:nowrap;
+}
+#fidelityPanel #fidCustomerSearch{background:#fffdf8!important;border-color:#dec3b9!important}
+#fidelityCustomerCard{background:linear-gradient(155deg,#fff7e9,#fff1ef)!important;border-color:#eac9bb!important}
+#fidelityCameraCard{background:#fff6ed!important;border-color:#e7cbc4!important}
+#fidelityCustomerCard #fidTransactionHistory{background:#fffbf3;border-radius:12px;padding:9px}
+#referralAuditCard{border-left:4px solid #bd1b2f!important}
+
+/* Altre sezioni — superfici meno fredde */
+#orders .order-card{background:#fff7f0!important;border-color:#e9c8c0!important}
+#ol .order-card .order-total{background:#ffe6e4!important}
+#bookingPanel .booking-card{
+ background:linear-gradient(155deg,#fff8ee,#ffece8)!important;
+ border-color:#e9c8c0!important;
+}
+#bookingPanel .booking-summary .dash-tile:nth-child(odd){background:#ffe7e2!important}
+#bookingPanel .booking-summary .dash-tile:nth-child(even){background:#fff0d4!important}
+#menuHub .manage-grid button:nth-child(odd){background:#ffe8e1!important;border-color:#eac9c2!important}
+#menuHub .manage-grid button:nth-child(even){background:#fff0d8!important;border-color:#e7d2aa!important}
+#ddtPanel .card,#officePanel .card,#statsPanel .card,#pushPanel .card,#promoPanel .card,
+#stockPanel .card,#servicePanel .card,#products .card,#daily .card,#ups .card{
+ background:#fff8f1!important;
+ border-color:#ead1c7!important;
+}
+#statsPanel .stat-kpi:nth-child(odd){background:#ffe8e3!important;border-color:#e9ccc1!important}
+#statsPanel .stat-kpi:nth-child(even){background:#fff0d6!important;border-color:#e9d9b8!important}
+#ddtPanel .ddt-total{background:#ffe3de!important}
+
+/* Bottom bar: rosa cipria; etichette attive ben contrastate */
+.al-v5-bottom{
+ background:linear-gradient(180deg,#fff3ee,#ffe7e5)!important;
+ border-top:2px solid #edc4c3!important;
+ box-shadow:0 -8px 24px #963a3a20!important;
+}
+.al-v5-bottom button{color:#8b6e77!important}
+.al-v5-bottom button.selected{color:#ad1028!important}
+.al-v5-bottom button.al-v5-qr .al-v5-qr-round{
+ background:linear-gradient(145deg,#9c0d1e,#cf2037)!important;
+ box-shadow:0 6px 19px #b3253b4d!important;
+}
+.al-v5-drawer{background:#fff0e9!important}
+.al-v5-drawer-grid button{background:#fff8f0!important;border-color:#ead0c8!important}
+}
