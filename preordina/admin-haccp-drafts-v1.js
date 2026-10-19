@@ -34,7 +34,23 @@ const types=[
  field("attrezzatura","Frigorifero / congelatore / identificativo"),field("temperatura","Temperatura misurata (°C)","number"),
  field("limite","Limite previsto dal tuo manuale (°C)","text",false),
  field("esito","Esito","select",true,["Conforme","Da verificare","Non conforme"]),
- field("azione","Anomalia e azione correttiva","textarea",false)]}
+ field("azione","Anomalia e azione correttiva","textarea",false)]},
+{id:"haccpRaffreddamento",title:"Raffreddamento e conservazione dei piatti cotti",
+ intro:"Compila solo quando rimangono piatti cotti che decidi di conservare. Misura tempi e temperature effettivi: le vaschette basse e l'etichetta da sole non bastano.",
+ color:"green",fields:[
+ field("piatto","Piatto / preparazione"),
+ field("quantita","Quantità e numero di vaschette","text",false),
+ field("inizioRaffreddamento","Inizio raffreddamento: data e ora","datetime"),
+ field("metodo","Metodo utilizzato","select",true,["Vaschette basse e porzioni piccole","Vaschette basse con acqua e ghiaccio","Altro metodo previsto dal piano"]),
+ field("temperaturaIniziale","Temperatura all'inizio (°C)","number",false),
+ field("fineRaffreddamento","Fine raffreddamento: data e ora","datetime"),
+ field("temperaturaFine","Temperatura misurata a fine raffreddamento (°C)","number"),
+ field("ingressoFrigo","Ingresso in frigorifero: data e ora","datetime"),
+ field("frigorifero","Frigorifero / ripiano di destinazione"),
+ field("scadenzaConservazione","Data limite di utilizzo secondo il piano HACCP","date"),
+ field("limitePiano","Tempi e temperature richiesti dal piano HACCP","text",false),
+ field("esito","Esito del controllo","select",true,["Da verificare con il piano","Conforme dopo verifica","Non conforme: alimento non conservato"]),
+ field("azione","Eventuali anomalie e azioni correttive","textarea",false)]}
 ];
 const STORAGE="alberto-haccp-bozze-locali-v1";
 const NOW=()=>{const a=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());const x=Object.fromEntries(a.filter(z=>z.type!=="literal").map(z=>[z.type,z.value]));return x.year+"-"+x.month+"-"+x.day+"T"+x.hour+":"+x.minute};
@@ -47,7 +63,7 @@ function markupField(f){
  const attrs=' id="'+id+'" name="'+esc(f.key)+'" '+(f.required?"required ":"")+' autocomplete="off"';
  if(f.kind==="select")return '<div class="al-haccp-field">'+label+'<select'+attrs+'><option value="">Scegli…</option>'+f.options.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("")+'</select></div>';
  if(f.kind==="textarea")return '<div class="al-haccp-field full">'+label+'<textarea rows="3"'+attrs+'></textarea></div>';
- return '<div class="al-haccp-field">'+label+'<input type="'+(f.kind==="number"?"number":f.kind==="date"?"date":"text")+'"'+(f.kind==="number"?' step="0.1" inputmode="decimal"':"")+attrs+'></div>';
+ return '<div class="al-haccp-field">'+label+'<input type="'+(f.kind==="number"?"number":f.kind==="date"?"date":f.kind==="datetime"?"datetime-local":"text")+'"'+(f.kind==="number"?' step="0.1" inputmode="decimal"':"")+attrs+'></div>';
 }
 function allergensMarkup(){
 return '<fieldset class="al-haccp-allergens"><legend>Allergeni presenti (numeri UE) <span class="al-haccp-required">*</span></legend>'+
@@ -87,6 +103,29 @@ function build(t){
    if(selected.length&&none){msg.textContent="Non puoi selezionare insieme allergeni presenti e «Nessuno».";
     msg.dataset.error="1";return}
    data.allergeni=selected.join(", ")||(none?"Nessuno":"");
+  }
+  if(t.id==="haccpRaffreddamento"){
+   const start=new Date(data.inizioRaffreddamento).getTime(),end=new Date(data.fineRaffreddamento).getTime(),fridge=new Date(data.ingressoFrigo).getTime();
+   if(![start,end,fridge].every(Number.isFinite)||end<start||fridge<end||start>fridge){
+    msg.textContent="Controlla le date e gli orari: inizio raffreddamento, fine raffreddamento e ingresso in frigorifero devono essere in ordine.";msg.dataset.error="1";return
+   }
+   const finishTemp=Number(data.temperaturaFine);
+   if(data.temperaturaFine===""||!Number.isFinite(finishTemp)||finishTemp< -80||finishTemp>150){
+    msg.textContent="Inserisci la temperatura realmente misurata alla fine del raffreddamento.";msg.dataset.error="1";return
+   }
+   if(data.metodo==="Altro metodo previsto dal piano"&&!data.azione){
+    msg.textContent="Specifica nelle note quale metodo di raffreddamento hai utilizzato.";msg.dataset.error="1";return
+   }
+   if(data.esito==="Conforme dopo verifica"&&!data.limitePiano){
+    msg.textContent="Prima di segnare Conforme, indica i limiti del tuo piano HACCP usati per la verifica.";msg.dataset.error="1";return
+   }
+   if(data.esito==="Non conforme: alimento non conservato"&&!data.azione){
+    msg.textContent="Descrivi la non conformità e cosa hai fatto dell'alimento.";msg.dataset.error="1";return
+   }
+   const prepDay=data.inizioRaffreddamento.slice(0,10);
+   if(data.scadenzaConservazione<prepDay){
+    msg.textContent="La data limite di utilizzo non può precedere la data di preparazione.";msg.dataset.error="1";return
+   }
   }
   if(data.esito==="Non conforme"&&!data.azione){msg.textContent="Per una non conformità indica l'azione correttiva effettuata.";msg.dataset.error="1";return}
   if(t.id==="haccpScadenze"&&data.esito==="Prodotto scartato"&&!data.azione){msg.textContent="Indica come è stato gestito il prodotto scartato.";msg.dataset.error="1";return}
