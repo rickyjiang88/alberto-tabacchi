@@ -85,7 +85,7 @@ main input[type=checkbox],main input[type=radio]{width:19px;height:19px;accent-c
 .al-v5-drawer-grid button{min-width:0;text-align:left;border:1px solid #eee4e2;background:#fff;border-radius:14px;padding:12px 10px;min-height:51px;display:flex;gap:9px;align-items:center;font-size:11px;font-weight:850;color:#4a333d}
 .al-v5-drawer-grid .al-v5-icon{color:#b71224;flex-shrink:0;width:19px;height:19px}
 .al-v5-extra-controls{border-top:1px solid #eae0df;margin-top:15px;padding:13px 2px 3px}
-.al-v5-extra-controls #soundBtn{position:static!important;right:auto!important;bottom:auto!important;z-index:auto!important;width:100%;box-shadow:none!important;text-align:center!important;border:1px solid #f1dade!important;border-radius:12px!important;font-size:12px!important;padding:12px!important}
+.al-v5-extra-controls #al-v5-audio{position:static!important;right:auto!important;bottom:auto!important;z-index:auto!important;width:100%;box-shadow:none!important;text-align:center!important;border:1px solid #f1dade!important;border-radius:12px!important;font-size:12px!important;padding:12px!important}
 #ol{display:grid!important;grid-template-columns:1fr!important;gap:12px!important}
 #ol .order-card{padding:0!important;overflow:hidden!important;border-radius:19px!important;border:1px solid #e9e1df!important;box-shadow:0 4px 15px #502b320c!important}
 #ol .order-card>.order-head{border-radius:0!important;padding:16px!important;background:linear-gradient(110deg,#951123,#ca1b30)!important;color:#fff!important;font-size:17px!important}
