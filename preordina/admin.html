@@ -187,8 +187,40 @@ window.sendManualPromoPush=async()=>{const title=document.getElementById('manual
 let unsub=null;let allOrders=[];let allBookings=[];let knownBookingIds=new Set();let soundEnabled=false,ordersLoaded=false,knownOrderIds=new Set();let audioCtx=null;
 window.enableOrderSound=()=>{try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();audioCtx.resume();soundEnabled=true;const b=document.getElementById("soundBtn");if(b)b.textContent="🔔 SUONO ATTIVO";window.playOrderSound();}catch(e){alert("Audio non disponibile su questo dispositivo.")}};
 window.playOrderSound=()=>{if(!soundEnabled||!audioCtx)return;try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.frequency.setValueAtTime(880,audioCtx.currentTime);g.gain.setValueAtTime(.18,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.45);o.start();o.stop(audioCtx.currentTime+.45)}catch(e){}};
-window.saveDailyConfig=async(rows)=>{const items=rows.map(x=>({category:x[0]||"",name:x[1]||"",description:x[2]||"",price:Number(x[3]||0),available:x[4]!==false}));await setDoc(doc(db,"settings","dailyMenu"),{items,updatedAt:fidelityApi.serverTimestamp()},{merge:true});const verify=await getDoc(doc(db,"settings","dailyMenu"));if(!verify.exists())throw new Error("Salvataggio non verificato");return verify.data().items||items;};
-window.haccpReadDailyMenu=async()=>{const snap=await getDoc(doc(db,"settings","dailyMenu"));if(!snap.exists())throw new Error("Menù non ancora salvato su Firebase");const data=snap.data();return {items:Array.isArray(data.items)?data.items:[],updatedAt:data.updatedAt&&typeof data.updatedAt.toDate==="function"?data.updatedAt.toDate().toISOString():null};};
+/* Le nuove ricette vengono registrate come BOZZE nello stesso documento Firebase del menù:
+   scriviamo solo nome e categoria, MAI allergeni dedotti automaticamente. */
+const haccpRecipeKey=name=>String(name||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,165);
+window.saveDailyConfig=async(rows)=>{
+ const items=rows.map(x=>({category:x[0]||"",name:x[1]||"",description:x[2]||"",price:Number(x[3]||0),available:x[4]!==false}));
+ const haccpRecipeDrafts={};
+ for(const item of items){
+  const name=String(item.name||"").trim().slice(0,180),id=haccpRecipeKey(name);
+  if(!id||["nuovopiatto","nuovoprodotto","piatto","prodotto"].includes(id))continue;
+  haccpRecipeDrafts["r"+id]={name,category:String(item.category||"")};
+ }
+ const values={items,updatedAt:fidelityApi.serverTimestamp()};
+ if(Object.keys(haccpRecipeDrafts).length)values.haccpRecipeDrafts=haccpRecipeDrafts;
+ await setDoc(doc(db,"settings","dailyMenu"),values,{merge:true});
+ const verify=await getDoc(doc(db,"settings","dailyMenu"));if(!verify.exists())throw new Error("Salvataggio non verificato");
+ return verify.data().items||items;
+};
+window.haccpReadDailyMenu=async()=>{const snap=await getDoc(doc(db,"settings","dailyMenu"));if(!snap.exists())throw new Error("Menù non ancora salvato su Firebase");const data=snap.data();return {items:Array.isArray(data.items)?data.items:[],updatedAt:data.updatedAt&&typeof data.updatedAt.toDate==="function"?data.updatedAt.toDate().toISOString():null,recipeDrafts:data.haccpRecipeDrafts&&typeof data.haccpRecipeDrafts==="object"?data.haccpRecipeDrafts:{}};};
+/* Salva una ricetta compilata nel libro condiviso senza toccare il menù. */
+window.haccpSaveRecipeDetails=async data=>{
+ const name=String(data&&data.piatto||"").trim(),ingredients=String(data&&data.ingredienti||"").trim(),id=haccpRecipeKey(name);
+ if(!id||!ingredients)throw new Error("Nome e ingredienti richiesti");
+ const raw=String(data.allergeni||"").trim();
+ if(!raw)throw new Error("Allergeni da verificare");
+ const ids=(raw.match(/\b(?:1[0-4]|[1-9])\b/g)||[]).map(Number);
+ const allergenNumbers=[...new Set(ids)].sort((a,b)=>a-b);
+ if(raw!=="Nessuno"&&!allergenNumbers.length)throw new Error("Allergeni non validi");
+ const entry={name:name.slice(0,180),category:String(data.categoria||"Altro").slice(0,60),ingredients:ingredients.slice(0,2000),allergenNumbers,allergensSource:raw.slice(0,90),checks:String(data.note||"").slice(0,600)};
+ const location=doc(db,"settings","dailyMenu");
+ await setDoc(location,{haccpRecipeDrafts:{["r"+id]:entry}},{merge:true});
+ const verify=await getDoc(location),got=verify.data()?.haccpRecipeDrafts?.["r"+id];
+ if(!got||got.ingredients!==entry.ingredients)throw new Error("Salvataggio ricetta non verificato");
+ return got;
+};
 async function loadDailyConfig(){try{const snap=await getDoc(doc(db,"settings","dailyMenu"));if(snap.exists()){daily=(snap.data().items||[]).map(x=>[x.category||"",x.name||"",x.description||"",Number(x.price||0),x.available!==false]);localStorage.setItem("albertoDaily",JSON.stringify(daily));drawD()}}catch(e){console.error("Menu del giorno:",e)}}
 const gate=document.getElementById("loginGate"),err=document.getElementById("loginError");
 document.getElementById("logoutBtn").onclick=async()=>{try{window.closeFidelityCamera&&window.closeFidelityCamera();await signOut(auth)}catch(e){console.error(e)}};
