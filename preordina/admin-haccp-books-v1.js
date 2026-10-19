@@ -64,9 +64,28 @@ function approve(r,yes){
  if(yes)v[id]={confirmedAt:new Date().toISOString()};else delete v[id];
  if(!writeLocal(APPROVALS,v))showText("al-books-menu-date","Errore nel salvataggio locale della verifica.",true);
 }
+function localRecipes(){
+ let rows=[];
+ try{const found=JSON.parse(localStorage.getItem("alberto-haccp-bozze-locali-v1")||"[]");if(Array.isArray(found))rows=found}catch(e){}
+ const unique=new Map();
+ for(const row of rows){
+  if(row.type!=="haccpAllergeniTotale")continue;
+  const d=row.data||{},name=String(d.piatto||"").trim(),ingredients=String(d.ingredienti||"").trim();
+  if(!name||!ingredients||unique.has(norm(name)))continue; // il registro ordina i più recenti prima
+  const allergenNumbers=String(d.allergeni||"").match(/\b(1[0-4]|[1-9])\b/g)||[];
+  unique.set(norm(name),{name,ingredients,category:String(d.categoria||"Altro"),
+   allergenNumbers:[...new Set(allergenNumbers.map(Number))].sort((a,b)=>a-b),
+   allergensSource:String(d.allergeni||""),checks:String(d.note||""),
+   verified:false,source:"Nuova ricetta inserita sul dispositivo"});
+ }
+ return [...unique.values()];
+}
 function getMatch(name){
  if(!catalog)return null;
- const n=norm(name),exact=catalog.recipes.filter(r=>norm(r.name)===n);
+ const n=norm(name);
+ const manual=localRecipes().filter(r=>norm(r.name)===n);
+ if(manual.length===1)return manual[0];
+ const exact=catalog.recipes.filter(r=>norm(r.name)===n);
  // Nessuna corrispondenza parziale: piatti con ingredienti diversi possono avere nomi simili.
  return exact.length===1?exact[0]:null;
 }
@@ -167,7 +186,20 @@ function popupAtClick(){try{const p=window.open("about:blank","_blank");if(p){p.
 document.getElementById("al-books-open-full").addEventListener("click",async()=>{
  const popup=popupAtClick();
  showText("al-books-full-message","Preparazione libro completo…",false);
- try{const c=await loadCatalog();const printable=c.sourceText.split("\n").filter(line=>!/^<PARSED TEXT FOR PAGE:/i.test(line.trim()));const pdf=pdfLines(printable,"Libro completo ingredienti e allergeni");openPdf(pdf,"Alberto_Libro_Allergeni_Completo_Consultazione.pdf",popup,fullBox);
+ try{const c=await loadCatalog();const printable=c.sourceText.split("\n").filter(line=>!/^<PARSED TEXT FOR PAGE:/i.test(line.trim()));
+ const extras=localRecipes();
+ if(extras.length){
+  printable.push("","","APPENDICE - NUOVE RICETTE SALVATE SU QUESTO DISPOSITIVO");
+  printable.push("ATTENZIONE: BOZZE LOCALI DA VERIFICARE, NON CONDIVISE CON ALTRI DISPOSITIVI","");
+  for(const row of extras){
+   printable.push(row.category+" - "+row.name);
+   printable.push("Ingredienti: "+row.ingredients);
+   printable.push("Allergeni inseriti: "+(row.allergenNumbers.join(", ")||"Nessuno dei 14"));
+   if(row.checks)printable.push("Note: "+row.checks);
+   printable.push("");
+  }
+ }
+ const pdf=pdfLines(printable,"Libro completo ingredienti e allergeni");openPdf(pdf,"Alberto_Libro_Allergeni_Completo_Consultazione.pdf",popup,fullBox);
  showText("al-books-full-message","Libro aperto. Mantieni le verifiche pendenti: questa copia non certifica etichette e ricette.",false)}
  catch(e){if(popup&&!popup.closed)popup.close();showText("al-books-full-message","Errore apertura PDF: "+(e.message||e),true)}
 });
