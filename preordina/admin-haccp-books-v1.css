@@ -26,6 +26,9 @@
 .al-books-confirm input{flex:none;margin:0;width:19px;height:19px;accent-color:#27784d}
 .al-books-history{display:grid;gap:7px;margin-top:12px}
 .al-books-history button{display:block;width:100%;text-align:left;border:1px solid #e4cfc5;border-radius:11px;background:#fff;color:#713243;padding:11px;font-size:12px;font-weight:700}
+.al-books-quick{padding:11px;margin:11px 0 8px;background:#eff8ef;border:1px solid #b9dfc6;border-radius:12px}
+.al-books-quick>p{margin:0 0 7px;color:#23533a;font-size:11px;line-height:1.5}
+.al-books-quick .al-books-fill{min-height:42px;margin:10px 0 2px!important}
 .al-books-linker{padding:12px;margin:11px 0;background:#eff7f1;border:1px solid #bfdfcd;border-radius:11px}
 .al-books-linker summary{font-size:12px;font-weight:900;color:#265f40;cursor:pointer;line-height:1.4}
 .al-books-linker>p,.al-books-alias-preview p{font-size:11px;line-height:1.5;color:#475950;margin:9px 0}
