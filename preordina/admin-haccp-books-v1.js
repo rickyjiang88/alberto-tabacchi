@@ -12,7 +12,7 @@ const APPROVALS="alberto-haccp-conferme-ricette-locali-v1";
 const HISTORY="alberto-haccp-giornalieri-locali-v1";
 const AUTO="alberto-haccp-nuove-ricette-auto-locali-v1";
 const ALIASES="alberto-haccp-collegamenti-ricette-locali-v1";
-let catalog=null,latest=null,preview=[],sharedDrafts={},sharedAliases={};
+let catalog=null,latest=null,preview=[],sharedDrafts={},sharedAliases={},activeMenuNames=null;
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const norm=s=>String(s||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
 const dateIT=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()).replace(/(\d{2})\/(\d{2})\/(\d{4})/,"$3-$1-$2");
@@ -143,6 +143,19 @@ function recipeSuggestions(item){
  }).sort((a,b)=>b.score-a.score||a.recipe.name.localeCompare(b.recipe.name,"it"))
  .map(x=>x.recipe);
 }
+function quickReuseSuggestion(item){
+ const options=recipeSuggestions(item);
+ if(!options.length)return null;
+ const tok=n=>new Set(String(n||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase()
+ .replace(/polipo/g,"polpo").replace(/ragu/g,"ragu")
+ .split(/[^a-z0-9]+/).filter(w=>w.length>3&&!["freschi","fresche","fresco","fresca","cinese","cucina","bolognese","piatti"].includes(w)));
+ const src=tok(item.name),score=r=>{
+  const dest=tok(r.name),equal=[...src].filter(w=>dest.has(w)).length;
+  return equal/Math.max(src.size,dest.size,1);
+ };
+ const first=options[0],top=score(first),runner=options[1]?score(options[1]):0;
+ return top>=0.77&&top-runner>=0.20&&src.size>=2?first:null;
+}
 function isRecipeEntered(r){
  // Ingrediente e allergeni devono essere esplicitamente compilati;
  // un campo allergeni vuoto non significa mai "nessuno".
@@ -150,7 +163,11 @@ function isRecipeEntered(r){
 }
 function renderNewDishCard(r,registered){
  const key=norm(r.name),options=registered?[]:recipeSuggestions(r);
- const select=!registered&&options.length?'<details class="al-books-linker"><summary>Usa ricetta già presente</summary>'+
+ const quick=registered?null:quickReuseSuggestion(r);
+ const quickHtml=quick?'<div class="al-books-quick"><p><b>Forse è già registrata:</b> '+esc(quick.name)+'</p>'+
+ '<p class="al-books-info">Ingredienti della ricetta esistente: '+esc(quick.ingredients)+'</p>'+
+ '<button type="button" class="al-books-fill" data-al-alias-quick="'+esc(key)+'" data-al-alias-quick-recipe="'+esc(norm(quick.name))+'">Stessa ricetta? Collega in un tocco</button></div>':"";
+ const select=!registered&&options.length?'<details class="al-books-linker"><summary>Altre ricette / Collegamento manuale</summary>'+
    '<p>Confronta ingredienti e allergeni: collega solo se è la stessa ricetta.</p>'+
    '<select data-al-alias-select="'+esc(key)+'"><option value="">Scegli la ricetta da riutilizzare…</option>'+
    options.map(x=>'<option value="'+esc(norm(x.name))+'">'+esc(x.name)+'</option>').join("")+'</select>'+
@@ -165,32 +182,42 @@ function renderNewDishCard(r,registered){
     '<p class="al-books-missing">Nome salvato. Ingredienti e allergeni ancora da completare.</p>');
  return '<article class="al-books-dish">'+
  '<div class="al-books-dish-top"><b>'+esc(r.name)+'</b><span class="'+(registered?'al-books-ok':'al-books-pending')+'">'+(registered?'Dati inseriti':'Da completare')+'</span></div>'+
- description+select+
+ description+quickHtml+select+
  '<button type="button" class="al-books-fill al-books-fill-secondary" data-al-complete="'+esc(key)+'">'+(registered?'Modifica ingredienti e allergeni':r.ingredients?'Completa o correggi allergeni':'Completa ingredienti e allergeni')+'</button></article>';
 }
 function paintNewRecipes(){
  const box=document.getElementById("al-books-new-recipes");if(!box||!catalog)return;
  const wasOpen=Boolean(box.querySelector("#al-books-registered-group")?.open);
+ const oldOpen=Boolean(box.querySelector("#al-books-old-group")?.open);
  const known=new Set(catalog.recipes.map(r=>norm(r.name)));
  const newItems=allNewRecipes().filter(r=>!known.has(norm(r.name))&&!readAlias(r.name));
  const pending=newItems.filter(r=>!isRecipeEntered(r));
  const registered=newItems.filter(isRecipeEntered);
- const pendingHtml='<section class="al-books-pending-group"><h4>Da completare ('+pending.length+')</h4>'+
- '<p class="al-books-info">Le ricette già preparate si possono collegare con «Usa ricetta già presente». Inserisci ingredienti e allergeni soltanto per quelle davvero nuove.</p>'+
- (pending.length?pending.map(r=>renderNewDishCard(r,false)).join(""):'<p class="al-books-info">Nessuna nuova ricetta da completare.</p>')+
+ // Le bozze di giorni vecchi rimangono salvate ma non intasano il lavoro di oggi.
+ const today=activeMenuNames?pending.filter(r=>activeMenuNames.has(norm(r.name))):pending;
+ const old=activeMenuNames?pending.filter(r=>!activeMenuNames.has(norm(r.name))):[];
+ const pendingHtml='<section class="al-books-pending-group"><h4>Da controllare nel menù attuale ('+today.length+')</h4>'+
+ '<p class="al-books-info">I piatti già registrati non vanno riscritti. Conferma solo i collegamenti sicuri; completa le ricette veramente nuove.</p>'+
+ (today.length?today.map(r=>renderNewDishCard(r,false)).join(""):'<p class="al-books-info">Nessuna nuova ricetta da completare per il menù attuale.</p>')+
  '</section>';
+ const oldHtml='<details id="al-books-old-group" class="al-books-registered-group"'+(oldOpen?' open':'')+'>'+
+ '<summary>Ricette di altri giorni ancora da completare ('+old.length+')</summary>'+
+ '<p class="al-books-info">Queste schede restano conservate. Potrai completarle quando torneranno nel menù.</p>'+
+ (old.length?old.map(r=>renderNewDishCard(r,false)).join(""):'<p class="al-books-info">Nessuna ricetta precedente in attesa.</p>')+
+ '</details>';
  const registeredHtml='<details id="al-books-registered-group" class="al-books-registered-group"'+(wasOpen?' open':'')+'>'+
  '<summary>Ricette registrate ('+registered.length+')</summary>'+
  '<p class="al-books-info">Ingredienti e allergeni sono stati inseriti. Non significa che siano già verificati: controlla le etichette effettive prima della stampa definitiva.</p>'+
  (registered.length?registered.map(r=>renderNewDishCard(r,true)).join(""):'<p class="al-books-info">Qui compariranno le ricette dopo che avrai inserito ingredienti e allergeni.</p>')+
  '</details>';
- box.innerHTML=pendingHtml+registeredHtml;
+ box.innerHTML=pendingHtml+oldHtml+registeredHtml;
 }
 async function readShared(){
  if(typeof window.haccpReadDailyMenu!=="function")throw Error("Firebase non ancora disponibile");
  const live=await window.haccpReadDailyMenu();
  sharedDrafts=live.recipeDrafts||{};
  sharedAliases=live.recipeAliases||{};
+ activeMenuNames=new Set((live.items||[]).filter(r=>r&&r.available!==false).map(r=>norm(r.name)));
  candidatesFromMenu(live.items);
  paintNewRecipes();
  return live;
@@ -364,11 +391,12 @@ fullBox.addEventListener("change",e=>{
  '<p class="al-books-info">Controlla la ricetta reale e le etichette attuali. Questo collegamento non equivale ad approvare gli allergeni.</p>':"";
 });
 fullBox.addEventListener("click",async e=>{
- const button=e.target.closest("[data-al-alias-link]");if(!button)return;
- const key=button.dataset.alAliasLink;
+ const button=e.target.closest("[data-al-alias-link],[data-al-alias-quick]");if(!button)return;
+ const key=button.dataset.alAliasLink||button.dataset.alAliasQuick;
  const from=allNewRecipes().find(x=>norm(x.name)===key);
  const dropdown=fullBox.querySelector('[data-al-alias-select="'+key+'"]');
- const dest=catalog?.recipes.find(x=>norm(x.name)===dropdown?.value);
+ const destName=button.dataset.alAliasQuickRecipe||dropdown?.value;
+ const dest=catalog?.recipes.find(x=>norm(x.name)===destName);
  if(!from||!dest){window.alert("Scegli prima la ricetta da riutilizzare.");return}
  if(!window.confirm("Confermi che «"+from.name+"» è preparato con gli STESSI ingredienti di «"+dest.name+"»? Se è diverso, scegli «È un piatto nuovo». Le etichette e gli allergeni andranno comunque verificati."))return;
  button.disabled=true;
