@@ -25,6 +25,31 @@ spark:'<path d="m12 2 1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9L12 2Z"/
 };
 const ico=(name,cls="")=>'<svg class="al-v5-icon '+cls+'" aria-hidden="true" viewBox="0 0 24 24">'+(icons[name]||icons.box)+'</svg>';
 const routes=[["orders","Ordini","bag"],["bookingPanel","Prenotazioni","calendar"],["menuHub","Gestione menù","food"],["fidelityPanel","Clienti / Fidelity","users"],["ddtPanel","Consegne / DDT","truck"],["statsPanel","Statistiche","chart"],["officePanel","Tavoli e gruppi","users"],["stockPanel","Disponibilità prodotti","box"],["servicePanel","Orari di ritiro","clock"],["pushPanel","Notifiche push","bell"],["promoPanel","Promozioni","gift"],["products","Prodotti","bag"],["daily","Piatti del giorno","food"],["ups","Upselling","spark"],["archivePanel","Archivio ordini","file"]];
+/* Gruppi soltanto per la presentazione: le destinazioni rimangono quelle originali. */
+const routeGroups=[
+ {title:"Operatività",subtitle:"Da gestire durante il servizio",tone:"live",ids:["orders","bookingPanel","officePanel","servicePanel"]},
+ {title:"Clienti e comunicazioni",subtitle:"Fidelity, avvisi e promozioni",tone:"clients",ids:["fidelityPanel","pushPanel","promoPanel"]},
+ {title:"Gestione interna",subtitle:"Menù, prodotti e disponibilità",tone:"internal",ids:["menuHub","products","daily","stockPanel","ups"]},
+ {title:"Controllo e documenti",subtitle:"Consegne, report e storico",tone:"control",ids:["ddtPanel","statsPanel","archivePanel"]}
+];
+function renderDrawerGroups(){
+ const names=Object.fromEntries(routes.map(r=>[r[0],r]));
+ return routeGroups.map(g=>{
+  const buttons=g.ids.map((id,index)=>{
+   const item=names[id];
+   if(!item)return "";
+   const primary=g.tone==="live"&&index<2;
+   return '<button type="button" data-al-go="'+id+'" class="al-v6-menu-action'+(primary?' al-v6-action-priority':'')+'">'+
+    '<span class="al-v6-action-icon">'+ico(item[2])+'</span>'+
+    '<span class="al-v6-action-label">'+item[1]+'</span>'+
+    (primary?'<span class="al-v6-action-chevron">'+ico("arrow","sm")+'</span>':'')+
+    '</button>';
+  }).join("");
+  return '<section class="al-v6-menu-group al-v6-menu-group--'+g.tone+'">'+
+   '<div class="al-v6-group-heading"><h3>'+g.title+'</h3><p>'+g.subtitle+'</p></div>'+
+   '<div class="al-v6-group-grid">'+buttons+'</div></section>';
+ }).join("");
+}
 const header=document.querySelector("body>header"),dash=document.getElementById("dashboard"),tabs=document.querySelector(".tabs");
 if(!header||!dash||!tabs||document.getElementById("al-v5-nav"))return;
 header.classList.add("al-v5-header");
@@ -43,7 +68,7 @@ const recent=dash.querySelector(".card");if(recent)recent.before(sub("Ultimi ord
 const bottom=document.createElement("nav");bottom.id="al-v5-nav";bottom.className="al-v5-bottom";bottom.setAttribute("aria-label","Navigazione principale");
 bottom.innerHTML=[["dashboard","Home","home"],["orders","Ordini","bag"],["qr","QR","qr"],["fidelityPanel","Clienti","users"],["more","Altro","menu"]].map(([id,label,ic],n)=>'<button type="button" data-al-go="'+id+'" class="'+(n===0?"selected ":"")+(id==="qr"?"al-v5-qr":"")+'" aria-label="'+label+'">'+(id==="qr"?'<span class="al-v5-qr-round">'+ico(ic)+'</span>':ico(ic))+'<span>'+label+'</span></button>').join("");
 const shade=document.createElement("div");shade.className="al-v5-shade";shade.id="al-v5-shade";shade.setAttribute("aria-hidden","true");
-shade.innerHTML='<div class="al-v5-drawer" role="dialog" aria-modal="true" aria-label="Tutte le sezioni"><div class="al-v5-handle"></div><div class="al-v5-drawer-title"><strong>Tutte le sezioni</strong><button type="button" class="al-v5-close" data-al-close aria-label="Chiudi">×</button></div><div class="al-v5-drawer-grid">'+routes.map(([id,name,ic])=>'<button type="button" data-al-go="'+id+'">'+ico(ic)+'<span>'+name+'</span></button>').join("")+'</div><div class="al-v5-extra-controls" id="al-v5-controls"></div></div>';
+shade.innerHTML='<div class="al-v5-drawer" role="dialog" aria-modal="true" aria-label="Tutte le sezioni"><div class="al-v5-handle"></div><div class="al-v5-drawer-title"><strong>Tutte le sezioni</strong><button type="button" class="al-v5-close" data-al-close aria-label="Chiudi">×</button></div><div class="al-v6-menu-groups">'+renderDrawerGroups()+'</div><div class="al-v5-extra-controls" id="al-v5-controls"></div></div>';
 document.body.append(shade,bottom);
 // Il pulsante suono ORIGINALE rimane dov’è: stessa funzionalità, nessun elemento rimosso.
 const soundAction=document.createElement("button");soundAction.type="button";soundAction.id="al-v5-audio";soundAction.textContent="🔔 Attiva suono ordini";shade.querySelector("#al-v5-controls").append(soundAction);
