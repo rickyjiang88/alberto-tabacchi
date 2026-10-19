@@ -5,6 +5,8 @@ const nav=document.createElement("nav");nav.className="am-mobile-nav";nav.setAtt
 nav.innerHTML=items.map(([id,icon,name])=>'<button type="button" data-am-tab="'+id+'" '+(id==="dashboard"?'class="am-active"':'')+'><span class="am-icon" aria-hidden="true">'+icon+'</span><span>'+name+'</span></button>').join("");
 const dim=document.createElement("div");dim.className="am-dim";dim.setAttribute("aria-hidden","true");document.body.append(dim,nav);
 const menu=document.querySelector(".tabs");
+/* Il pulsante originale di avviso sonoro resta accessibile anche con il menu chiuso. */
+const sound=menu?.querySelector("#soundBtn");if(sound)document.body.appendChild(sound);
 function close(){menu?.classList.remove("am-menu-open");dim.classList.remove("am-visible");}
 function sync(id){nav.querySelectorAll("button").forEach(b=>b.classList.toggle("am-active",b.dataset.amTab===id||(b.dataset.amTab==="more"&&!items.slice(0,4).some(x=>x[0]===id))));}
 function openTab(id){close();if(typeof window.tab==="function"){window.tab(id);}else{document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id===id));}sync(id);}
