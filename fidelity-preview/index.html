@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="fidelity-app-build-marker" content="2026-10-14-menu-bar-fix-1">
+<meta name="fidelity-app-build-marker" content="2026-10-22-fidelity-3-design">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#b5101b">
-<title>Alberto Fidelity | Prova iPhone</title>
+<title>Alberto Fidelity 3.0</title>
 <link rel="manifest" href="/fidelity-preview/manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -1396,5 +1396,32 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   setTimeout(()=>{frame.style.visibility='visible';if(loading)loading.hidden=true;},120);
  });
 })();
-</script></body>
+</script><style id="alberto-fidelity-3-design-20261022">
+:root{--red:#ad0924;--red2:#d92a3d;--ink:#302323;--muted:#82615c;--paper:#fff3e8;--card:#fffaf4;--line:#efd6c9;--soft:#ffe5dd;--dark:#97142c}
+html,body{background:#fff3e8;color:var(--ink)}
+.shell{background:linear-gradient(155deg,#fff1e2,#fff9f2 45%,#ffebe6)}
+.content,body.fidelity-app .content{background:linear-gradient(155deg,#fff3e3,#fff9f2 50%,#ffebe6)!important}
+.view h1{letter-spacing:-1.3px;font-weight:900}
+.view .lead{color:#82615c}.eyebrow{color:#a90c2a}
+.card{background:#fffaf4;border:1px solid #f0d8ca;border-radius:21px;box-shadow:0 6px 18px #853e210d}
+.card.dark,.card.red{background:linear-gradient(125deg,#98001e,#d52136 82%);color:#fff;border:0;box-shadow:0 12px 25px #a9102526}
+.card.dark small,.card.red small{color:#ffe6e0}
+.card.soft{background:linear-gradient(130deg,#ffe2da,#fff0df);border:1px solid #f1cbbf}
+.metric{font-weight:950;letter-spacing:-1px}.btn{border-radius:13px}
+.quick{gap:11px}.quick button{background:#fffaf4;border-color:#efd6c9;border-radius:18px;box-shadow:0 5px 12px #7d352009}
+.quick button.primary{background:linear-gradient(130deg,#a70925,#d5233d)}
+.fidelity-home-qr{background:linear-gradient(125deg,#fff9f1,#ffe4dd)!important;border:1px solid #f0c9be!important;border-radius:24px;box-shadow:0 10px 24px #a9102510}
+.fidelity-home-qr-heading h2{color:#9e0d29;font-weight:900}.fidelity-home-qr-heading p{color:#765b55}
+#homeQr{background:#fff;border-radius:17px;padding:9px}
+.login-card{border-radius:27px;background:#fffaf4}.login-visual{background:linear-gradient(130deg,#99001f,#d52136)}
+input,select,textarea{border-radius:12px}.row{border-radius:14px}
+body.fidelity-app .topbar{background:linear-gradient(115deg,#a70925,#c91c37)!important}
+body.fidelity-app .fidelity-bottom-nav{background:#fff8f0!important;border-top:1px solid #efcfc4!important;box-shadow:0 -5px 22px #a9102510}
+@media(max-width:780px){
+body.fidelity-app .content{padding-left:16px!important;padding-right:16px!important}
+.view h1{font-size:30px;line-height:1.1}.card{border-radius:19px;padding:17px}
+.fidelity-home-qr{padding:18px!important;gap:12px}.fidelity-home-qr-heading h2{font-size:21px}
+.quick button{border-radius:17px;min-height:102px}.grid4{gap:10px}
+}
+</style></body>
 </html>
