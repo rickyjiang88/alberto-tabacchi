@@ -423,7 +423,11 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
 
     <section id="view-invite" class="view">
       <span class="eyebrow">ALBERTO FIDELITY</span><h1>Invita un amico</h1><p class="lead">Condividi il tuo invito personale.</p>
-      <div class="card"><small>LINK PERSONALE</small><div id="inviteUrl" class="code" style="text-align:left;word-break:break-all">—</div><div class="actions"><button id="copyInviteBtn" class="btn">COPIA LINK</button></div></div>
+      <div class="card"><small>LINK PERSONALE</small><div id="inviteUrl" class="code" style="text-align:left;word-break:break-all">—</div><p style="font-size:13px;line-height:1.55;margin:14px 0 4px;color:#554942">Invita un amico con il tuo link: <b>ricevi 5 punti</b> dopo la sua prima consumazione pagata da Alberto.</p>
+<div class="actions" style="display:flex;flex-wrap:wrap;gap:10px">
+  <button id="shareInviteBtn" type="button" class="btn" style="background:#196a3c;color:white;flex:1">INVIA SU WHATSAPP ↗</button>
+  <button id="copyInviteBtn" type="button" class="btn secondary" style="flex:1">COPIA LINK</button>
+</div></div>
     </section>
 
     <section id="view-notifications" class="view">
@@ -788,6 +792,13 @@ $('forgotBtn').addEventListener('click',async()=>{
 $('logoutBtn').addEventListener('click',()=>signOut(auth));
 $('mobileLogoutBtn').addEventListener('click',()=>signOut(auth));
 $('copyInviteBtn').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('inviteUrl').textContent);toast('Link copiato.')}catch(e){toast('Copia non disponibile.')}});
+$('shareInviteBtn').addEventListener('click',()=>{
+  const link=$('inviteUrl').textContent.trim();
+  if(!link||link==='—')return toast('Invito non disponibile.');
+  const message='Entra nella Fidelity gratuita di Alberto! Accumuli 1 punto per ogni €1 speso e con 300 punti hai un buono da €10. Ecco il mio invito personale: '+link;
+  try{if(typeof gtag==='function')gtag('event','fidelity_referral_share',{method:'whatsapp'});}catch(e){}
+  window.open('https://wa.me/?text='+encodeURIComponent(message),'_blank','noopener,noreferrer');
+});
 $('groupCreateBtn').addEventListener('click',async()=>{
   const user=auth.currentUser,name=$('groupNameInput').value.trim();if(!user||!name)return toast('Scrivi il nome del gruppo.');
   const code='ALB-GRP-'+Math.random().toString(36).slice(2,8).toUpperCase(),ownerCode=customerCode(),ownerName=[profile.name,profile.surname].filter(Boolean).join(' ')||user.displayName||'Cliente Alberto';
@@ -799,7 +810,10 @@ $('groupCreateBtn').addEventListener('click',async()=>{
   }catch(e){console.warn(e);toast('Creazione gruppo non disponibile.')}
 });
 
-$('openRegisterBtn').addEventListener('click',()=>{$('loginPane').classList.add('hidden');$('registerPane').classList.remove('hidden')});
+$('openRegisterBtn').addEventListener('click',()=>{
+  $('loginPane').classList.add('hidden');$('registerPane').classList.remove('hidden');
+  try{if(typeof gtag==='function')gtag('event','fidelity_signup_form_view',{source:new URLSearchParams(location.search).get('utm_source')||'area_clienti'});}catch(e){}
+});
 if(new URLSearchParams(location.search).get('register')==='1')$('openRegisterBtn').click();
 $('backLoginBtn').addEventListener('click',()=>{$('registerPane').classList.add('hidden');$('loginPane').classList.remove('hidden')});
 $('registerBtn').addEventListener('click',async()=>{
@@ -810,6 +824,7 @@ $('registerBtn').addEventListener('click',async()=>{
     await updateProfile(cred.user,{displayName:(name+' '+surname).trim()});
     await setDoc(doc(db,'fidelityCustomers',code),{uid:cred.user.uid,code,name,surname,email,phone,birthDate,points:0,walletBalance:0,walletActive:true,officeGroupCodes:[],createdAt:serverTimestamp()},{merge:true});
     await setDoc(doc(db,'fidelityUsers',cred.user.uid),{customerCode:code},{merge:true});
+    try{if(typeof gtag==='function')gtag('event','sign_up',{method:'email',campaign:'fidelity',source:new URLSearchParams(location.search).get('utm_source')||'direct'});}catch(e){}
     toast('Account creato.');
     if(albertoAccessTarget==='bookings'){albertoAccessHandled=true;go('bookings')}
     else if(albertoAccessTarget==='preordina'){albertoAccessHandled=true;location.replace('preordina/')}
