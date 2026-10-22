@@ -134,7 +134,22 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
   #loginWrap .login-form{justify-content:flex-start!important;padding:28px 22px!important;}
 }
 </style>
-<style>@media(max-width:850px){#view-wallet{padding-bottom:calc(130px + env(safe-area-inset-bottom,0px))!important}.content{scroll-padding-bottom:130px}}</style></head>
+<style>@media(max-width:850px){#view-wallet{padding-bottom:calc(130px + env(safe-area-inset-bottom,0px))!important}.content{scroll-padding-bottom:130px}}</style><style id="fidelity-signup-conversion">
+.fid-register-push{background:#fff7f2;border:2px solid #b5101b;border-radius:19px;padding:19px;margin-bottom:18px;box-shadow:0 8px 20px #b5101b0b}
+.fid-register-push .fid-kicker{display:block;font-size:10px;color:#b5101b;font-weight:900;letter-spacing:.1em;margin-bottom:8px}
+.fid-register-push strong{display:block;font-size:23px;line-height:1.13;letter-spacing:-.03em}
+.fid-register-push p{font-size:12px;line-height:1.55;color:#3e342e;margin:10px 0 14px}
+#loginPane .fid-register-cta{width:100%;min-height:50px;background:#b5101b!important;color:#fff!important;font-size:13px;font-weight:900}
+.fid-existing-label{font-size:11px;font-weight:900;color:#75685d;margin:0 0 7px}
+.fid-signup-perks{display:grid;gap:7px;margin:15px 0 16px}
+.fid-signup-perks div{display:flex;align-items:baseline;gap:10px;background:#fff7f2;border:1px solid #edd7cd;padding:10px 12px;border-radius:11px;font-size:12px;line-height:1.4}
+.fid-signup-perks strong{color:#b5101b;font-size:14px;white-space:nowrap}
+.fid-reg-info{font-size:11px;line-height:1.5;color:#766860;margin:12px 0 0}
+.login-visual .fid-visual-perks{display:grid;gap:11px;margin:23px 0 0;padding:0;list-style:none}
+.login-visual .fid-visual-perks li{background:#ffffff1c;border:1px solid #ffffff2a;border-radius:13px;padding:12px 14px;font-size:14px;font-weight:800}
+.login-visual .fid-visual-perks b{font-size:22px;color:#fff5d7}
+@media(max-width:850px){#loginWrap .fid-register-push{padding:17px 16px}#loginWrap .fid-register-push strong{font-size:21px}#loginWrap .fid-signup-perks div{padding:9px 10px}}
+</style></head>
 <body>
 <div class="site-strip"><span>Via Valtorta 44, Milano</span><span><a href="tel:+39022896720" class="phone-top-link">02 289 6720</a></span><span>Lun–Sab 6:00–19:00</span></div>
 
@@ -164,26 +179,29 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
   <div class="login-card">
     <div class="login-visual">
       <img src="https://primary.jwwb.nl/public/k/m/t/temp-uuviykehkzslooegqmdl/image-high-zhh1za.png?enable=upscale&enable-io=true&height=70" alt="Alberto">
-      <div><small style="font-weight:900;letter-spacing:1.5px">AREA CLIENTI</small><h2>Il tuo Alberto,<br>sempre con te.</h2><p>Profilo, punti, ordini, prenotazioni, gruppi e notifiche in un’unica area.</p></div>
+      <div><small style="font-weight:900;letter-spacing:1.5px">ALBERTO FIDELITY</small><h2>Ogni pausa<br>ti premia.</h2><p>Iscriviti gratuitamente, accumula punti e approfitta dei vantaggi riservati ai clienti Alberto.</p><ul class="fid-visual-perks"><li><b>+10%</b> di credito sulle ricariche da €80</li><li><b>1 punto</b> ogni €1 speso</li><li><b>€10</b> di buono con 300 punti</li></ul></div>
     </div>
     <div class="login-form">
       <div id="loginPane">
-        <span class="eyebrow">ALBERTO · AREA CLIENTI</span>
-        <h1>Accedi</h1>
-        <p class="lead">Entra nel tuo profilo Alberto.</p>
+<div class="fid-register-push"><span class="fid-kicker">NON HAI LA FIDELITY? È GRATIS.</span><strong>Ogni pausa può premiarti.</strong>
+<p><b>+10% di credito extra</b> sulle ricariche da €80 in cassa · <b>1 punto ogni €1 speso</b> · <b>buono da €10 con 300 punti</b>.</p>
+<button id="openRegisterBtn" type="button" class="btn fid-register-cta">ATTIVA GRATIS LA TUA FIDELITY →</button></div>
+<div class="fid-existing-label">HAI GIÀ UN PROFILO? ACCEDI QUI</div>
+<h1>Accedi</h1><p class="lead">Entra nel tuo profilo Alberto.</p>
         <div class="form">
           <label>Email</label><input id="loginEmail" type="email" autocomplete="email">
           <label>Password</label><input id="loginPassword" type="password" autocomplete="current-password">
           <button id="loginBtn" class="btn">ACCEDI</button>
         </div>
         <button id="forgotBtn" style="border:0;background:none;color:var(--red);font-size:10px;font-weight:900;margin-top:14px">PASSWORD DIMENTICATA?</button>
-        <div class="login-note">Non hai ancora un account?</div>
-        <button id="openRegisterBtn" class="btn secondary" style="width:100%;margin-top:8px">REGISTRATI</button>
+        <div class="login-note">Non sei iscritto? La Fidelity è gratuita e la ricarica è facoltativa.</div>
       </div>
-      <div id="registerPane" class="hidden">
-        <span class="eyebrow">ALBERTO · AREA CLIENTI</span>
-        <h1>Registrati</h1>
-        <p class="lead">Crea il tuo profilo Alberto.</p>
+      <div id="registerPane" class="hidden"><span class="eyebrow">ALBERTO FIDELITY · GRATIS</span><h1>Attiva la tua Fidelity.</h1>
+<p class="lead">Iscriviti gratis, inizia ad accumulare punti e scopri i vantaggi Alberto.</p>
+<div class="fid-signup-perks" aria-label="Vantaggi della Fidelity">
+<div><strong>+10%</strong><span>credito extra sulle ricariche da almeno €80 in cassa (€80 → €88).</span></div>
+<div><strong>1 punto/€</strong><span>per ogni euro effettivamente speso.</span></div>
+<div><strong>300 punti</strong><span>per ottenere un buono da €10.</span></div></div>
         <div class="form">
           <label>Nome *</label><input id="regName" autocomplete="given-name">
           <label>Cognome *</label><input id="regSurname" autocomplete="family-name">
@@ -191,9 +209,9 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
           <label>Telefono *</label><input id="regPhone" type="tel" autocomplete="tel">
           <label>Data di nascita</label><input id="regBirth" type="date">
           <label>Password *</label><input id="regPassword" type="password" autocomplete="new-password">
-          <button id="registerBtn" class="btn">CREA ACCOUNT</button>
+          <button id="registerBtn" class="btn">ATTIVA GRATIS LA FIDELITY</button>
         </div>
-        <button id="backLoginBtn" class="btn secondary" style="width:100%;margin-top:10px">TORNA AD ACCEDI</button>
+        <p class="fid-reg-info">L'iscrizione è gratuita. Nessun obbligo di ricarica; il bonus del 10% vale solo sulle ricariche da almeno €80 effettuate in cassa.</p><button id="backLoginBtn" class="btn secondary" style="width:100%;margin-top:10px">HAI GIÀ UN PROFILO? ACCEDI</button>
       </div>
     </div>
   </div>
