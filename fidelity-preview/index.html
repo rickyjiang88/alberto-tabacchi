@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="fidelity-app-build-marker" content="2026-10-22-fidelity-3-design">
+<meta name="fidelity-app-build-marker" content="2026-10-22-fidelity-3-home">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#b5101b">
 <title>Alberto Fidelity 3.0</title>
@@ -392,12 +392,24 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
   <main class="content">
     <section id="view-dashboard" class="view on">
       <span class="eyebrow">AREA CLIENTE</span><h1 id="helloTitle">Bentornato/a</h1><p class="lead">Qui trovi tutto il tuo Alberto, organizzato per desktop.</p>
+      <div class="fidelity3-hero">
+        <span class="eyebrow">ALBERTO FIDELITY 3.0</span>
+        <div class="fidelity3-hero-number"><span id="dashPoints">0</span><small>punti</small></div>
+        <p>Ogni visita ti avvicina al prossimo premio.</p>
+        <button type="button" data-go="points">SCOPRI I TUOI PREMI <span aria-hidden="true">→</span></button>
+      </div>
+      <div class="fidelity3-shortcuts">
+        <button type="button" data-go="bookings"><span aria-hidden="true">▣</span><b>Prenota</b></button>
+        <button type="button" data-go="wallet"><span aria-hidden="true">◈</span><b>Wallet</b></button>
+        <button type="button" data-go="invite"><span aria-hidden="true">♡</span><b>Invita amici</b></button>
+      </div>
+      <button class="fidelity3-referral" type="button" data-go="invite"><span class="fidelity3-referral-icon">+5</span><span><b>Invita un amico</b><small>Ricevi 5 punti dopo il primo acquisto valido del tuo amico.</small></span><span aria-hidden="true">›</span></button>
       <div class="card fidelity-home-qr" aria-label="Tessera fedeltà Alberto">
         <div class="fidelity-home-qr-heading"><span class="eyebrow">LA TUA TESSERA</span><h2>Il tuo QR Alberto</h2><p>Mostralo alla cassa per accumulare punti.</p></div>
         <div class="fidelity-home-qr-code"><div id="homeQr"></div><div id="homeQrCode" class="code">—</div></div>
       </div>
     <div class="grid4">
-        <div class="card dark"><small>PUNTI ALBERTO</small><div id="dashPoints" class="metric">0</div><div class="metric-sub">punti disponibili</div></div>
+        <button class="card fidelity3-wallet-tile" type="button" data-go="wallet"><small>PORTAFOGLIO</small><strong>Il tuo saldo</strong><span>Vedi il credito disponibile →</span></button>
         <div class="card"><small>ORDINI</small><div id="dashOrders" class="metric">0</div><div class="metric-sub">ordini registrati</div></div>
         <div class="card"><small>PRENOTAZIONI</small><div id="dashBookings" class="metric">0</div><div class="metric-sub">prenotazioni registrate</div></div>
         <div class="card soft"><small>GRUPPO UFFICIO</small><div id="dashGroup" style="font-size:18px;font-weight:900;margin-top:12px">Non attivo</div><div class="metric-sub" style="margin-top:5px">gestisci il tuo gruppo</div></div>
@@ -1423,5 +1435,23 @@ body.fidelity-app .content{padding-left:16px!important;padding-right:16px!import
 .fidelity-home-qr{padding:18px!important;gap:12px}.fidelity-home-qr-heading h2{font-size:21px}
 .quick button{border-radius:17px;min-height:102px}.grid4{gap:10px}
 }
+</style><style id="alberto-fidelity-3-home-20261022">
+.fidelity3-hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#99001e,#d52136 78%);color:white;border-radius:24px;padding:23px;margin:0 0 14px;box-shadow:0 12px 25px #a910252e}
+.fidelity3-hero:after{content:"✦";position:absolute;right:-10px;top:-40px;font-size:165px;color:#ffffff0d;pointer-events:none}
+.fidelity3-hero .eyebrow{color:#ffe4d7;font-size:11px}
+.fidelity3-hero-number{display:flex;align-items:baseline;gap:11px;margin:7px 0}
+.fidelity3-hero-number>span{font-size:54px;font-weight:950;letter-spacing:-2px;line-height:1}
+.fidelity3-hero-number small{font-size:15px;font-weight:750}
+.fidelity3-hero p{font-size:13px;color:#ffe3df;margin:0 0 16px}
+.fidelity3-hero button{position:relative;z-index:1;width:100%;display:flex;justify-content:space-between;align-items:center;background:#fff;color:#a70925;border:0;border-radius:12px;padding:14px 15px;font-weight:900;font-size:12px}
+.fidelity3-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:14px}
+.fidelity3-shortcuts button{background:#fffaf4;border:1px solid #f0d8ca;border-radius:17px;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#9e0d29;box-shadow:0 5px 12px #7d352009}
+.fidelity3-shortcuts button span{font-size:25px}.fidelity3-shortcuts button b{font-size:12px}
+.fidelity3-referral{width:100%;border:1px solid #edc9bd;background:#ffe4dd;border-radius:17px;padding:14px;display:flex;align-items:center;gap:12px;text-align:left;color:#98203a;margin-bottom:14px}
+.fidelity3-referral-icon{flex-shrink:0;background:#ae102c;color:#fff;border-radius:14px;width:47px;height:47px;display:grid;place-items:center;font-size:19px;font-weight:950}
+.fidelity3-referral>span:nth-child(2){flex:1}.fidelity3-referral b{display:block;font-size:14px}.fidelity3-referral small{display:block;font-size:11px;color:#825f5c;line-height:1.4;margin-top:3px}
+.fidelity3-wallet-tile{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;cursor:pointer;font:inherit;color:#9e0d29;background:linear-gradient(130deg,#ffe2da,#fff0df)!important}
+.fidelity3-wallet-tile strong{font-size:19px;margin:9px 0}.fidelity3-wallet-tile span{font-size:11px;color:#8b615d}
+@media(max-width:780px){.fidelity3-hero{padding:21px}.fidelity3-hero-number>span{font-size:49px}.fidelity3-shortcuts button{min-height:91px}.fidelity3-referral{padding:12px}}
 </style></body>
 </html>
