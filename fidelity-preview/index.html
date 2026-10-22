@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="fidelity-app-build-marker" content="2026-10-22-fidelity-3-home">
+<meta name="fidelity-app-build-marker" content="2026-10-22-fidelity-3-five-tabs">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#b5101b">
 <title>Alberto Fidelity 3.0</title>
@@ -1267,6 +1267,8 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 <nav class="fidelity-bottom-nav" aria-label="Navigazione app">
 <button type="button" data-app-tab="home" class="active"><svg viewBox="0 0 24 24"><path d="m3 11 9-7 9 7M5 10v10h14V10M9 20v-6h6v6"/></svg>HOME</button>
 <button type="button" data-app-tab="preorder"><svg viewBox="0 0 24 24"><path d="M4 8h16l-1 12H5L4 8ZM8 9V6a4 4 0 0 1 8 0v3"/></svg>MENÙ</button>
+<button type="button" data-app-tab="qr"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM21 14v3h-3M14 21h3M21 21v-3"/></svg>QR</button>
+<button type="button" data-app-tab="bookings"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg>PRENOTA</button>
 <button type="button" data-app-tab="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg>PROFILO</button>
 </nav>
 <div id="fidelityServiceOverlay" class="fidelity-service-overlay" hidden aria-label="Servizio Alberto">
@@ -1324,9 +1326,13 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
   }else{
     const overlay=document.getElementById('fidelityServiceOverlay');
     if(overlay&&!overlay.hidden){overlay.hidden=true;document.body.style.overflow='';/* Keep the embedded menu loaded for instant return; do not reset its cart or state. */}
-    const target=tab==='home'?'dashboard':'profile';
+    const target=tab==='home'?'dashboard':tab==='bookings'?'bookings':'profile';
     const nav=document.querySelector('.sidebar .navbtn[data-go="'+target+'"]');
     if(nav)nav.click();
+    if(tab==='qr'){
+      const qr=document.getElementById('qr');
+      if(qr)requestAnimationFrame(()=>qr.scrollIntoView({block:'center',behavior:'smooth'}));
+    }
   }
   select(tab);
  }));
@@ -1453,5 +1459,11 @@ body.fidelity-app .content{padding-left:16px!important;padding-right:16px!import
 .fidelity3-wallet-tile{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;cursor:pointer;font:inherit;color:#9e0d29;background:linear-gradient(130deg,#ffe2da,#fff0df)!important}
 .fidelity3-wallet-tile strong{font-size:19px;margin:9px 0}.fidelity3-wallet-tile span{font-size:11px;color:#8b615d}
 @media(max-width:780px){.fidelity3-hero{padding:21px}.fidelity3-hero-number>span{font-size:49px}.fidelity3-shortcuts button{min-height:91px}.fidelity3-referral{padding:12px}}
+</style><style id="alberto-fidelity-3-five-tabs-20261022">
+@media(max-width:850px){
+body.fidelity-app .fidelity-bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+body.fidelity-app .fidelity-bottom-nav button{min-width:0!important;font-size:9px!important;letter-spacing:0!important;gap:4px!important;padding-left:0!important;padding-right:0!important}
+body.fidelity-app .fidelity-bottom-nav button svg{width:21px!important;height:21px!important}
+}
 </style></body>
 </html>
