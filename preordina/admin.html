@@ -151,7 +151,7 @@ const DD=[["Primi piatti","Primo 1","",10,false],["Primi piatti","Primo 2","",10
 </script><script>(function(){var ready=false;window.__albertoShopAuthReady=function(){ready=true};function show(msg){var e=document.getElementById("loginError");if(e&&document.getElementById("loginGate")?.style.display!=="none")e.textContent=msg}window.addEventListener("error",function(e){if(!ready)show("Errore caricamento Shop Manager: "+(e.message||"script non disponibile"))});window.addEventListener("unhandledrejection",function(e){if(!ready)show("Errore inizializzazione: "+(e.reason?.code||e.reason?.message||"connessione o script"))});setTimeout(function(){if(!ready)show("Accesso non inizializzato. Ricarica la pagina; se persiste, segnala questo messaggio.")},9000)})();</script><script type="module">
 // Fallback per browser mobili che non riescono a caricare i moduli Firebase da Google CDN.
 const loadFirebaseModule=async name=>{
-  const urls=["https://www.gstatic.com/firebasejs/10.12.2/firebase-"+name+".js","https://cdn.jsdelivr.net/npm/firebase@10.12.2/"+name+"/dist/index.esm.js"];
+  const urls=["https://www.gstatic.com/firebasejs/10.12.2/firebase-"+name+".js","https://esm.sh/firebase@10.12.2/"+name+"?target=es2020"];
   let lastError;
   for(const url of urls){try{return await import(url)}catch(e){lastError=e;}}
   const err=document.getElementById("loginError");
