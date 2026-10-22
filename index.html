@@ -67,6 +67,18 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
 .fid-home-cta:hover,.fid-home-cta:focus-visible{background:#fff0d4}
 .fid-home-login{color:white!important;font-size:11px;text-decoration:underline;text-underline-offset:3px;font-weight:700}
 @media(max-width:760px){.fid-home-promo{flex-direction:column;align-items:stretch;padding:19px;gap:15px}.fid-home-promo h2{font-size:26px}.fid-home-promo p{font-size:12px}.fid-home-actions{width:100%}.fid-home-cta{width:100%}}
+</style>
+<style id="fid-growth-style">
+.fid-home-proof{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.fid-home-proof span{font-weight:800;color:#fff;background:#ffffff24;border:1px solid #ffffff4d;border-radius:999px;padding:5px 9px;font-size:11px}
+#fid-growth-bar{position:fixed;bottom:18px;right:18px;width:min(415px,calc(100% - 36px));background:#171313;color:#fff;border:1px solid #ffffff30;border-radius:18px;box-shadow:0 12px 46px #0006;padding:18px 20px 18px;z-index:50;transform:translateY(calc(100% + 45px));transition:transform .35s ease;visibility:hidden}
+#fid-growth-bar.fid-shown{transform:translateY(0);visibility:visible}
+#fid-growth-bar b{font-size:17px;line-height:1.1;display:block;padding-right:20px;margin:0 0 7px}
+#fid-growth-bar p{font-size:12px;line-height:1.5;color:#f7ecea;margin:0 0 11px}
+#fid-growth-bar .fid-bar-cta{min-height:43px;display:flex;align-items:center;justify-content:center;background:#df1d22;color:white;font-size:13px;font-weight:900;border-radius:9px;padding:9px;text-align:center}
+#fid-growth-close{position:absolute;top:9px;right:10px;font-size:24px;color:#fff;border:0;background:transparent;cursor:pointer;width:36px;height:36px}
+@media(max-width:700px){#fid-growth-bar{bottom:0;left:0;right:0;width:100%;border-radius:17px 17px 0 0;padding:11px 15px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 40px #0003}#fid-growth-bar b{font-size:14px;margin-bottom:3px}#fid-growth-bar p{font-size:11px;margin-bottom:7px}#fid-growth-bar .fid-bar-cta{min-height:43px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){#fid-growth-bar{transition:none}}
 </style></head><body><div class="site-topbar"><span>Via Valtorta 44, Milano</span><span><a href="tel:+39022896720" style="color:inherit!important;text-decoration:none!important;-webkit-text-fill-color:currentColor">02 289 6720</a></span><span>Lun–Sab 6:00–19:00</span></div><div class="welcome-pop" id="welcomePop" hidden><div class="welcome-card" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle"><button class="welcome-close" type="button" aria-label="Chiudi" onclick="closeWelcome()">×</button><div class="welcome-kicker">ALBERTO SI RINNOVA</div><h2 id="welcomeTitle">NUOVO LOOK.<br>NUOVO SITO.<br>PIÙ SERVIZI.</h2><p>Scopri il <b>menu del giorno</b> e prenota il tuo tavolo online.<br><b>Hai già deciso cosa mangiare?</b> Preordina in pochi click, ritira e paga in cassa.</p><div class="welcome-actions"><a class="welcome-preorder" href="areaclienti.html?next=preordina">PRE ORDINA ORA</a><a class="welcome-book" href="areaclienti.html?next=bookings">PRENOTA IL TUO TAVOLO</a></div><button class="welcome-enter" type="button" onclick="closeWelcome()">Continua sul sito →</button></div></div><script id="welcome-popup-js">(function(){var p=document.getElementById('welcomePop');if(!p)return;var end=new Date('2026-09-27T23:59:59+02:00');if(new Date()>end){p.remove();return;}try{if(!sessionStorage.getItem('albertoWelcomeSeen'))p.hidden=false}catch(e){p.hidden=false}})();function closeWelcome(){var p=document.getElementById('welcomePop');if(p)p.hidden=true;try{sessionStorage.setItem('albertoWelcomeSeen','1')}catch(e){}}document.getElementById('welcomePop')?.addEventListener('click',function(e){if(e.target===this)closeWelcome()});</script>
 
 <header><a class="brand" href="#home"><img src="https://primary.jwwb.nl/public/k/m/t/temp-uuviykehkzslooegqmdl/image-high-zhh1za.png?enable=upscale&enable-io=true&height=70" alt="Alberto"><span><b>ALBERTO</b><small>TABACCHI BAR CON CUCINA</small></span></a><button class="toggle" type="button" aria-label="Apri menu" aria-expanded="false" onclick="var n=document.querySelector('header nav');var o=n.classList.toggle('open');this.setAttribute('aria-expanded',o?'true':'false')"><span aria-hidden="true" style="display:flex;flex-direction:column;justify-content:center;gap:5px;width:25px;height:25px"><span style="display:block;width:25px;height:3px;background:currentColor;border-radius:2px"></span><span style="display:block;width:25px;height:3px;background:currentColor;border-radius:2px"></span><span style="display:block;width:25px;height:3px;background:currentColor;border-radius:2px"></span></span></button><nav><a class="active" href="#home">Home</a><a href="colazione.html">Colazione</a><a href="pranzo.html#menu">Menu del giorno</a><a href="areaclienti.html?next=preordina">PRE ORDINA</a><a href="tabaccheria.html">Tabaccheria</a><a href="catering.html">Catering</a><a href="areaclienti.html">AREA CLIENTI</a><a href="contatti.html">Contatti</a></nav><a class="pill" href="areaclienti.html?next=bookings">Prenota un tavolo</a></header>
@@ -74,7 +86,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
 <div class="fid-home-copy"><span class="fid-home-kicker">ALBERTO FIDELITY · ISCRIZIONE GRATUITA</span>
 <h2 id="fidelity-home-head">DA ALBERTO LA TUA PAUSA VALE DI PIÙ.</h2>
 <p><strong>Ricarica €80 in cassa e ottieni €88 di credito.</strong> Accumula 1 punto per ogni €1 speso: con 300 punti ottieni un buono da €10. La ricarica è facoltativa.</p></div>
-<div class="fid-home-actions"><a class="fid-home-cta" href="areaclienti.html?register=1&utm_source=home&utm_medium=sito&utm_campaign=fidelity">ATTIVA GRATIS LA TUA FIDELITY →</a>
+<div class="fid-home-proof" aria-label="Vantaggi Fidelity"><span>✓ Gratis, senza abbonamento</span><span>✓ Bonus ricarica da €80</span><span>✓ Punti ad ogni acquisto</span></div></div><div class="fid-home-actions"><a class="fid-home-cta" href="areaclienti.html?register=1&utm_source=home&utm_medium=sito&utm_campaign=fidelity">ATTIVA GRATIS LA TUA FIDELITY →</a>
 <a class="fid-home-login" href="areaclienti.html">Già iscritto? Accedi</a></div></section><section class="hero"><img src="https://primary.jwwb.nl/public/k/m/t/temp-uuviykehkzslooegqmdl/20250309_133343-standard-j9kqtf.jpg" alt="Interno Alberto Tabacchi Bar"><div class="shade"></div><div class="hero-copy"><div class="eyebrow">TABACCHERIA • BAR CON CUCINA • TURRO, MILANO</div><h1>La tua pausa,<br>fatta bene.</h1><p>Tabaccheria, colazione dalle 6 e pausa pranzo con menu del giorno, preordini e tavoli prenotabili.<br>Ci trovi nel quartiere Turro, in Via Valtorta 44 a Milano. <a class="hero-directions" href="https://www.google.com/maps/dir/?api=1&amp;destination=Alberto%20Bar%20con%20Cucina%2C%20Via%20Valtorta%2044%2C%20Milano&amp;destination_place_id=ChIJf_-DhCPHhkcRW-PCcGNpVAQ" target="_blank" rel="noopener noreferrer" aria-label="Indicazioni per raggiungere Alberto su Google Maps">COME ARRIVARE →</a></p><div class="actions"><a class="btn" href="areaclienti.html?next=preordina">PRE ORDINA →</a><a class="btn ghost" href="areaclienti.html?next=bookings">Prenota un tavolo</a></div></div></section>
 <section class="service-strip" id="bar" aria-label="Esplora i servizi Alberto">
   <article><a href="colazione.html" aria-label="Scopri la colazione da Alberto"><span aria-hidden="true">☕</span><div><b>Colazione</b><small>Un buon inizio di giornata</small></div></a></article>
@@ -153,4 +165,39 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
     applyHidden();
   }
 })();
-</script><script id="menu-4ott-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".menu-4ott-link").forEach(function(a){a.remove()})}})();</script><script id="listino-temp-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".listino-temp-link").forEach(function(a){a.remove()})}})();</script></body></html>
+</script><script id="menu-4ott-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".menu-4ott-link").forEach(function(a){a.remove()})}})();</script><script id="listino-temp-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".listino-temp-link").forEach(function(a){a.remove()})}})();</script>
+<aside id="fid-growth-bar" aria-label="Scopri Alberto Fidelity" aria-hidden="true">
+  <button id="fid-growth-close" type="button" aria-label="Chiudi invito Fidelity">×</button>
+  <b>Il tuo prossimo caffè può avvicinarti a un premio.</b>
+  <p>Iscriviti gratis. Ogni €1 speso vale 1 punto; con 300 punti ottieni un buono da €10.</p>
+  <a class="fid-bar-cta" href="/areaclienti.html?register=1&utm_source=promemoria&utm_medium=sito&utm_campaign=fidelity">ATTIVA GRATIS LA TUA FIDELITY →</a>
+</aside>
+<script id="fid-growth-js">
+(function(){
+  var bar=document.getElementById('fid-growth-bar'),close=document.getElementById('fid-growth-close');
+  if(!bar||!close)return;
+  var key='alberto_fid_growth_hide_until',now=Date.now(),expiry=0;
+  try{expiry=Number(localStorage.getItem(key))||0}catch(e){}
+  function track(event,location){
+    try{if(typeof gtag==='function')gtag('event',event,{campaign:'fidelity_2026',placement:location})}catch(e){}
+  }
+  document.querySelectorAll('a[href*="register=1"]').forEach(function(a){
+    a.addEventListener('click',function(){track('fidelity_registration_click',a.className||'site');try{localStorage.setItem(key,String(Date.now()+30*86400000))}catch(e){}});
+  });
+  if(expiry>now)return;
+  var opened=false;
+  function show(){
+    if(opened||window.scrollY<220)return;
+    if(!bar.isConnected)return;
+    opened=true;bar.classList.add('fid-shown');bar.setAttribute('aria-hidden','false');
+    track('fidelity_promo_impression','floating_bar');
+  }
+  var timer=setTimeout(show,14000);
+  window.addEventListener('scroll',function(){if(!opened&&window.scrollY>440)show()},{passive:true});
+  close.addEventListener('click',function(){
+    clearTimeout(timer);bar.classList.remove('fid-shown');bar.setAttribute('aria-hidden','true');
+    try{localStorage.setItem(key,String(Date.now()+7*86400000))}catch(e){}
+    track('fidelity_promo_dismiss','floating_bar');
+  });
+})();
+</script></body></html>
