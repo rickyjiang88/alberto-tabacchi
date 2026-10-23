@@ -825,6 +825,7 @@ $('registerBtn').addEventListener('click',async()=>{
     await setDoc(doc(db,'fidelityCustomers',code),{uid:cred.user.uid,code,name,surname,email,phone,birthDate,points:0,walletBalance:0,walletActive:true,officeGroupCodes:[],createdAt:serverTimestamp()},{merge:true});
     await setDoc(doc(db,'fidelityUsers',cred.user.uid),{customerCode:code},{merge:true});
     try{if(typeof gtag==='function')gtag('event','sign_up',{method:'email',campaign:'fidelity',source:new URLSearchParams(location.search).get('utm_source')||'direct'});}catch(e){}
+    try{if(new URLSearchParams(location.search).get('utm_source')==='menu_popup'&&typeof gtag==='function')gtag('event','fidelity_menu_popup_signup_complete',{campaign:'fidelity_2026',placement:'menu_del_giorno'});}catch(e){}
     toast('Account creato.');
     if(albertoAccessTarget==='bookings'){albertoAccessHandled=true;go('bookings')}
     else if(albertoAccessTarget==='preordina'){albertoAccessHandled=true;location.replace('preordina/')}
