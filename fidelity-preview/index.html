@@ -305,7 +305,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
  }
 }
 </style>
-</head>
+<style id="fidelity-home-fix-20261023">body.fidelity-app .shell{grid-template-rows:calc(76px + env(safe-area-inset-top)) minmax(0,1fr)!important}body.fidelity-app .topbar{height:calc(76px + env(safe-area-inset-top))!important;min-height:calc(76px + env(safe-area-inset-top))!important;box-sizing:border-box}body.fidelity-app .content{padding-top:24px!important}body.fidelity-app #view-dashboard{padding-top:12px!important}body.fidelity-app #view-dashboard #helloTitle{margin-top:12px!important;line-height:1.2!important}.fidelity3-wallet-summary{margin:14px 0;padding:15px 19px;border:1px solid #e8c7c0;border-radius:20px;background:#fff7f0;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#9e1028}.fidelity3-wallet-summary span{font-size:12px;font-weight:800;letter-spacing:1px}.fidelity3-wallet-summary strong{font-size:24px}.fidelity3-wallet-summary small{font-size:11px}</style></head>
 <body>
 <div class="site-strip"><span>Via Valtorta 44, Milano</span><span><a href="tel:+39022896720" style="color:inherit!important;text-decoration:none!important;-webkit-text-fill-color:currentColor">02 289 6720</a></span><span>Lun–Sab 6:00–19:00</span></div>
 
@@ -398,6 +398,7 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
         <p>Ogni visita ti avvicina al prossimo premio.</p>
         <button type="button" data-go="points">SCOPRI I TUOI PREMI <span aria-hidden="true">→</span></button>
       </div>
+      <div class="fidelity3-wallet-summary" data-go="wallet" role="button" tabindex="0"><span>SALDO PORTAFOGLIO</span><strong id="homeWalletBalance">0,00 €</strong><small>Visualizza portafoglio →</small></div>
       <div class="fidelity3-shortcuts">
         <button type="button" data-go="bookings"><span aria-hidden="true">▣</span><b>Prenota</b></button>
         <button type="button" data-go="wallet"><span aria-hidden="true">◈</span><b>Wallet</b></button>
@@ -896,7 +897,7 @@ function startWalletHistory(){
  return '<div class="row"><div><b>'+(add?'Ricarica':'Pagamento')+'</b><small>'+when+(add&&Number(x.bonus||0)>0?' · Bonus '+euro(x.bonus):'')+'</small></div><b style="white-space:nowrap;color:'+(add?'var(--ok)':'var(--ink)')+'">'+(add?'+ ':'− ')+euro(amount)+'</b></div>'}).join(''):'<div class="empty">Nessun movimento del portafoglio registrato.</div>';
  },e=>{console.warn(e);el.innerHTML='<div class="empty">Storico non disponibile. Riprova più tardi.</div>'});unsubs.push(stop);
 }
-function renderWallet(){const raw=Number(profile.walletBalance||0),bal=Number.isFinite(raw)?raw:0;if($('walletStatus'))$('walletStatus').textContent='ATTIVO';if($('walletBalance'))$('walletBalance').textContent=bal.toFixed(2).replace('.',',')+' €'}
+function renderWallet(){const raw=Number(profile.walletBalance||0),bal=Number.isFinite(raw)?raw:0;if($('walletStatus'))$('walletStatus').textContent='ATTIVO';if($('walletBalance'))$('walletBalance').textContent=bal.toFixed(2).replace('.',',')+' €';if($('homeWalletBalance'))$('homeWalletBalance').textContent=bal.toFixed(2).replace('.',',')+' €'}
 function render(){
   const full=[profile.name,profile.surname].filter(Boolean).join(' ')||auth.currentUser?.displayName||'Cliente Alberto';
   const email=profile.email||auth.currentUser?.email||'—',pts=Number(profile.points||0);
