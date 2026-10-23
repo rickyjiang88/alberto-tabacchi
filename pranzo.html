@@ -157,6 +157,8 @@ body.fid-menu-open{overflow:hidden}
     document.body.classList.remove('fid-menu-open');
     document.removeEventListener('keydown',onKey);
     track('fidelity_menu_popup_close',reason);
+    if(reason==='continue_menu')track('fidelity_menu_popup_continue','continue_menu');
+    if(reason==='x')track('fidelity_menu_popup_x','x');
     if(goMenu){
       var menu=document.getElementById('menu');
       if(menu){menu.scrollIntoView({behavior:'auto',block:'start'});}
