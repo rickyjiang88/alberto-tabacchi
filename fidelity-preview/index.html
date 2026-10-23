@@ -736,7 +736,14 @@ async function loadGroupMemberships(){
 function go(view){
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='view-'+view));
   document.querySelectorAll('.navbtn[data-go]').forEach(b=>b.classList.toggle('active',b.dataset.go===view));
-  document.querySelector('.content')?.scrollTo(0,0);
+  const content=document.querySelector('.content');
+  if(content)content.scrollTop=0;
+  if(document.body.classList.contains('fidelity-app')){
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+    window.scrollTo(0,0);
+    requestAnimationFrame(()=>{if(content)content.scrollTop=0;document.documentElement.scrollTop=0;document.body.scrollTop=0;window.scrollTo(0,0)});
+  }
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)});
 $('enablePushBtn')?.addEventListener('click',requestPushForUser);
