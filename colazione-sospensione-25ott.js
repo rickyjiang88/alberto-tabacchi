@@ -18,7 +18,7 @@
     var now = Date.now();
     var suspended = now >= suspensionStart && now < suspensionEnd;
     document.documentElement.classList.toggle(className, suspended);
-    document.documentElement.classList.toggle(preorderClass, suspended);
+    document.documentElement.classList.toggle(preorderClass, suspended && !/\/areaclienti\.html$/i.test(location.pathname));
     if (suspended && /\/colazione\.html\/?$/i.test(location.pathname)) {
       location.replace('/');
     }
