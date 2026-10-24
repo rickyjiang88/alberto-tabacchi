@@ -6,16 +6,19 @@
   var suspensionStart = Date.parse('2026-10-24T16:50:00+02:00');
   var suspensionEnd = Date.parse('2026-10-25T19:00:00+01:00');
   var className = 'alberto-colazione-sospesa';
+  var preorderClass = 'alberto-preordina-sospesa';
   var style = document.createElement('style');
   style.textContent =
     'html.' + className + ' a[href*="colazione.html"],' +
     'html.' + className + ' article.alberto-colazione-card {display:none!important;}';
+  style.textContent += '\nhtml.' + preorderClass + ' a[href*="next=preordina"],html.' + preorderClass + ' a[href*="/preordina"],html.' + preorderClass + ' a[href="preordina.html"] {display:none!important;}';
   document.head.appendChild(style);
 
   function refreshVisibility() {
     var now = Date.now();
     var suspended = now >= suspensionStart && now < suspensionEnd;
     document.documentElement.classList.toggle(className, suspended);
+    document.documentElement.classList.toggle(preorderClass, suspended);
     if (suspended && /\/colazione\.html\/?$/i.test(location.pathname)) {
       location.replace('/');
     }
