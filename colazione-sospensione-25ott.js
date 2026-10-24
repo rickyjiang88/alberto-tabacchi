@@ -40,5 +40,10 @@
   } else {
     identifyBreakfastCards();
   }
-  setInterval(refreshVisibility, 60000);
+  setInterval(refreshVisibility, 30000);
+  if (Date.now() < suspensionEnd && suspensionEnd - Date.now() < 2147483647) {
+    setTimeout(refreshVisibility, suspensionEnd - Date.now() + 10);
+  }
+  window.addEventListener('pageshow', refreshVisibility);
+  document.addEventListener('visibilitychange', refreshVisibility);
 })();
