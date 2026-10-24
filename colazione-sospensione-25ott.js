@@ -1,9 +1,10 @@
-/* Sospensione temporanea della pagina Colazione: solo domenica 25 ottobre 2026, ora di Milano.
-   Lunedì 26 ottobre il sito torna automaticamente normale, senza altri aggiornamenti. */
+/* Sospensione temporanea della pagina Colazione dal 24 ottobre 2026 ore 16:50 (Milano)
+   fino al 26 ottobre ore 00:00 (Milano). Poi torna automaticamente normale. */
 (function () {
   'use strict';
 
-  var suspensionDate = '2026-10-25';
+  var suspensionStart = Date.parse('2026-10-24T16:50:00+02:00');
+  var suspensionEnd = Date.parse('2026-10-26T00:00:00+01:00');
   var className = 'alberto-colazione-sospesa';
   var style = document.createElement('style');
   style.textContent =
@@ -11,18 +12,9 @@
     'html.' + className + ' article.alberto-colazione-card {display:none!important;}';
   document.head.appendChild(style);
 
-  function dateInMilan() {
-    var parts = new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'Europe/Rome',
-      year: 'numeric', month: '2-digit', day: '2-digit'
-    }).formatToParts(new Date());
-    var values = {};
-    parts.forEach(function (p) { values[p.type] = p.value; });
-    return values.year + '-' + values.month + '-' + values.day;
-  }
-
   function refreshVisibility() {
-    var suspended = dateInMilan() === suspensionDate;
+    var now = Date.now();
+    var suspended = now >= suspensionStart && now < suspensionEnd;
     document.documentElement.classList.toggle(className, suspended);
     if (suspended && /\/colazione\.html\/?$/i.test(location.pathname)) {
       location.replace('/');
