@@ -1,10 +1,10 @@
 /* Sospensione temporanea della pagina Colazione dal 24 ottobre 2026 ore 16:50 (Milano)
-   fino al 25 ottobre ore 19:00 (Milano). Poi torna automaticamente normale. */
+   fino al 25 ottobre ore 23:00 (Milano). Poi torna automaticamente normale. */
 (function () {
   'use strict';
 
   var suspensionStart = Date.parse('2026-10-24T16:50:00+02:00');
-  var suspensionEnd = Date.parse('2026-10-25T19:00:00+01:00');
+  var suspensionEnd = Date.parse('2026-10-25T23:00:00+01:00');
   var className = 'alberto-colazione-sospesa';
   var preorderClass = 'alberto-preordina-sospesa';
   var style = document.createElement('style');
