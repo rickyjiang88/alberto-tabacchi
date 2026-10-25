@@ -1,10 +1,10 @@
 /* Alberto · Tema Brasile temporaneo per il ballottaggio del 25 ottobre 2026.
-   Attivo dal 24/10/2026 ore 16:50 (CEST) al 25/10/2026 ore 19:00 (CET).
+   Attivo dal 24/10/2026 ore 16:50 (CEST) al 25/10/2026 ore 23:00 (CET).
    Nessuna modifica permanente ai CSS o al listino del sito. */
 (function () {
   'use strict';
   var from = Date.parse('2026-10-24T16:50:00+02:00');
-  var until = Date.parse('2026-10-25T19:00:00+01:00');
+  var until = Date.parse('2026-10-25T23:00:00+01:00');
   var className = 'alberto-brasile-2026';
   var style = document.createElement('style');
   style.id = 'alberto-tema-brasile-2026';
