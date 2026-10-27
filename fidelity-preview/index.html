@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#b5101b">
 <title>Alberto Fidelity 3.0</title>
 <link rel="manifest" href="/fidelity-preview/manifest.webmanifest">
+<script defer src="/alberto-install-guide.js?v=20261027-1"></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Alberto Fidelity">
@@ -990,6 +991,7 @@ onAuthStateChanged(auth,async user=>{
   orders=[];bookings=[];groupMetas=[];bookingSelectedGroupCode='';profile={};
   if(!user){$('loginWrap').classList.remove('hidden');return}
   $('loginWrap').classList.add('hidden');
+  setTimeout(function(){window.AlbertoInstallGuide?.show?.()},850);
   if('Notification' in window && Notification.permission==='granted')enablePushForUser(user).then(ok=>{if(ok)setPushEnabledUI()}).catch(e=>console.warn('Push token:',e));
   const code='ALB'+user.uid.slice(0,10).toUpperCase();
   profile={uid:user.uid,code,email:user.email||'',name:(user.displayName||'Cliente').split(' ')[0]||'Cliente',surname:(user.displayName||'').split(' ').slice(1).join(' ')};
@@ -1235,41 +1237,14 @@ const bd=$('bookDate');if(bd){bd.min=new Intl.DateTimeFormat('en-CA',{timeZone:'
 </script><script id="menu-4ott-nav-control">(function(){var end=Date.parse("2026-10-04T18:00:00+02:00");if(Date.now()>=end){document.querySelectorAll(".menu-4ott-link").forEach(function(a){a.remove()})}})();</script>
 <script id="alberto-fidelity-pwa">
 (function(){
-  const standalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+  var standalone=window.navigator.standalone===true||window.matchMedia('(display-mode: standalone)').matches;
   if(standalone)document.body.classList.add('fidelity-app');
-  if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/fidelity-preview/sw.js', {updateViaCache:'none'}).catch(err=>console.warn('PWA service worker:',err)))}
-  if(standalone)return;
-  const ua=navigator.userAgent;
-  const ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-  const android=/Android/.test(ua);
-  if(!ios&&!android)return;
-  let deferred=null;
-  const panel=document.createElement('div');
-  panel.id='fidelity-install';
-  panel.hidden=true;
-  panel.innerHTML='<h3>Installa Alberto Fidelity</h3><p id="fidelity-install-info"></p><button type="button" id="fidelity-install-action">Installa app</button><button type="button" class="install-close" id="fidelity-install-close">Non ora</button>';
-  document.body.appendChild(panel);
-  const info=panel.querySelector('#fidelity-install-info'),action=panel.querySelector('#fidelity-install-action');
-  function show(){
-    if(sessionStorage.getItem('alberto-install-dismissed'))return;
-    if(ios){
-      info.textContent='Su iPhone apri questa pagina in Safari, tocca Condividi e scegli “Aggiungi alla schermata Home”, poi apri l’icona Alberto Fidelity.';
-      action.textContent='Ho capito';
-    }else{
-      info.textContent='Aggiungi Alberto Fidelity alla schermata Home: si aprirà a schermo intero, senza barra del browser.';
-      action.textContent=deferred?'Installa app':'Come installare';
-    }
-    panel.hidden=false;
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',function(){
+      navigator.serviceWorker.register('/fidelity-preview/sw.js',{updateViaCache:'none'})
+        .catch(function(err){console.warn('PWA service worker:',err)});
+    });
   }
-  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;show()});
-  action.addEventListener('click',async()=>{
-    if(deferred){const p=deferred;deferred=null;panel.hidden=true;await p.prompt();return}
-    if(android){info.textContent='In Chrome apri il menu ⋮ e scegli “Installa app” oppure “Aggiungi alla schermata Home”.';return}
-    panel.hidden=true;
-  });
-  panel.querySelector('#fidelity-install-close').addEventListener('click',()=>{panel.hidden=true;sessionStorage.setItem('alberto-install-dismissed','1')});
-  window.addEventListener('appinstalled',()=>{panel.hidden=true});
-  if(ios)setTimeout(show,1800);
 })();
 </script>
 <nav class="fidelity-bottom-nav" aria-label="Navigazione app">
