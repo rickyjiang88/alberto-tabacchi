@@ -3,6 +3,7 @@
 (function(){
 "use strict";
 if(!window.matchMedia("(max-width:760px)").matches)return;
+const analyticsScript=document.createElement("script");analyticsScript.src="/preordina/customer-behavior-v1.js?v=20261028-analytics2";analyticsScript.defer=true;document.head.appendChild(analyticsScript);
 const icons={
 home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
 bag:'<path d="M4 8h16l-1 13H5L4 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/>',
@@ -24,11 +25,11 @@ file:'<path d="M6 3h9l5 5v13H6zM15 3v6h5M9 14h8M9 18h6"/>',
 spark:'<path d="m12 2 1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9L12 2Z"/>'
 };
 const ico=(name,cls="")=>'<svg class="al-v5-icon '+cls+'" aria-hidden="true" viewBox="0 0 24 24">'+(icons[name]||icons.box)+'</svg>';
-const routes=[["orders","Ordini","bag"],["bookingPanel","Prenotazioni","calendar"],["menuHub","Gestione menù","food"],["fidelityPanel","Clienti / Fidelity","users"],["ddtPanel","Consegne / DDT","truck"],["statsPanel","Statistiche","chart"],["officePanel","Tavoli e gruppi","users"],["stockPanel","Disponibilità prodotti","box"],["servicePanel","Orari di ritiro","clock"],["pushPanel","Notifiche push","bell"],["promoPanel","Promozioni","gift"],["products","Prodotti","bag"],["daily","Piatti del giorno","food"],["ups","Upselling","spark"],["archivePanel","Archivio ordini","file"],["haccpScadenze","Scadenze prodotti","clock"],["haccpAllergeniTotale","Libro allergeni completo","file"],["haccpAllergeniGiornaliero","Libro allergeni giornaliero","food"],["haccpPulizia","Pulizia e sanificazione","spark"],["haccpFrigoriferi","Controllo frigoriferi","box"],["haccpRaffreddamento","Raffreddamento piatti cotti","clock"]];
+const routes=[["orders","Ordini","bag"],["bookingPanel","Prenotazioni","calendar"],["menuHub","Gestione menù","food"],["fidelityPanel","Clienti / Fidelity","users"],["customerAnalytics","Analisi clienti","chart"],["ddtPanel","Consegne / DDT","truck"],["statsPanel","Statistiche","chart"],["officePanel","Tavoli e gruppi","users"],["stockPanel","Disponibilità prodotti","box"],["servicePanel","Orari di ritiro","clock"],["pushPanel","Notifiche push","bell"],["promoPanel","Promozioni","gift"],["products","Prodotti","bag"],["daily","Piatti del giorno","food"],["ups","Upselling","spark"],["archivePanel","Archivio ordini","file"],["haccpScadenze","Scadenze prodotti","clock"],["haccpAllergeniTotale","Libro allergeni completo","file"],["haccpAllergeniGiornaliero","Libro allergeni giornaliero","food"],["haccpPulizia","Pulizia e sanificazione","spark"],["haccpFrigoriferi","Controllo frigoriferi","box"],["haccpRaffreddamento","Raffreddamento piatti cotti","clock"]];
 /* Gruppi soltanto per la presentazione: le destinazioni rimangono quelle originali. */
 const routeGroups=[
  {title:"Operatività",subtitle:"Da gestire durante il servizio",tone:"live",ids:["orders","bookingPanel","officePanel","servicePanel"]},
- {title:"Clienti e comunicazioni",subtitle:"Fidelity, avvisi e promozioni",tone:"clients",ids:["fidelityPanel","pushPanel","promoPanel"]},
+ {title:"Clienti e comunicazioni",subtitle:"Fidelity, avvisi e promozioni",tone:"clients",ids:["fidelityPanel","customerAnalytics","pushPanel","promoPanel"]},
  {title:"Gestione interna",subtitle:"Menù, prodotti e disponibilità",tone:"internal",ids:["menuHub","products","daily","stockPanel","ups"]},
  {title:"Controllo e documenti",subtitle:"Consegne, report e storico",tone:"control",ids:["ddtPanel","statsPanel","archivePanel"]},
  {title:"HACCP",subtitle:"Igiene alimentare · Schede da compilare",tone:"haccp",ids:["haccpScadenze","haccpAllergeniTotale","haccpAllergeniGiornaliero","haccpPulizia","haccpFrigoriferi","haccpRaffreddamento"]}
@@ -77,6 +78,7 @@ let isOpen=false;
 function toggleMenu(shouldOpen){isOpen=shouldOpen;shade.classList.toggle("open",isOpen);shade.setAttribute("aria-hidden",isOpen?"false":"true");}
 function refreshSelected(id){bottom.querySelectorAll("button").forEach(b=>b.classList.toggle("selected",b.dataset.alGo===id||b.dataset.alGo==="more"&&!["dashboard","orders","fidelityPanel","qr"].includes(id)))}
 function navigate(id){
+ if(id==="customerAnalytics"){toggleMenu(false);if(typeof window.tab==="function")window.tab("fidelityPanel");refreshSelected("fidelityPanel");setTimeout(()=>{const panel=document.getElementById("fcb-section");if(panel){panel.scrollIntoView({behavior:"smooth",block:"start"});panel.querySelector("#fcb-load")?.click()}},450);return}
  if(id==="more"){toggleMenu(true);return}
  toggleMenu(false);
  if(id==="qr"){if(typeof window.tab==="function")window.tab("fidelityPanel");refreshSelected("qr");if(typeof window.openFidelityCamera==="function")window.openFidelityCamera();return}
