@@ -817,9 +817,55 @@ window.renderDdtHistory=()=>{
  summary.innerHTML=[["DDT",rows.length,"nel filtro selezionato"],["TOTALE",ddtMoney(total),"valore consegne"],["DA FATTURARE",ddtMoney(pending),"ancora aperto"]].map(x=>'<div class="dash-tile"><small>'+x[0]+'</small><strong>'+x[1]+'</strong><em>'+x[2]+'</em></div>').join("");
  host.innerHTML=rows.length?rows.map(r=>'<article class="card ddt-history-card"><div class="ddt-history-head"><div><h3>DDT '+ddtEsc(r.ddtLabel||r.ddtNumber||"")+' · '+ddtEsc(r.client?.label||"Cliente")+'</h3><small>'+ddtEsc(r.date||"")+' · '+ddtMoney(r.total)+'</small>'+(r.vatRate===10?'<small>Imponibile '+ddtMoney(r.subtotal)+' + IVA 10% '+ddtMoney(r.vatAmount)+'</small>':'')+'</div><span class="ddt-badge '+(r.invoiced?'done':'')+'">'+(r.invoiced?'FATTURATO':'DA FATTURARE')+'</span></div><ul class="ddt-items-mini">'+(r.items||[]).map(x=>'<li>'+ddtEsc(x.qty+" × "+x.name)+(x.info?' — '+ddtEsc(x.info):'')+'</li>').join("")+'</ul><div class="ddt-actions"><button onclick="window.printDdtById(\''+ddtEsc(r.id)+'\')">STAMPA / PDF</button><button class="red" onclick="window.setDdtInvoiced(\''+ddtEsc(r.id)+'\','+(r.invoiced?'false':'true')+')">'+(r.invoiced?'RIMETTI DA FATTURARE':'SEGNA FATTURATO')+'</button><button type="button" onclick="window.deleteDdt(\''+ddtEsc(r.id)+'\')" style="border:1px solid #b5101b;color:#b5101b;background:white">ELIMINA BOLLA</button></div></article>').join(""):'<p class="status-note">Nessun DDT nel filtro selezionato.</p>';
 };
-window.printDdtById=id=>{const r=ddtHistoryRows.find(x=>x.id===id);if(r)window.printDdt(r);};
-window.printDdt=r=>{
- const w=window.open("","_blank");if(!w){alert("Consenti l'apertura della finestra per stampare il DDT.");return;}
+// Ricalcola solo su richiesta dell'admin i DDT emessi prima dell'attivazione dei prezzi contrattuali.
+const ddtNeedsValueRestore=r=>!!r&&!r.legacyImport&&!r.deleted&&!r.invoiced&&!r.pricingMode&&Number(r.total||0)===0&&Array.isArray(r.items)&&r.items.length>0;
+function ddtRestorePricing(r){
+ const normalize=x=>String(x||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
+ const catalog=new Map();
+ for(const p of dailyStockItems||[])if(ddtKind(p.category))catalog.set(normalize(p.name),p.category);
+ for(const p of daily||[])if(ddtKind(p[0])&&!catalog.has(normalize(p[1])))catalog.set(normalize(p[1]),p[0]);
+ const items=(r.items||[]).map(x=>{
+   const category=ddtKind(x.category)?x.category:catalog.get(normalize(x.name));
+   if(!ddtKind(category))throw new Error("Categoria non verificabile per "+String(x.name||"un piatto")+". Nessun importo viene modificato.");
+   return {...x,category};
+ });
+ const details=ddtCalculateContract(items);
+ if(details.unpairedSecond)throw new Error("Sono presenti "+details.unpairedSecond+" secondi senza contorno: importo da verificare manualmente.");
+ const tax=ddtContractVat(details.total);
+ return {items,details,tax};
+}
+window.ddtRestoreAmounts=async(id,expectedTotal)=>{
+ const ref=doc(db,"ddtDeliveries",id);
+ return runTransaction(db,async tx=>{
+   const snap=await tx.get(ref);
+   if(!snap.exists())throw new Error("Bolla non trovata");
+   const current=snap.data()||{};
+   if(!ddtNeedsValueRestore(current))throw new Error("Bolla gia' valorizzata, fatturata o non modificabile. Aggiorna lo storico.");
+   const recalc=ddtRestorePricing(current);
+   if(Math.round(recalc.tax.total*100)!==Math.round(expectedTotal*100))throw new Error("Le quantita' o i prezzi sono cambiati: aggiorna e controlla prima di riprovare.");
+   const patch={items:recalc.items,subtotal:recalc.tax.subtotal,vatRate:10,vatAmount:recalc.tax.vatAmount,total:recalc.tax.total,pricingMode:"bar-contract-recovered-vat10",pricingDetails:recalc.details,pricingCorrectionAt:serverTimestamp(),pricingCorrectionReason:"Valorizzazione richiesta e confermata dall'amministratore su DDT non valorizzato"};
+   tx.update(ref,patch);
+   return {...current,...patch,id};
+ });
+};
+
+window.printDdtById=async id=>{
+ const r=ddtHistoryRows.find(x=>x.id===id);if(!r)return;
+ if(!ddtNeedsValueRestore(r)){window.printDdt(r);return;}
+ let calc;try{calc=ddtRestorePricing(r)}catch(e){alert("Questa bolla non ha un importo salvato. "+e.message);return;}
+ if(!confirm("Il DDT "+(r.ddtLabel||"")+" e' senza importo. Calcolare e SALVARE su questa stessa bolla imponibile "+ddtMoney(calc.tax.subtotal)+" + IVA 10% "+ddtMoney(calc.tax.vatAmount)+" = "+ddtMoney(calc.tax.total)+"? I documenti gia' fatturati e i prezzi del bar non cambiano."))return;
+ const w=window.open("","_blank");if(!w){alert("Abilita le finestre popup per aprire la bolla.");return;}
+ w.document.write('<!doctype html><html lang="it"><meta charset="utf-8"><title>DDT</title><body style="font-family:Arial;padding:25px">Aggiornamento importo in corso. Non chiudere questa scheda.</body></html>');
+ try{
+   const valued=await window.ddtRestoreAmounts(id,calc.tax.total);
+   window.printDdt(valued,w);
+ }catch(e){
+   w.close();
+   alert("Bolla NON modificata: "+String(e.message||e));
+ }
+};
+window.printDdt=(r,existingWindow)=>{
+ const w=existingWindow||window.open("","_blank");if(!w){alert("Consenti l'apertura della finestra per stampare il DDT.");return;}
  const x=r.client||{},seller=r.seller||DDT_SELLER,items=r.items||[],dateIt=String(r.date||"").split("-").reverse().join("/");
  const totalQty=items.reduce((s,i)=>s+Number(i.qty||0),0),totalColli=items.reduce((s,i)=>s+Number(i.colli||1),0);
  // I DDT storici non valorizzati restano invariati; i nuovi DDT mostrano il valore salvato, anche se zero.
