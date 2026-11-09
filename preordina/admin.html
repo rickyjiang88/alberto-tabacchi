@@ -100,7 +100,8 @@ window.backToFidelityCustomers=()=>{
   });
 };
 function escapeFidHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-window.updateFidelityPreview=()=>{const amount=Number(document.getElementById('fidReceiptAmount')?.value||0);document.getElementById('fidNewPoints').textContent=Math.max(0,Math.floor(amount))};
+function fidelityPurchasePoints(amount,at=new Date()){const base=Math.max(0,Math.floor(Number(amount)||0));const friday=new Intl.DateTimeFormat('en-US',{timeZone:'Europe/Rome',weekday:'short'}).format(at)==='Fri';return {base,fridayBonus:friday?base:0,total:friday?base*2:base,friday};}
+window.updateFidelityPreview=()=>{const amount=Number(document.getElementById('fidReceiptAmount')?.value||0);document.getElementById('fidNewPoints').textContent=fidelityPurchasePoints(amount).total};
 
 // Both types of paid purchases use one atomic transaction, including the referral bonus.
 // Only a genuinely new customer's first registered paid purchase can trigger the bonus.
@@ -113,7 +114,7 @@ async function processPaidFidelityPurchase(code,amount,useWallet){
     const customerRef=fidelityApi.doc(fidelityApi.db,'fidelityCustomers',code);
     const customerSnap=await tx.get(customerRef);
     if(!customerSnap.exists())throw new Error('Cliente non trovato');
-    const data=customerSnap.data()||{},before=Number(data.points||0),wallet=Number(data.walletBalance||0),pts=Math.floor(Number(amount));
+    const data=customerSnap.data()||{},before=Number(data.points||0),wallet=Number(data.walletBalance||0),pts=fidelityPurchasePoints(amount).total;
     if(useWallet&&wallet+0.0001<amount)throw new Error('Credito portafoglio insufficiente');
     const inviterCode=String(data.referredBy||'').trim().toUpperCase();
     const eligible=inviterCode&&inviterCode!==code&&!data.referralRewarded&&!data.lastPurchaseAt;
@@ -132,7 +133,7 @@ async function processPaidFidelityPurchase(code,amount,useWallet){
     if(reward){patch.referralRewarded=true;patch.referralRewardedAt=fidelityApi.serverTimestamp();patch.referralStatus='rewarded'}
     tx.update(customerRef,patch);
     const saleRef=fidelityApi.doc(fidelityApi.collection(fidelityApi.db,'fidelityTransactions'));
-    tx.set(saleRef,{customerCode:code,uid:data.uid||null,type:useWallet?'WALLET_PURCHASE':'PURCHASE',amount,points:pts,walletDebit:useWallet?amount:0,balanceBefore:before,balanceAfter:before+pts,createdAt:fidelityApi.serverTimestamp(),createdBy:fidelityApi.auth.currentUser.uid});
+    tx.set(saleRef,{customerCode:code,uid:data.uid||null,type:useWallet?'WALLET_PURCHASE':'PURCHASE',amount,points:pts,basePoints:fidelityPurchasePoints(amount).base,fridayBonusPoints:fidelityPurchasePoints(amount).fridayBonus,fridayDoubleApplied:fidelityPurchasePoints(amount).friday,walletDebit:useWallet?amount:0,balanceBefore:before,balanceAfter:before+pts,createdAt:fidelityApi.serverTimestamp(),createdBy:fidelityApi.auth.currentUser.uid});
     if(reward){
       const inviter=inviterSnap.data()||{};
       tx.update(inviterRef,{points:Number(inviter.points||0)+5,updatedAt:fidelityApi.serverTimestamp()});
@@ -144,7 +145,7 @@ async function processPaidFidelityPurchase(code,amount,useWallet){
 }
 window.creditFidelityPoints=async()=>{
   if(!currentFidelityCustomer)return;
-  const amount=Number(document.getElementById('fidReceiptAmount').value||0),points=Math.floor(amount),status=document.getElementById('fidCreditStatus');
+  const amount=Number(document.getElementById('fidReceiptAmount').value||0),points=fidelityPurchasePoints(amount).total,status=document.getElementById('fidCreditStatus');
   if(!(amount>0)){status.textContent='Inserisci un importo valido.';return}
   status.textContent='Accredito in corso…';
   try{
