@@ -745,7 +745,7 @@ function showLunchMission(data,error){
  const days=[...new Set((Array.isArray(data?.days)?data.days:[]))],count=Math.min(5,days.length);
  const el=document.getElementById('lunchMissionCount');if(!el)return;
  el.textContent=error?'— / 5 PRANZI':count+' / 5 PRANZI';
- const fill=document.getElementById('lunchMissionFill');if(fill)fill.style.width=(count/5* (100-10))+'%';
+ const fill=document.getElementById('lunchMissionFill');if(fill)fill.style.width=(count/5*90)+'%';
  document.querySelectorAll('[data-lunch-step]').forEach(step=>{
    const n=Number(step.dataset.lunchStep),done=!error&&n<=count;
    step.style.background=done?'#ffdb89':(n===3||n===5?'#b88c54':'#77324b');
@@ -753,16 +753,33 @@ function showLunchMission(data,error){
    step.textContent=done?'✓':String(n);
  });
  const r3=document.getElementById('lunchMissionReward3'),r5=document.getElementById('lunchMissionReward5');
- if(r3)r3.textContent=error?'Non disponibile':count>=3?'✓ Sbloccato':'Da sbloccare';
- if(r5)r5.textContent=error?'Non disponibile':count>=5?'✓ Sbloccato':'Da sbloccare';
+ if(r3)r3.textContent=error?'Da verificare':count>=3?'Traguardo raggiunto':'Da raggiungere';
+ if(r5)r5.textContent=error?'Da verificare':count>=5?'Traguardo raggiunto':'Da raggiungere';
  const status=document.getElementById('lunchMissionStatus');
- if(status)status.textContent=error?'Progressi temporaneamente non disponibili. Riprova più tardi.':count>=5?'Missione completata! Torna lunedì per una nuova sfida.':(5-count)+' pranzi al traguardo finale · un pranzo valido al giorno';
+ if(status)status.textContent=error?'Impossibile verificare i pranzi. Riprova più tardi.':count>=5?'Hai completato 5 pranzi questa settimana.':'Ogni pranzo confermato conta una volta al giorno';
+}
+function lunchDaysFromBookings(){
+ const code=String(customerCode()||'').trim().toUpperCase(),week=lunchMissionWeekStart();
+ return [...new Set(bookings.filter(b=>b.bookingStatus==='ARRIVATO'&&b.lunchMissionProcessed===true&&String(b.date||'')>=week&&String(b.date||'')<=new Date(new Date(week+'T12:00:00Z').getTime()+6*86400000).toISOString().slice(0,10)&&Array.isArray(b.arrivalPresentCustomerCodes)&&b.arrivalPresentCustomerCodes.some(c=>String(c||'').trim().toUpperCase()===code)).map(b=>b.date))];
+}
+let lunchMissionRemote=null,lunchMissionReadError=false;
+function updateLunchMissionDisplay(){
+ const local=lunchDaysFromBookings();
+ if(lunchMissionRemote){
+   const remote=Array.isArray(lunchMissionRemote.days)?lunchMissionRemote.days:[];
+   showLunchMission({days:[...new Set([...remote,...local])]},false);
+ }else if(local.length){
+   showLunchMission({days:local},false);
+ }else if(lunchMissionReadError){
+   showLunchMission(null,true);
+ }else showLunchMission({days:[]},false);
 }
 function watchLunchMission(){
  if(lunchMissionUnsub){lunchMissionUnsub();lunchMissionUnsub=null}
  const code=customerCode();if(!auth.currentUser||!code)return;
- showLunchMission(null,false);
- lunchMissionUnsub=onSnapshot(doc(db,'fidelityLunchMissions',code+'_'+lunchMissionWeekStart()),snap=>showLunchMission(snap.exists()?snap.data():null,false),e=>{console.warn('Missione pranzo non leggibile',e);showLunchMission(null,true)});
+ lunchMissionRemote=null;lunchMissionReadError=false;
+ showLunchMission({days:[]},false);
+ lunchMissionUnsub=onSnapshot(doc(db,'fidelityLunchMissions',code+'_'+lunchMissionWeekStart()),snap=>{lunchMissionRemote=snap.exists()?snap.data():null;lunchMissionReadError=false;updateLunchMissionDisplay()},e=>{console.warn('Missione pranzo non leggibile',e);lunchMissionReadError=true;updateLunchMissionDisplay()});
 }
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -1008,7 +1025,7 @@ function watchUser(uid){
   unsubs.forEach(f=>{try{f()}catch{}});unsubs=[];
   orders=[];bookings=[];
   const ownBookingsById=new Map(),sharedBookingsById=new Map();
-  const refreshBookings=()=>{bookings=[...new Map([...ownBookingsById,...sharedBookingsById]).values()].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));render();};
+  const refreshBookings=()=>{bookings=[...new Map([...ownBookingsById,...sharedBookingsById]).values()].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));render();updateLunchMissionDisplay();};
   unsubs.push(onSnapshot(doc(db,'fidelityCustomers',customerCode()),s=>{if(s.exists()){profile={...profile,...s.data(),uid,code:customerCode()};render();loadGroupMemberships()}},e=>console.warn('Profilo Fidelity non sincronizzato',e)));
   const ownQ=query(collection(db,'orders'),where('customerUid','==',uid));
   unsubs.push(onSnapshot(ownQ,s=>{
@@ -1047,6 +1064,7 @@ onAuthStateChanged(auth,async user=>{
   if(typeof window.sendFidelityUidToMenu==='function')window.sendFidelityUidToMenu();
   unsubs.forEach(stop=>{try{stop()}catch{}});unsubs=[];
   if(lunchMissionUnsub){lunchMissionUnsub();lunchMissionUnsub=null}
+  lunchMissionRemote=null;lunchMissionReadError=false;
   orders=[];bookings=[];groupMetas=[];bookingSelectedGroupCode='';profile={};
   if(!user){$('loginWrap').classList.remove('hidden');return}
   $('loginWrap').classList.add('hidden');
