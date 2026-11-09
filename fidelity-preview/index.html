@@ -415,18 +415,17 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
           <div style="display:inline-flex;align-items:center;gap:7px;background:linear-gradient(100deg,#ffe4a2,#ffbd59);color:#63152b;border-radius:99px;padding:7px 12px;font-size:11px;font-weight:950;letter-spacing:1.4px">✦ SFIDA DELLA SETTIMANA</div>
           <h2 style="font-size:29px;line-height:1.08;margin:15px 0 7px;letter-spacing:-.7px;color:#fff;font-weight:950">A PRANZO DA ALBERTO.<br><span style="color:#ffd781">I PUNTI LI OFFRIAMO NOI.</span></h2>
           <p style="font-size:13px;line-height:1.5;color:#f8dce5;margin:0 0 17px">Vieni a pranzo durante la settimana e sblocca i tuoi bonus esclusivi.</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">
-            <div style="padding:15px 12px 13px;background:rgba(255,255,255,.11);border:1px solid rgba(255,230,186,.3);border-radius:17px;text-align:center">
-              <div style="font-size:11px;letter-spacing:1px;font-weight:900;color:#ffe0b2">🥉 3 PRANZI</div>
-              <div style="font-size:37px;font-weight:950;line-height:1.25;color:#ffda85">+5 <span style="font-size:13px;color:white">PT</span></div>
-              <div style="font-size:11px;color:#ffe6ed">Primo traguardo</div>
-            </div>
-            <div style="padding:15px 12px 13px;background:linear-gradient(145deg,rgba(255,212,118,.25),rgba(255,255,255,.09));border:1px solid #f4c877;border-radius:17px;text-align:center">
-              <div style="font-size:11px;letter-spacing:1px;font-weight:900;color:#ffe0b2">🏆 5 PRANZI</div>
-              <div style="font-size:37px;font-weight:950;line-height:1.25;color:#ffda85">+10 <span style="font-size:13px;color:white">PT</span></div>
-              <div style="font-size:11px;color:#ffe6ed">Bonus extra · 15 PT totali</div>
-            </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><strong style="font-size:13px;color:#ffe1a7">IL TUO PERCORSO</strong><span id="lunchMissionCount" style="font-weight:900;font-size:13px;color:#fff">— / 5 PRANZI</span></div>
+          <div style="position:relative;display:flex;justify-content:space-between;align-items:center;margin:0 6px 16px">
+            <div style="position:absolute;left:13px;right:13px;top:18px;height:7px;border-radius:8px;background:#9f6475"></div>
+            <div id="lunchMissionFill" style="position:absolute;left:13px;top:18px;width:0;height:7px;border-radius:8px;background:#ffdb89;transition:width .35s"></div>
+            <span data-lunch-step="1" style="position:relative;z-index:1;width:43px;height:43px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#77324b;border:2px solid #ba8190;color:white;font-weight:950;font-size:16px">1</span><span data-lunch-step="2" style="position:relative;z-index:1;width:43px;height:43px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#77324b;border:2px solid #ba8190;color:white;font-weight:950;font-size:16px">2</span><span data-lunch-step="3" style="position:relative;z-index:1;width:43px;height:43px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#ffdb89;border:2px solid #ffeab7;color:#5b1933;font-weight:950;font-size:16px">3</span><span data-lunch-step="4" style="position:relative;z-index:1;width:43px;height:43px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#77324b;border:2px solid #ba8190;color:white;font-weight:950;font-size:16px">4</span><span data-lunch-step="5" style="position:relative;z-index:1;width:43px;height:43px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#ffdb89;border:2px solid #ffeab7;color:#5b1933;font-weight:950;font-size:16px">5</span>
           </div>
+          <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:17px">
+            <div style="text-align:center;flex:1"><div style="font-size:11px;color:#f5d5dc">PREMIO AL 3° PRANZO</div><strong style="color:#ffdb89;font-size:23px">+5 PT</strong><div id="lunchMissionReward3" style="font-size:11px;color:#f5d5dc">Da sbloccare</div></div>
+            <div style="text-align:center;flex:1"><div style="font-size:11px;color:#f5d5dc">PREMIO AL 5° PRANZO</div><strong style="color:#ffdb89;font-size:23px">+10 PT</strong><div id="lunchMissionReward5" style="font-size:11px;color:#f5d5dc">Da sbloccare</div></div>
+          </div>
+          <p id="lunchMissionStatus" style="font-size:11px;color:#f5d5dc;margin:0 0 12px;text-align:center">Caricamento progressi…</p>
           <button type="button" data-go="bookings" style="width:100%;display:flex;align-items:center;justify-content:center;gap:9px;border:0;border-radius:14px;padding:15px 12px;background:linear-gradient(100deg,#ffe4a2,#ffbd59);color:#661329;font-size:14px;font-weight:950;letter-spacing:.4px;cursor:pointer">PRENOTA IL TUO PROSSIMO PRANZO <span aria-hidden="true">→</span></button>
           <p style="font-size:10px;line-height:1.5;color:#f3cbd5;margin:12px 2px 0;text-align:center">Un pranzo valido al giorno · Presenza confermata dallo staff · La sfida riparte ogni lunedì</p>
         </div>
@@ -737,6 +736,34 @@ document.getElementById('lunchPromoConsent')?.addEventListener('change',async e=
 });
 let profile={},orders=[],bookings=[],unsubs=[],bookingMode='personal',bookingGroupMembers=[],bookingGroupUnsub=null,groupMetas=[],bookingSelectedGroupCode='';
 
+let lunchMissionUnsub=null;
+function lunchMissionWeekStart(){
+ const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const d=new Date(parts+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10);
+}
+function showLunchMission(data,error){
+ const days=[...new Set((Array.isArray(data?.days)?data.days:[]))],count=Math.min(5,days.length);
+ const el=document.getElementById('lunchMissionCount');if(!el)return;
+ el.textContent=error?'— / 5 PRANZI':count+' / 5 PRANZI';
+ const fill=document.getElementById('lunchMissionFill');if(fill)fill.style.width=(count/5* (100-10))+'%';
+ document.querySelectorAll('[data-lunch-step]').forEach(step=>{
+   const n=Number(step.dataset.lunchStep),done=!error&&n<=count;
+   step.style.background=done?'#ffdb89':(n===3||n===5?'#b88c54':'#77324b');
+   step.style.color=done?'#5b1933':'#fff';
+   step.textContent=done?'✓':String(n);
+ });
+ const r3=document.getElementById('lunchMissionReward3'),r5=document.getElementById('lunchMissionReward5');
+ if(r3)r3.textContent=error?'Non disponibile':count>=3?'✓ Sbloccato':'Da sbloccare';
+ if(r5)r5.textContent=error?'Non disponibile':count>=5?'✓ Sbloccato':'Da sbloccare';
+ const status=document.getElementById('lunchMissionStatus');
+ if(status)status.textContent=error?'Progressi temporaneamente non disponibili. Riprova più tardi.':count>=5?'Missione completata! Torna lunedì per una nuova sfida.':(5-count)+' pranzi al traguardo finale · un pranzo valido al giorno';
+}
+function watchLunchMission(){
+ if(lunchMissionUnsub){lunchMissionUnsub();lunchMissionUnsub=null}
+ const code=customerCode();if(!auth.currentUser||!code)return;
+ showLunchMission(null,false);
+ lunchMissionUnsub=onSnapshot(doc(db,'fidelityLunchMissions',code+'_'+lunchMissionWeekStart()),snap=>showLunchMission(snap.exists()?snap.data():null,false),e=>{console.warn('Missione pranzo non leggibile',e);showLunchMission(null,true)});
+}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const fmtDate=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||''))?String(v).slice(8,10)+'-'+String(v).slice(5,7)+'-'+String(v).slice(0,4):String(v||'');
@@ -1019,6 +1046,7 @@ onAuthStateChanged(auth,async user=>{
   window.currentFidelityUid=user?.uid||'';
   if(typeof window.sendFidelityUidToMenu==='function')window.sendFidelityUidToMenu();
   unsubs.forEach(stop=>{try{stop()}catch{}});unsubs=[];
+  if(lunchMissionUnsub){lunchMissionUnsub();lunchMissionUnsub=null}
   orders=[];bookings=[];groupMetas=[];bookingSelectedGroupCode='';profile={};
   if(!user){$('loginWrap').classList.remove('hidden');return}
   $('loginWrap').classList.add('hidden');
@@ -1026,6 +1054,7 @@ onAuthStateChanged(auth,async user=>{
   if('Notification' in window && Notification.permission==='granted')enablePushForUser(user).then(ok=>{if(ok)setPushEnabledUI()}).catch(e=>console.warn('Push token:',e));
   const code='ALB'+user.uid.slice(0,10).toUpperCase();
   profile={uid:user.uid,code,email:user.email||'',name:(user.displayName||'Cliente').split(' ')[0]||'Cliente',surname:(user.displayName||'').split(' ').slice(1).join(' ')};
+  watchLunchMission();
   try{const customerSnap=await getDoc(doc(db,'fidelityCustomers',code));if(customerSnap.exists())profile={...profile,...customerSnap.data(),uid:user.uid,code};else console.warn('Profilo cliente non trovato',code)}catch(e){console.warn('Caricamento profilo cliente non riuscito',e)}
   try{const userSnap=await getDoc(doc(db,'fidelityUsers',user.uid));if(userSnap.exists()){const userData=userSnap.data()||{};if(userData.name&&(!profile.name||profile.name==='Cliente'))profile.name=userData.name;if(userData.surname&&!profile.surname)profile.surname=userData.surname;if(userData.phone&&!profile.phone)profile.phone=userData.phone;if(userData.birthDate&&!profile.birthDate)profile.birthDate=userData.birthDate}}catch(e){console.warn('Dati utente aggiuntivi non disponibili',e)}
   if(profile.name==='Cliente'&&!profile.surname&&user.displayName){const parts=user.displayName.trim().split(/\s+/);if(parts[0])profile.name=parts[0];if(parts.length>1)profile.surname=parts.slice(1).join(' ');}
