@@ -332,7 +332,13 @@ document.getElementById("al-books-open-full").addEventListener("click",async()=>
  showText("al-books-full-message","Preparazione libro completo…",false);
  try{const c=await loadCatalog();let syncError="";
  try{await readShared()}catch(err){syncError="Nuove ricette condivise non disponibili: "+(err.message||err)}
- const printable=c.sourceText.split("\n").filter(line=>!/^<PARSED TEXT FOR PAGE:/i.test(line.trim()));
+ const order=["MATERIE PRIME / BASI","PANINI","TOAST","PIADINE","INSALATONE","PIATTI FREDDI","LO CHEF CONSIGLIA","PRIMI PIATTI","SECONDI PIATTI","CONTORNI"];
+ const chapters=["1. MATERIE PRIME E PRODOTTI BASE","2. RICETTE FISSE DEL LOCALE","3. ARCHIVIO PIATTI DEL GIORNO"];
+ const chapter=cat=>cat==="MATERIE PRIME / BASI"?0:["PANINI","TOAST","PIADINE","INSALATONE","PIATTI FREDDI","LO CHEF CONSIGLIA"].includes(cat)?1:2;
+ const recipes=[...c.recipes].sort((a,b)=>{const ca=chapter(a.category),cb=chapter(b.category);return ca-cb||order.indexOf(a.category)-order.indexOf(b.category)||a.name.localeCompare(b.name,"it")});
+ const printable=["ALBERTO | LIBRO COMPLETO INGREDIENTI E ALLERGENI","Archivio permanente - documento di lavoro. Verificare etichette, varianti e contaminazioni crociate prima dell'uso definitivo.","LEGENDA ALLERGENI UE: 1 glutine; 2 crostacei; 3 uova; 4 pesce; 5 arachidi; 6 soia; 7 latte; 8 frutta a guscio; 9 sedano; 10 senape; 11 sesamo; 12 solfiti; 13 lupini; 14 molluschi.",""];
+ let lastChapter=-1,lastCategory="";
+ for(const row of recipes){const ch=chapter(row.category);if(ch!==lastChapter){printable.push("","",chapters[ch],"");lastChapter=ch;lastCategory=""}if(row.category!==lastCategory){printable.push("","CATEGORIA: "+row.category,"");lastCategory=row.category}printable.push(row.name);printable.push("Ingredienti: "+(row.ingredients||"Da completare"));printable.push("Allergeni: "+((row.allergenNumbers||[]).join(", ")||"Nessuno indicato nella ricetta"));if(row.checks)printable.push("Verifiche: "+row.checks);printable.push("")}
  if(syncError)printable.push("","ATTENZIONE: "+syncError+". Libro storico e bozze locali soltanto.");
  const known=new Set(c.recipes.map(x=>norm(x.name))),extras=allNewRecipes().filter(x=>!known.has(norm(x.name))&&!readAlias(x.name));
  if(extras.length){
