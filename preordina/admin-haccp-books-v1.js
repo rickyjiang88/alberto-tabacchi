@@ -531,5 +531,11 @@ document.addEventListener("click",e=>{
  if(e.target.closest('[data-al-go="haccpAllergeniGiornaliero"]'))setTimeout(refresh,50);
  if(e.target.closest('[data-al-go="haccpAllergeniTotale"]'))setTimeout(refreshComplete,50);
 });
+// Refresh the books when opened from the desktop HACCP hub or top navigation.
+window.addEventListener("alberto-admin-panel-open",e=>{
+ const id=e.detail?.id;
+ if(id==="haccpAllergeniTotale")refreshComplete();
+ if(id==="haccpAllergeniGiornaliero")refresh();
+});
 showHistory();
 })();
