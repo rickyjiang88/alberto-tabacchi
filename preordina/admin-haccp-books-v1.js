@@ -46,7 +46,7 @@ const fullBox=addBookPanel(full,"al-books-full",
  '<p>Consultazione del libro ingredienti e allergeni già raccolto. Le ricette con verifiche aperte non sono approvate automaticamente.</p>'+
  '<div class="al-books-actions"><button type="button" id="al-books-open-full">Apri il libro in PDF</button></div>'+
  '<p class="al-books-info" id="al-books-full-message">Il libro contiene le ricette storiche e le nuove ricette registrate automaticamente come bozze. Ingredienti e allergeni vanno verificati.</p>'+
- '<div id="al-books-new-recipes"></div></div>');
+ '<div id="al-books-new-recipes"></div><div id="al-books-historic"></div></div>');
 const dailyBox=addBookPanel(daily,"al-books-daily",
  '<div class="al-books-card"><h3>Libro giornaliero · dal menù del giorno</h3>'+
  '<p>I piatti arrivano dal menù che hai già salvato in Shop Manager. Nessun inserimento doppio.</p>'+
@@ -223,8 +223,13 @@ async function readShared(){
  paintNewRecipes();
  return live;
 }
+function paintHistoricCatalog(){
+ const host=document.getElementById("al-books-historic");if(!host||!catalog)return;
+ const groups=new Map();for(const recipe of catalog.recipes){const k=recipe.category||"ALTRE RICETTE";if(!groups.has(k))groups.set(k,[]);groups.get(k).push(recipe)}
+ host.innerHTML='<h3 style="margin:24px 0 12px">Archivio ricette · '+catalog.recipes.length+' schede</h3><p class="al-books-info">Apri una categoria per consultare ingredienti, allergeni e verifiche delle ricette già raccolte.</p>'+[...groups].map(([cat,rows])=>'<details class="al-books-registered-group"><summary>'+esc(cat)+' ('+rows.length+')</summary>'+rows.map(x=>'<article class="al-books-dish"><div class="al-books-dish-top"><b>'+esc(x.name)+'</b><span class="'+(x.verified?'al-books-ok':'al-books-pending')+'">'+(x.verified?'Verificata':'Da verificare')+'</span></div><p><b>Ingredienti:</b> '+esc(x.ingredients||'Da completare')+'</p><p><b>Allergeni UE:</b> '+esc((x.allergenNumbers||[]).join(', ')||'Nessuno indicato')+'</p>'+(x.checks?'<p class="al-books-note"><b>Verifiche:</b> '+esc(x.checks)+'</p>':'')+'</article>').join('')+'</details>').join('');
+}
 async function refreshComplete(){
- try{await loadCatalog();await readShared();showText("al-books-full-message","Ricettario aggiornato. Le nuove ricette rimangono in bozza finché non sono complete e verificate.",false)}
+ try{await loadCatalog();paintHistoricCatalog();await readShared();showText("al-books-full-message","Ricettario aggiornato. Le nuove ricette rimangono in bozza finché non sono complete e verificate.",false)}
  catch(e){showText("al-books-full-message","Libro storico disponibile. Impossibile sincronizzare le nuove ricette: "+(e.message||e),true);paintNewRecipes()}
 }
 function classify(items){
