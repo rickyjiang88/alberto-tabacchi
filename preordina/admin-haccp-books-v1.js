@@ -3,7 +3,7 @@
  * Conferme e archivio di lavoro SOLO locali, non archivio HACCP ufficiale condiviso. */
 (function(){
 "use strict";
-if(!window.matchMedia("(max-width:760px)").matches)return;
+// HACCP panels available on desktop and mobile.
 const full=document.getElementById("haccpAllergeniTotale");
 const daily=document.getElementById("haccpAllergeniGiornaliero");
 if(!full||!daily||document.getElementById("al-books-full"))return;
