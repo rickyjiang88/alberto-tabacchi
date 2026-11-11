@@ -18,10 +18,9 @@ if not secret:
 firebase_admin.initialize_app(credentials.Certificate(json.loads(secret)))
 db = firestore.client()
 
-def registered_tokens(uid):
-    """Return all distinct device tokens, including the original single-device field."""
-    snapshot = db.collection("fidelityPushTokens").document(uid).get()
-    record = snapshot.to_dict() or {}
+def tokens_from_record(record):
+    """Extract distinct device tokens from a token document without another Firestore read."""
+    record = record or {}
     tokens = set()
     if isinstance(record.get("token"), str) and record["token"]:
         tokens.add(record["token"])
@@ -31,6 +30,10 @@ def registered_tokens(uid):
             if isinstance(device, dict) and isinstance(device.get("token"), str) and device["token"]:
                 tokens.add(device["token"])
     return sorted(tokens)
+
+def registered_tokens(uid):
+    snapshot = db.collection("fidelityPushTokens").document(uid).get()
+    return tokens_from_record(snapshot.to_dict())
 
 def deliver(order_ref):
     @firestore.transactional
@@ -157,7 +160,7 @@ def send_lunch_campaign():
         for snap in db.collection("fidelityPushTokens").where(
             filter=FieldFilter("marketingConsent", "==", True)
         ).stream():
-            for token in registered_tokens(snap.id):
+            for token in tokens_from_record(snap.to_dict()):
                 try:
                     messaging.send(messaging.Message(
                         token=token,
@@ -204,7 +207,7 @@ def send_manual_broadcasts():
             for customer in db.collection("fidelityPushTokens").where(
                 filter=FieldFilter("marketingConsent", "==", True)
             ).stream():
-                for token in registered_tokens(customer.id):
+                for token in tokens_from_record(customer.to_dict()):
                     try:
                         messaging.send(messaging.Message(
                             token=token,
