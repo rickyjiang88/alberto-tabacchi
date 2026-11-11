@@ -8,6 +8,7 @@ const full=document.getElementById("haccpAllergeniTotale");
 const daily=document.getElementById("haccpAllergeniGiornaliero");
 if(!full||!daily||document.getElementById("al-books-full"))return;
 const DATA="/preordina/haccp-allergeni-data-v1.json?v=20261019b";
+const PDF_EDITION="2026-11-11 · EDIZIONE RIORDINATA";
 const APPROVALS="alberto-haccp-conferme-ricette-locali-v1";
 const HISTORY="alberto-haccp-giornalieri-locali-v1";
 const AUTO="alberto-haccp-nuove-ricette-auto-locali-v1";
@@ -44,7 +45,7 @@ function addBookPanel(section,id,html){
 const fullBox=addBookPanel(full,"al-books-full",
  '<div class="al-books-card"><h3>Libro completo · ricettario permanente</h3>'+
  '<p>Consultazione del libro ingredienti e allergeni già raccolto. Le ricette con verifiche aperte non sono approvate automaticamente.</p>'+
- '<div class="al-books-actions"><button type="button" id="al-books-open-full">Apri il libro in PDF</button></div>'+
+ '<div class="al-books-actions"><button type="button" id="al-books-open-full">Apri PDF aggiornato · 11/11</button></div>'+
  '<p class="al-books-info" id="al-books-full-message">Il libro contiene le ricette storiche e le nuove ricette registrate automaticamente come bozze. Ingredienti e allergeni vanno verificati.</p>'+
  '<div id="al-books-historic"></div><div id="al-books-new-recipes"></div></div>');
 const dailyBox=addBookPanel(daily,"al-books-daily",
@@ -336,7 +337,7 @@ document.getElementById("al-books-open-full").addEventListener("click",async()=>
  const chapters=["1. MATERIE PRIME E PRODOTTI BASE","2. RICETTE FISSE DEL LOCALE","3. ARCHIVIO PIATTI DEL GIORNO"];
  const chapter=cat=>cat==="MATERIE PRIME / BASI"?0:["PANINI","TOAST","PIADINE","INSALATONE","PIATTI FREDDI","LO CHEF CONSIGLIA"].includes(cat)?1:2;
  const recipes=[...c.recipes].sort((a,b)=>{const ca=chapter(a.category),cb=chapter(b.category);return ca-cb||order.indexOf(a.category)-order.indexOf(b.category)||a.name.localeCompare(b.name,"it")});
- const printable=["ALBERTO | LIBRO COMPLETO INGREDIENTI E ALLERGENI","Archivio permanente - documento di lavoro. Verificare etichette, varianti e contaminazioni crociate prima dell'uso definitivo.","LEGENDA ALLERGENI UE: 1 glutine; 2 crostacei; 3 uova; 4 pesce; 5 arachidi; 6 soia; 7 latte; 8 frutta a guscio; 9 sedano; 10 senape; 11 sesamo; 12 solfiti; 13 lupini; 14 molluschi.",""];
+ const printable=["ALBERTO | LIBRO COMPLETO INGREDIENTI E ALLERGENI",PDF_EDITION,"Archivio permanente - documento di lavoro. Verificare etichette, varianti e contaminazioni crociate prima dell'uso definitivo.","LEGENDA ALLERGENI UE: 1 glutine; 2 crostacei; 3 uova; 4 pesce; 5 arachidi; 6 soia; 7 latte; 8 frutta a guscio; 9 sedano; 10 senape; 11 sesamo; 12 solfiti; 13 lupini; 14 molluschi.",""];
  let lastChapter=-1,lastCategory="";
  for(const row of recipes){const ch=chapter(row.category);if(ch!==lastChapter){printable.push("","",chapters[ch],"");lastChapter=ch;lastCategory=""}if(row.category!==lastCategory){printable.push("","CATEGORIA: "+row.category,"");lastCategory=row.category}printable.push(row.name);printable.push("Ingredienti: "+(row.ingredients||"Da completare"));printable.push("Allergeni: "+((row.allergenNumbers||[]).join(", ")||"Nessuno indicato nella ricetta"));if(row.checks)printable.push("Verifiche: "+row.checks);printable.push("")}
  if(syncError)printable.push("","ATTENZIONE: "+syncError+". Libro storico e bozze locali soltanto.");
@@ -357,7 +358,7 @@ document.getElementById("al-books-open-full").addEventListener("click",async()=>
   for(const row of aliasNames)printable.push(row.name+" -> "+readAlias(row.name).name+" (collegamento confermato dall'operatore)");
  }
  const pdf=pdfLines(printable,"Libro completo ingredienti e allergeni");openPdf(pdf,"Alberto_Libro_Allergeni_Completo_Consultazione.pdf",popup,fullBox);
- showText("al-books-full-message","Libro aperto. Mantieni le verifiche pendenti: questa copia non certifica etichette e ricette.",false)}
+ showText("al-books-full-message","PDF nuova edizione generato. Prima sezione: MATERIE PRIME E PRODOTTI BASE. Verificare le ricette prima dell’uso definitivo.",false)}
  catch(e){if(popup&&!popup.closed)popup.close();showText("al-books-full-message","Errore apertura PDF: "+(e.message||e),true)}
 });
 document.getElementById("al-books-refresh").addEventListener("click",refresh);
