@@ -81,7 +81,7 @@
 .wallet-qr-box #walletQr{width:100%!important;max-width:240px!important;min-height:0!important;height:auto!important;display:block!important;margin:0 auto 18px!important;overflow:hidden!important}
 .wallet-qr-box #walletQr svg,.wallet-qr-box #walletQr img,.wallet-qr-box #walletQr canvas{display:block!important;width:100%!important;max-width:240px!important;height:auto!important;aspect-ratio:1/1!important;margin:0 auto!important;position:static!important;transform:none!important}
 .wallet-qr-box>b{display:block!important;clear:both!important;margin:0 0 8px!important}
-</style>
+.booking-history-panel{order:2;min-width:0;background:#fff;border:1px solid #e3d5ca;border-radius:16px;padding:16px}.booking-history-panel summary{cursor:pointer;list-style:none;font-size:17px;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:12px}.booking-history-panel summary::-webkit-details-marker{display:none}.booking-history-panel[open] summary{margin-bottom:16px}.booking-history-chevron{transition:transform .2s}.booking-history-panel[open] .booking-history-chevron{transform:rotate(180deg)}.booking-layout>.booking-form-card{order:1;min-width:0}@media(max-width:850px){.booking-layout{grid-template-columns:minmax(0,1fr)!important}}</style>
 <style id="nav-fit-fix">@media (min-width:851px) and (max-width:1150px){.topbar{padding-left:18px;padding-right:18px;gap:10px}.brand{min-width:135px;gap:7px}.brand img{width:38px;height:48px}.site-brand-copy strong{font-size:18px}.site-brand-copy small{display:none}.main-site-nav{gap:8px}.main-site-nav a{font-size:8px}.top-actions{margin-left:0}.account-chip{padding:5px}.account-chip div:not(.avatar){display:none}.top-icon{width:40px;height:40px}}</style><style id="brazil-event-theme">
 body.brazil-event{--br-green:#0b7a3b;--br-yellow:#f2c500;--br-blue:#1146a6}
 body.brazil-event .site-topbar{background:linear-gradient(90deg,var(--br-green),var(--br-yellow),var(--br-blue))!important;color:#fff!important}
@@ -351,10 +351,10 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
     <section id="view-bookings" class="view">
       <span class="eyebrow">TAVOLI</span><h1>Prenotazioni</h1><p class="lead">Prenota un tavolo e controlla le prenotazioni personali o del tuo gruppo.</p>
       <div class="booking-layout">
-        <div>
-          <h2 class="booking-history-title">Le mie prenotazioni</h2>
+        <details class="booking-history-panel">
+          <summary>Le mie prenotazioni <span class="booking-history-chevron" aria-hidden="true">⌄</span></summary>
           <div id="bookingsList" class="list"><div class="empty">Caricamento…</div></div>
-        </div>
+        </details>
         <div id="bookingFormCard" class="card booking-form-card">
           <h2 style="margin-top:0">Nuova prenotazione</h2>
           <div class="form">
