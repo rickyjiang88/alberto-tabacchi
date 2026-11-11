@@ -3,7 +3,7 @@
  * Non sostituisce un archivio condiviso/validato. */
 (function(){
 "use strict";
-if(!window.matchMedia("(max-width:760px)").matches)return;
+// HACCP panels available on desktop and mobile.
 const main=document.querySelector("main");
 if(!main||document.getElementById("haccpScadenze"))return;
 
