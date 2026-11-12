@@ -808,7 +808,7 @@ function ddtInitSelects(){
  if(filter&&!filter.options.length)filter.innerHTML='<option value="all">TUTTI I CLIENTI</option>'+DDT_CLIENTS.map(x=>'<option value="'+x.id+'">'+ddtEsc(x.label)+'</option>').join("");
 }
 window.initDdtPanel=()=>{
- ddtInitSelects();ddtLoadClients();const date=document.getElementById("ddtDate");if(date&&!date.value)date.value=ddtToday();const month=document.getElementById("ddtFilterMonth");if(month&&!month.value)month.value=ddtToday().slice(0,7);
+ ddtInitSelects();ddtLoadClients();const date=document.getElementById("ddtDate");if(date&&!date.value)date.value=ddtToday();const month=document.getElementById("ddtFilterMonth");if(month)month.value="";
  window.ddtClientChanged();window.renderDdtMenu();window.renderDdtCustomItems();window.startDdtHistory();
 };
 // Storico DDT caricato solo all'apertura o dopo una modifica, senza listener continuo.
@@ -816,7 +816,10 @@ window.startDdtHistory=async()=>{
  if(ddtLoading||!auth.currentUser)return;
  ddtLoading=true;
  try{
-  const qy=query(collection(db,"ddtDeliveries"),orderBy("date","desc"));
+  const yesterday=new Date(ddtToday()+"T12:00:00Z");
+  yesterday.setUTCDate(yesterday.getUTCDate()-1);
+  const fromDate=yesterday.toISOString().slice(0,10);
+  const qy=query(collection(db,"ddtDeliveries"),where("date",">=",fromDate),orderBy("date","desc"));
   const sn=await getDocs(qy);
   if(!auth.currentUser)return;
   ddtHistoryRows=sn.docs.filter(d=>d.id!=="__clientDirectory").map(d=>({id:d.id,...d.data()}));
@@ -864,7 +867,7 @@ window.importHistoricalDdt=async()=>{const status=document.getElementById("ddtLe
 window.deleteDdt=async id=>{if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID){alert("Accesso amministratore richiesto.");return;}const row=ddtHistoryRows.find(x=>x.id===id);if(!row)return;const label=row.ddtLabel||row.ddtNumber||id;if(!confirm("Eliminare dallo storico il DDT "+label+" del "+(row.date||"")+"? Il numero NON verrà riutilizzato."))return;try{await updateDoc(doc(db,"ddtDeliveries",id),{deleted:true,deletedAt:serverTimestamp(),deletedBy:auth.currentUser.uid});alert("DDT "+label+" eliminato dallo storico. Numerazione invariata.");}catch(e){console.error("Elimina DDT",e);alert("Impossibile eliminare il DDT: "+(e.code||e.message||"errore Firebase"));}};
 window.renderDdtHistory=()=>{
  const host=document.getElementById("ddtHistory"),summary=document.getElementById("ddtSummary");if(!host||!summary)return;
- const month=document.getElementById("ddtFilterMonth")?.value||"",client=document.getElementById("ddtFilterClient")?.value||"all",status=document.getElementById("ddtFilterStatus")?.value||"pending";
+ const month="",client=document.getElementById("ddtFilterClient")?.value||"all",status=document.getElementById("ddtFilterStatus")?.value||"pending";
  const rows=ddtHistoryRows.filter(r=>!r.deleted&&(!month||String(r.date||"").startsWith(month))&&(client==="all"||r.clientId===client)&&(status==="all"||(status==="done"?r.invoiced:!r.invoiced)));
  const total=rows.reduce((s,r)=>s+Number(r.total||0),0),pending=rows.filter(r=>!r.invoiced).reduce((s,r)=>s+Number(r.total||0),0);
  summary.innerHTML=[["DDT",rows.length,"nel filtro selezionato"],["TOTALE",ddtMoney(total),"valore consegne"],["DA FATTURARE",ddtMoney(pending),"ancora aperto"]].map(x=>'<div class="dash-tile"><small>'+x[0]+'</small><strong>'+x[1]+'</strong><em>'+x[2]+'</em></div>').join("");
