@@ -226,7 +226,7 @@ function startOrders(){
  };
  const fail=e=>{console.error("Firestore ordini/prenotazioni",e);ol.innerHTML="Errore nel caricamento ordini o prenotazioni."};
  const from=new Date(Date.parse(day+"T00:00:00Z")-2*3600000);
- const stopOrders=onSnapshot(query(collection(db,"orders"),where("createdAt",">=",from)),snap=>{recent=snap.docs.map(d=>({id:d.id,...d.data()}));recentReady=true;updateView()},fail);
+ const stopOrders=onSnapshot(query(collection(db,"orders"),where("createdAt",">=",from),orderBy("createdAt","desc")),snap=>{recent=snap.docs.map(d=>({id:d.id,...d.data()}));recentReady=true;updateView()},fail);
  const stopBookings=onSnapshot(query(collection(db,"orders"),where("date","==",day)),snap=>{dated=snap.docs.map(d=>({id:d.id,...d.data()}));datedReady=true;updateView()},fail);
  unsub=()=>{stopOrders();stopBookings()};
 }
