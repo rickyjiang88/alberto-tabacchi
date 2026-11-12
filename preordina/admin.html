@@ -128,18 +128,43 @@ async function processPaidFidelityPurchase(code,amount,useWallet){
       }
     }
     const reward=!!(eligible&&inviterSnap?.exists()&&!logMarkerSnap?.exists());
-    const patch={points:before+pts,lastPurchaseAt:fidelityApi.serverTimestamp(),lastPurchaseAmount:amount,updatedAt:fidelityApi.serverTimestamp()};
+    // Missione mattutina: un giorno per settimana, premio unico al quinto giorno.
+    // La data viene calcolata in Europe/Rome; la transazione Firestore impedisce doppi accrediti.
+    const now=new Date();
+    const dateParts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
+    const hour=Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Rome',hour:'2-digit',hourCycle:'h23'}).format(now));
+    const morningEligible=hour<10;
+    let morningRef=null,morningDays=[],morningBonus=0;
+    if(morningEligible){
+      const monday=new Date(dateParts+'T12:00:00Z');
+      monday.setUTCDate(monday.getUTCDate()-((monday.getUTCDay()+6)%7));
+      const week=monday.toISOString().slice(0,10);
+      morningRef=fidelityApi.doc(fidelityApi.db,'fidelityMorningMissions',code+'_'+week);
+      const morningSnap=await tx.get(morningRef);
+      const old=morningSnap.exists()?morningSnap.data():{};
+      morningDays=[...new Set((Array.isArray(old.days)?old.days:[]).filter(x=>/^\\d{4}-\\d{2}-\\d{2}$/.test(x)))];
+      if(!morningDays.includes(dateParts))morningDays.push(dateParts);
+      morningBonus=morningDays.length>=5&&!old.rewarded?5:0;
+    }
+    const patch={points:before+pts+morningBonus,lastPurchaseAt:fidelityApi.serverTimestamp(),lastPurchaseAmount:amount,updatedAt:fidelityApi.serverTimestamp()};
     if(useWallet)patch.walletBalance=Math.max(0,wallet-amount);
     if(reward){patch.referralRewarded=true;patch.referralRewardedAt=fidelityApi.serverTimestamp();patch.referralStatus='rewarded'}
     tx.update(customerRef,patch);
+    if(morningRef){
+      tx.set(morningRef,{customerCode:code,days:morningDays,rewarded:morningDays.length>=5,updatedAt:fidelityApi.serverTimestamp()},{merge:true});
+      if(morningBonus){
+        const bonusRef=fidelityApi.doc(fidelityApi.collection(fidelityApi.db,'fidelityTransactions'));
+        tx.set(bonusRef,{customerCode:code,uid:data.uid||null,type:'MORNING_MISSION_REWARD',points:5,createdAt:fidelityApi.serverTimestamp(),createdBy:fidelityApi.auth.currentUser.uid});
+      }
+    }
     const saleRef=fidelityApi.doc(fidelityApi.collection(fidelityApi.db,'fidelityTransactions'));
-    tx.set(saleRef,{customerCode:code,uid:data.uid||null,type:useWallet?'WALLET_PURCHASE':'PURCHASE',amount,points:pts,basePoints:fidelityPurchasePoints(amount).base,fridayBonusPoints:fidelityPurchasePoints(amount).fridayBonus,fridayDoubleApplied:fidelityPurchasePoints(amount).friday,walletDebit:useWallet?amount:0,balanceBefore:before,balanceAfter:before+pts,createdAt:fidelityApi.serverTimestamp(),createdBy:fidelityApi.auth.currentUser.uid});
+    tx.set(saleRef,{customerCode:code,uid:data.uid||null,type:useWallet?'WALLET_PURCHASE':'PURCHASE',amount,points:pts,basePoints:fidelityPurchasePoints(amount).base,fridayBonusPoints:fidelityPurchasePoints(amount).fridayBonus,fridayDoubleApplied:fidelityPurchasePoints(amount).friday,walletDebit:useWallet?amount:0,balanceBefore:before,balanceAfter:before+pts+morningBonus,createdAt:fidelityApi.serverTimestamp(),createdBy:fidelityApi.auth.currentUser.uid});
     if(reward){
       const inviter=inviterSnap.data()||{};
       tx.update(inviterRef,{points:Number(inviter.points||0)+5,updatedAt:fidelityApi.serverTimestamp()});
       tx.set(logMarkerRef,{customerCode:inviterCode,points:5,type:'referral_first_purchase',referredCustomerCode:code,createdAt:fidelityApi.serverTimestamp(),createdBy:fidelityApi.auth.currentUser.uid});
     }
-    result={points:before+pts,walletBalance:useWallet?Math.max(0,wallet-amount):wallet,referralAwarded:reward};
+    result={points:before+pts+morningBonus,walletBalance:useWallet?Math.max(0,wallet-amount):wallet,referralAwarded:reward};
   });
   return result;
 }
