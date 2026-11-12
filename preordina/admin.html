@@ -334,15 +334,27 @@ let officeUnsub=null,officeLoaded=false,officeCustomers=[];
 const officeEsc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const officeCustomerName=x=>[x.name,x.surname].filter(Boolean).join(" ").trim()||x.email||"Cliente Fidelity";
 const officeCustomerGroups=x=>[...new Set([...(Array.isArray(x.officeGroupCodes)?x.officeGroupCodes:[]),x.officeGroupCode,x.groupCode].map(v=>String(v||"").trim()).filter(Boolean))];
-window.initOfficeOverview=()=>{
+// Panoramica uffici: caricamento su richiesta anziché listener di tutti i clienti.
+let officeLoading=false;
+window.initOfficeOverview=async()=>{
  if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)return;
- if(officeUnsub){window.renderOfficeOverview();return;}
- try{officeUnsub=onSnapshot(collection(db,"fidelityCustomers"),sn=>{
-   officeCustomers=sn.docs.map(d=>({code:d.id,...d.data()}));officeLoaded=true;window.renderOfficeOverview();
- },e=>{console.error(e);officeLoaded=false;document.getElementById("officeStatus").textContent="Non riesco a leggere i gruppi Fidelity. Premi AGGIORNA.";});}
- catch(e){console.error(e);document.getElementById("officeStatus").textContent="Dati Fidelity non disponibili.";}
+ if(officeLoaded||officeLoading){window.renderOfficeOverview();return;}
+ officeLoading=true;
+ try{
+   const sn=await getDocs(collection(db,"fidelityCustomers"));
+   if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)return;
+   officeCustomers=sn.docs.map(d=>({code:d.id,...d.data()}));
+   officeLoaded=true;window.renderOfficeOverview();
+ }catch(e){
+   console.error(e);officeLoaded=false;
+   const el=document.getElementById("officeStatus");
+   if(el)el.textContent="Non riesco a leggere i gruppi Fidelity. Premi AGGIORNA.";
+ }finally{officeLoading=false;}
 };
-window.refreshOfficeOverview=()=>{if(officeUnsub){officeUnsub();officeUnsub=null;}officeLoaded=false;window.initOfficeOverview();};
+window.refreshOfficeOverview=()=>{
+ if(officeLoading)return;
+ officeLoaded=false;window.initOfficeOverview();
+};
 window.renderOfficeOverview=()=>{
  const k=document.getElementById("officeKpis"),list=document.getElementById("officeGroups"),tables=document.getElementById("officeBookings"),status=document.getElementById("officeStatus");
  if(!k||!list||!tables)return;
