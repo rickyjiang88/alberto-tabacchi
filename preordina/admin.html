@@ -311,7 +311,7 @@ document.getElementById("loginBtn").onclick=async()=>{const btn=document.getElem
 window.__albertoShopAuthReady&&window.__albertoShopAuthReady();
 onAuthStateChanged(auth,user=>{if(user&&user.uid===ADMIN_UID){gate.style.display="none";startOrders();loadDailyConfig();loadShopControls()}else{gate.style.display="flex";if(officeUnsub){officeUnsub();officeUnsub=null;}officeLoaded=false;officeCustomers=[];if(user)signOut(auth)}});
 function startOrders(){if(unsub)return;
- const today=todayRome(),start=new Date(today+"T00:00:00+01:00");
+ const today=todayRome(),start=new Date(today+"T00:00:00Z");start.setUTCDate(start.getUTCDate()-1);
  const q=query(collection(db,"orders"),where("createdAt",">=",start));
  const qBookings=query(collection(db,"orders"),where("date","==",today));
  let dailyDocs=[],bookingDocs=[];
