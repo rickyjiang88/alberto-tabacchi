@@ -142,7 +142,7 @@ async function processPaidFidelityPurchase(code,amount,useWallet){
       morningRef=fidelityApi.doc(fidelityApi.db,'fidelityMorningMissions',code+'_'+week);
       const morningSnap=await tx.get(morningRef);
       const old=morningSnap.exists()?morningSnap.data():{};
-      morningDays=[...new Set((Array.isArray(old.days)?old.days:[]).filter(x=>/^\\d{4}-\\d{2}-\\d{2}$/.test(x)))];
+      morningDays=[...new Set((Array.isArray(old.days)?old.days:[]).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)))];
       if(!morningDays.includes(dateParts))morningDays.push(dateParts);
       morningBonus=morningDays.length>=5&&!old.rewarded?5:0;
     }
