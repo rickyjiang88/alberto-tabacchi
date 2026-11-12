@@ -3,7 +3,7 @@ name: Alberto Fidelity - nuove registrazioni email
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '0 * * * *'
 
 permissions:
   contents: read
