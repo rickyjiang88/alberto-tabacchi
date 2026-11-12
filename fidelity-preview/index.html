@@ -1074,7 +1074,7 @@ function watchUser(uid){
   orders=[];bookings=[];
   const ownBookingsById=new Map(),sharedBookingsById=new Map();
   const refreshBookings=()=>{bookings=[...new Map([...ownBookingsById,...sharedBookingsById]).values()].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));render();updateLunchMissionDisplay();};
-  unsubs.push(onSnapshot(doc(db,'fidelityCustomers',customerCode()),s=>{if(s.exists()){profile={...profile,...s.data(),uid,code:customerCode()};render();loadGroupMemberships()}},e=>console.warn('Profilo Fidelity non sincronizzato',e)));
+  unsubs.push(onSnapshot(doc(db,'fidelityCustomers',customerCode()),s=>{if(s.exists()){const previousGroupCodes=groupCodes().join('|');profile={...profile,...s.data(),uid,code:customerCode()};render();if(groupCodes().join('|')!==previousGroupCodes)loadGroupMemberships()}},e=>console.warn('Profilo Fidelity non sincronizzato',e)));
   const ownQ=query(collection(db,'orders'),where('customerUid','==',uid));
   unsubs.push(onSnapshot(ownQ,s=>{
     const all=s.docs.map(d=>({id:d.id,...d.data()}));
