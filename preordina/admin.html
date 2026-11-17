@@ -457,6 +457,22 @@ window.renderOfficeOverview=()=>{
 window.todayRome=todayRome;
 const bookingSafe=s=>String(s??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 function bookingTotals(rows){return rows.reduce((a,b)=>{const n=Number(b.covers);if(Number.isInteger(n)&&n>0&&n<=200)a.people+=n;else a.unspecified++;return a;},{people:0,unspecified:0});}
+// Risoluzione nominativi Fidelity: sola lettura, senza modificare prenotazioni o punti.
+const bookingFidelityNameCache=new Map();
+function bookingFidelityName(code){
+ code=String(code||"").trim().toUpperCase();
+ if(!code||!fidelityApi)return "";
+ const cached=bookingFidelityNameCache.get(code);
+ if(cached)return cached.name||"";
+ bookingFidelityNameCache.set(code,{name:"",pending:true});
+ fidelityApi.getDoc(fidelityApi.doc(fidelityApi.db,"fidelityCustomers",code)).then(snap=>{
+   const data=snap.exists()?(snap.data()||{}):{};
+   const name=[data.name,data.surname].map(x=>String(x||"").trim()).filter(Boolean).join(" ");
+   bookingFidelityNameCache.set(code,{name,pending:false});
+   if(name&&typeof window.renderBookings==="function")window.renderBookings();
+ }).catch(()=>bookingFidelityNameCache.set(code,{name:"",pending:false}));
+ return "";
+}
 window.renderBookings=()=>{
  const dayEl=document.getElementById("bookingDay"),summary=document.getElementById("bookingSummary"),list=document.getElementById("bookingList");
  if(!dayEl||!summary||!list)return;
@@ -483,7 +499,7 @@ window.renderBookings=()=>{
     seen.add(code);attendees.push({code,name:String(name||"Cliente Fidelity")});
   };
   if(b.bookingType==="group"){
-    if(Array.isArray(b.groupMembers))b.groupMembers.forEach(m=>{if(m)addAttendee(m.code,m.name||m.email)});
+    if(Array.isArray(b.groupMembers))b.groupMembers.forEach(m=>{if(m){const rawName=String(m.name||"").trim();const fallback=rawName&&!/^cliente(?: fidelity)?$/i.test(rawName)?rawName:(bookingFidelityName(m.code)||m.email||rawName||"Cliente");addAttendee(m.code,fallback)}});
     if(b.customerCode)addAttendee(b.customerCode,(b.name||"Prenotante")+" (prenotante)");
   }else if(b.customerCode)addAttendee(b.customerCode,b.name||"Prenotante");
   const present=new Set(Array.isArray(b.arrivalPresentCustomerCodes)?b.arrivalPresentCustomerCodes.map(x=>String(x).trim().toUpperCase()):[]);
