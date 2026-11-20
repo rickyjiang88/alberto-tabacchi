@@ -669,13 +669,32 @@ body.brazil-event .brazil-event-banner b{font-size:14px}
       <div id="notificationsList" class="list"><div class="empty">Caricamento…</div></div>
     </section>
   </main>
+<dialog id="manageBookingDialog" aria-labelledby="manageBookingTitle" style="width:min(92vw,460px);max-height:90vh;padding:22px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--ink)">
+  <form class="form" id="manageBookingForm">
+    <h2 id="manageBookingTitle" style="margin:0"></h2>
+    <p id="manageBookingDetails" style="margin:0;font-size:14px"></p>
+    <div class="form" id="manageBookingFields" hidden>
+      <label for="manageBookingDate">Data</label>
+      <input type="date" id="manageBookingDate">
+      <label for="manageBookingTime">Orario</label>
+      <select id="manageBookingTime"></select>
+      <label for="manageBookingCovers">Numero di coperti</label>
+      <input type="number" id="manageBookingCovers" inputmode="numeric" min="1" max="100" step="1">
+    </div>
+    <p id="manageBookingStatus" role="status" hidden style="margin:0;color:var(--red);font-size:14px"></p>
+    <div class="actions">
+      <button type="button" class="btn secondary" id="manageBookingBack">INDIETRO</button>
+      <button type="submit" class="btn" id="manageBookingSave"></button>
+    </div>
+  </form>
+</dialog>
 </div>
 <div id="toast" class="toast"></div>
 
 <script src="/area-clienti/qrcode.min.js"></script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import {getFirestore,doc,getDoc,setDoc,serverTimestamp,collection,query,where,onSnapshot,addDoc,updateDoc} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import {getFirestore,doc,getDoc,setDoc,serverTimestamp,collection,query,where,onSnapshot,addDoc,runTransaction} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail,signOut,onAuthStateChanged,updateProfile} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {getMessaging,getToken,onMessage,isSupported} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-messaging.js";
 
@@ -891,19 +910,31 @@ function rowOrder(x){
   const items=Array.isArray(x.items)?x.items.map(i=>i.name+(i.qty>1?' × '+i.qty:'')).join(' · '):'';
   return '<div class="row"><div><b>'+esc(num+' · '+lab)+'</b><small>'+esc((x.pickup?'Ritiro '+x.pickup:'')+(items?' · '+items:''))+'</small></div><span class="'+cl+'">'+esc(lab)+'</span></div>';
 }
-function bookingEditable(x){
-  if(!auth.currentUser||!x?.id||x.customerUid!==auth.currentUser.uid)return false;
-  const status=String(x.bookingStatus||x.status||'').toUpperCase();
-  if(/ANNULL|ARRIV|COMPLET|CHIUS/.test(status))return false;
-  const isGroup=String(x.bookingType||'').toLowerCase()==='group'||!!x.groupCode;
-  if(isGroup){
-    const meta=groupMetas.find(g=>g.code===x.groupCode);
-    if(!meta||meta.ownerUid!==auth.currentUser.uid)return false;
+function bookingNowRome(){
+  return new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
+}
+function bookingEditable(x,uid=auth.currentUser?.uid,now=bookingNowRome()){
+  if(!uid||!x?.id||x.customerUid!==uid||x.bookingClosedAt||x.bookingPointsFinalized||x.arrivalPointsAwarded)return false;
+  if(!['IN ATTESA','CONFERMATA'].includes(x.bookingStatus||x.status))return false;
+  const {date,time}=x;
+  return /^\d{4}-\d{2}-\d{2}$/.test(date)&&/^([01]\d|2[0-3]):[0-5]\d$/.test(time)&&date+' '+time>=now;
+}
+function bookingEditPatch(booking,date,time,covers,now=bookingNowRome()){
+  const dateAtNoon=new Date(date+'T12:00:00Z');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(dateAtNoon.getTime())||dateAtNoon.toISOString().slice(0,10)!==date){
+    throw new Error('Scegli una data valida.');
   }
-  const date=String(x.date||''),time=String(x.time||'');
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^\d{2}:\d{2}$/.test(time))return false;
-  const now=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
-  return date+' '+time>=now;
+  if(dateAtNoon.getUTCDay()===0)throw new Error('La domenica il locale è chiuso.');
+  if(!/^(?:(12|13):(00|15|30|45)|14:00)$/.test(time))throw new Error('Scegli uno degli orari disponibili.');
+  if(date+' '+time<now)throw new Error('Scegli un orario che deve ancora arrivare.');
+  const minCovers=Math.max(1,Array.isArray(booking.groupMembers)?booking.groupMembers.length:0);
+  if(!Number.isInteger(covers)||covers<minCovers||covers>100){
+    throw new Error('Indica da '+minCovers+' a 100 coperti.');
+  }
+  if(date===booking.date&&time===booking.time&&covers===Number(booking.covers??booking.guests??1)){
+    throw new Error('Modifica almeno un dato prima di salvare.');
+  }
+  return {date,time,covers,guests:covers,bookingStatus:'IN ATTESA',status:'IN ATTESA'};
 }
 function rowBooking(x){
   const [lab,cl]=bookingStatus(x);
@@ -913,35 +944,81 @@ function rowBooking(x){
   const actions=bookingEditable(x)?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="btn" data-booking-action="edit" data-booking-id="'+esc(x.id)+'">MODIFICA</button><button type="button" class="btn" data-booking-action="cancel" data-booking-id="'+esc(x.id)+'">DISDICI</button></div>':'';
   return '<div class="row"><div><b>'+esc(fmtDate(x.date)+' · ore '+String(x.time||''))+'</b><small>'+esc(meta)+'</small>'+(people.length?'<small style="margin-top:5px">'+people.map(n=>'• '+esc(n)).join('<br>')+'</small>':'')+actions+'</div><span class="'+cl+'">'+esc(lab)+'</span></div>';
 }
-document.addEventListener('click',async e=>{
-  const btn=e.target.closest('[data-booking-action]');if(!btn)return;
-  const x=bookings.find(b=>b.id===btn.dataset.bookingId);
-  if(!x||!bookingEditable(x)){toast('Prenotazione non più modificabile.');return}
-  const action=btn.dataset.bookingAction;
-  let patch;
-  if(action==='cancel'){
-    if(!confirm('Vuoi davvero disdire questa prenotazione?'))return;
-    patch={bookingStatus:'ANNULLATA',status:'ANNULLATA'};
-  }else if(action==='edit'){
-    const date=prompt('Nuova data (AAAA-MM-GG)',x.date);if(date===null)return;
-    const time=prompt('Nuovo orario (HH:MM, dalle 12:00 alle 14:00 ogni 15 minuti)',x.time);if(time===null)return;
-    const coversText=prompt('Numero di persone',String(x.covers||x.guests||1));if(coversText===null)return;
-    const covers=Number(coversText),mins=/^\d{2}:\d{2}$/.test(time)?Number(time.slice(0,2))*60+Number(time.slice(3)):NaN;
-    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(mins)||mins<720||mins>840||mins%15!==0||!Number.isInteger(covers)||covers<1||covers>100){toast('Data, orario o coperti non validi.');return}
-    const now=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
-    if(date+' '+time<now){toast('Orario già trascorso.');return}
-    if(date===x.date&&time===x.time&&covers===Number(x.covers||x.guests||1))return;
-    if(!confirm('Inviare la modifica? La prenotazione tornerà in attesa di conferma.'))return;
-    patch={date,time,covers,guests:covers,bookingStatus:'IN ATTESA',status:'IN ATTESA'};
-  }else return;
-  btn.disabled=true;
+const bookingDialog=$('manageBookingDialog'),bookingForm=$('manageBookingForm');
+let bookingAction=null,bookingSaving=false;
+function showBookingActionStatus(message){
+  const status=$('manageBookingStatus');
+  status.textContent=message;
+  status.hidden=!message;
+}
+document.addEventListener('click',e=>{
+  const button=e.target.closest('[data-booking-action]');
+  if(!button)return;
+  const action=button.dataset.bookingAction;
+  if(!['edit','cancel'].includes(action)||bookingDialog.open)return;
+  const booking=bookings.find(x=>x.id===button.dataset.bookingId);
+  if(!bookingEditable(booking))return toast('Questa prenotazione non è più modificabile.');
+  bookingAction={booking,action};
+  const editing=action==='edit';
+  $('manageBookingTitle').textContent=editing?'Modifica prenotazione':'Disdici prenotazione';
+  const summary=fmtDate(booking.date)+' alle '+booking.time;
+  $('manageBookingDetails').textContent=editing?'La modifica per '+summary+' richiederà una nuova conferma del locale.':'Vuoi disdire la prenotazione del '+summary+'?';
+  const fields=$('manageBookingFields');
+  fields.hidden=!editing;
+  fields.style.display=editing?'':'none';
+  const date=$('manageBookingDate'),time=$('manageBookingTime'),covers=$('manageBookingCovers');
+  date.min=bookingNowRome().slice(0,10);
+  date.value=booking.date;
+  time.replaceChildren(...Array.from($('bookTime').options,option=>option.cloneNode(true)));
+  time.value=booking.time;
+  covers.min=Math.max(1,Array.isArray(booking.groupMembers)?booking.groupMembers.length:0);
+  covers.value=booking.covers??booking.guests??1;
+  for(const input of [date,time,covers]){
+    input.disabled=!editing;
+    input.required=editing;
+  }
+  $('manageBookingSave').textContent=editing?'SALVA MODIFICA':'CONFERMA DISDETTA';
+  showBookingActionStatus('');
+  bookingDialog.showModal();
+});
+$('manageBookingBack').addEventListener('click',()=>bookingDialog.close());
+bookingDialog.addEventListener('cancel',e=>{if(bookingSaving)e.preventDefault()});
+bookingForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(!bookingAction||bookingSaving)return;
+  const {booking,action}=bookingAction;
+  const uid=auth.currentUser?.uid;
+  const editing=action==='edit';
+  const date=$('manageBookingDate').value,time=$('manageBookingTime').value,covers=Number($('manageBookingCovers').value);
   try{
-    const latest=await getDoc(doc(db,'orders',x.id));
-    if(!latest.exists()||!bookingEditable({id:x.id,...latest.data()}))throw Error('Prenotazione non più modificabile');
-    await updateDoc(doc(db,'orders',x.id),patch);
-    toast(action==='cancel'?'Prenotazione disdetta.':'Modifica inviata. In attesa di conferma.');
-  }catch(err){console.warn('Modifica prenotazione:',err);toast('Operazione non riuscita. Verificare i permessi o contattare Alberto.')}
-  finally{btn.disabled=false}
+    if(editing)bookingEditPatch(booking,date,time,covers);
+  }catch(error){showBookingActionStatus(error.message);return}
+  bookingSaving=true;
+  $('manageBookingSave').disabled=true;
+  $('manageBookingBack').disabled=true;
+  showBookingActionStatus('Salvataggio in corso…');
+  try{
+    const ref=doc(db,'orders',booking.id);
+    await runTransaction(db,async tx=>{
+      const snapshot=await tx.get(ref);
+      const latest=snapshot.exists()?{...snapshot.data(),id:snapshot.id}:null;
+      if(!bookingEditable(latest,uid))throw new Error('La prenotazione non è più modificabile.');
+      if(latest.date!==booking.date||latest.time!==booking.time||
+        Number(latest.covers??latest.guests??1)!==Number(booking.covers??booking.guests??1)){
+        throw new Error('La prenotazione è cambiata. Riaprila per vedere i dati aggiornati.');
+      }
+      tx.update(ref,editing?bookingEditPatch(latest,date,time,covers):{bookingStatus:'ANNULLATA',status:'ANNULLATA'});
+    });
+    bookingDialog.close();
+    toast(editing?'Modifica inviata. In attesa di conferma.':'Prenotazione disdetta.');
+  }catch(error){
+    console.warn('Aggiornamento prenotazione:',error);
+    showBookingActionStatus(error.code==='permission-denied'?'La prenotazione non può più essere aggiornata. Controlla lo stato nell’elenco o contatta Alberto.':error.code?'Aggiornamento non riuscito. Riprova.':error.message);
+  }finally{
+    bookingSaving=false;
+    $('manageBookingSave').disabled=false;
+    $('manageBookingBack').disabled=false;
+  }
 });
 
 function setBookingMode(mode){
@@ -1074,7 +1151,7 @@ function watchUser(uid){
   unsubs.forEach(f=>{try{f()}catch{}});unsubs=[];
   orders=[];bookings=[];
   const ownBookingsById=new Map(),sharedBookingsById=new Map();
-  const refreshBookings=()=>{bookings=[...new Map([...ownBookingsById,...sharedBookingsById]).values()].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));render();updateLunchMissionDisplay();};
+  const refreshBookings=()=>{bookings=[...new Map([...sharedBookingsById,...ownBookingsById]).values()].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));render();updateLunchMissionDisplay();};
   unsubs.push(onSnapshot(doc(db,'fidelityCustomers',customerCode()),s=>{if(s.exists()){const previousGroupCodes=groupCodes().join('|');profile={...profile,...s.data(),uid,code:customerCode()};render();if(groupCodes().join('|')!==previousGroupCodes)loadGroupMemberships()}},e=>console.warn('Profilo Fidelity non sincronizzato',e)));
   const ownQ=query(collection(db,'orders'),where('customerUid','==',uid));
   unsubs.push(onSnapshot(ownQ,s=>{
