@@ -1001,6 +1001,7 @@ function pointsMovementLabel(x){
  if(type==='wallet_purchase')return 'Pagamento con portafoglio';
  if(type==='wallet_topup')return 'Ricarica portafoglio';
  if(type==='reward_10_euro')return 'Buono premio da 10 €';
+ if(type==='lunch_mission')return pts===5?'Missione pranzo 3':pts===10?'Missione pranzo 5':'Missione pranzo';
  if(type==='manual_adjustment')return 'Correzione manuale'+(x.reason?' – '+x.reason:'');
  return x.reason||'Movimento punti';
 }
